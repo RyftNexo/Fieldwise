@@ -29,7 +29,7 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - Accept: notes folder and its mock handlers deleted; app still builds. Order: web (this) → api (D2-03) → contracts (D3-04)
 
 ### D1-04 · Advisor page on local preview data (pre-contract)
-- Status: Review
+- Status: Done
 - Depends on: —
 - Paths: apps/web/src/features/advisor/**, apps/web/src/features/home/**, apps/web/src/app/**, apps/web/src/index.css, apps/web/index.html
 - Accept: Landing page is the advisor: hero input, example prompts, Extract → Rules → Explain stepper with each step's JSON, 'what we understood' chips, grant cards (eligibility, €, reasons, status, link), plain-English summary, next steps, disclaimer; runs on clearly bannered local preview data until C-03 exists; loading, empty and error states; mobile-first; npm run verify green
@@ -59,7 +59,7 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - Accept: Mobile and projector check at 125% zoom, focus states, copy pass; slides: problem, Declan, demo, architecture (code decides, AI talks), honest limits, business (forester leads)
 
 ### D1-09 · Forester lead flow on local preview data (pre-contract)
-- Status: Review
+- Status: Done
 - Depends on: —
 - Paths: apps/web/src/features/advisor/**, apps/web/src/features/forester/**, apps/web/src/components/**
 - Accept: When the results include a forestry scheme, a 'Send to a registered forester' form (name, phone, consent) saves a lead and confirms it; /forester inbox lists leads newest first with place, farm chips, matched schemes with badges, € estimate and contact; validation, loading, empty and error states; preview banner; npm run verify green
@@ -78,3 +78,5 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - 12:38 D1-05 → In Progress
 - 12:51 D1-09 → In Progress
 - 12:56 D1-09 → Review
+- 12:58 D1-04 → Done
+- 12:58 D1-09 → Done
