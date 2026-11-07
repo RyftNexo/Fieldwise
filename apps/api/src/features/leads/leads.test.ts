@@ -24,7 +24,9 @@ describe('C-06 POST /api/leads', () => {
     const { data } = successBody(endpoints.createLead.response).parse(await res.json());
     expect(data.name).toBe(createLeadFixture.name);
     expect(data.matches.map((match) => match.schemeId)).toEqual(createLeadFixture.schemeIds);
-    expect(data.estimatedTotalEur).toBeGreaterThanOrEqual(0);
+    // Declan's NTAS figure is worked out by the rules engine: €13,488 grant plus 10 years of €4,490.
+    expect(data.matches[0]?.value?.totalEur).toBe(58_388);
+    expect(data.estimatedTotalEur).toBe(58_388);
   });
 
   it('rejects a lead without consent with VALIDATION_ERROR', async () => {
@@ -48,6 +50,17 @@ describe('C-06 POST /api/leads', () => {
 });
 
 describe('C-07 GET /api/leads', () => {
+  it('starts with the three demo leads, with matches worked out by the rules engine', async () => {
+    const res = await app.request(endpoints.listLeads.path);
+    const { data } = successBody(endpoints.listLeads.response).parse(await res.json());
+    const demoNames = ['Declan Murphy', 'Aoife Ryan', 'Mary Walsh'];
+    const demoLeads = data.filter((lead) => demoNames.includes(lead.name));
+    expect(demoLeads).toHaveLength(3);
+    const declan = demoLeads.find((lead) => lead.name === 'Declan Murphy');
+    expect(declan?.estimatedTotalEur).toBe(58_388);
+    for (const lead of demoLeads) expect(lead.matches.length).toBeGreaterThan(0);
+  });
+
   it('lists saved leads, newest first', async () => {
     const first = successBody(endpoints.createLead.response).parse(
       await (await postLead({ ...createLeadFixture, name: 'First lead' })).json(),

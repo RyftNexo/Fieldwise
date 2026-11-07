@@ -22,6 +22,12 @@ describe('C-05 GET /api/schemes', () => {
     expect(data.map((scheme) => scheme.id)).toEqual(schemeCatalogue.map((scheme) => scheme.id));
   });
 
+  it('serves exactly what the catalogue holds, read back from the seeded table', async () => {
+    const res = await app.request(endpoints.listSchemes.path);
+    const { data } = successBody(endpoints.listSchemes.response).parse(await res.json());
+    expect(data).toEqual(schemeCatalogue);
+  });
+
   it('lists NTAS, ANC, BISS and ACRES first, each with a check date and an official gov.ie link', () => {
     const verified = schemeCatalogue.slice(0, verifiedIds.length);
     expect(verified.map((scheme) => scheme.id)).toEqual(verifiedIds);
