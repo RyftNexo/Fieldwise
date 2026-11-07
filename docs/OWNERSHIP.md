@@ -17,7 +17,8 @@ Owner of this file: **dev3**. Changing ownership needs all three developers to a
 Kickoff confirmed **layer-based ownership**, as recorded in `docs/TASK_BOARD.md` and decision D-001.
 The existing map below already implements that decision: Keith owns web, Toby owns API/database, and
 Ilarion owns platform, contracts and integration. D3-02 confirms this map; it does not reassign any paths.
-The confirmation PR still needs all three developers' approval before D3-02 is Done.
+Confirmed in PR #7: Ilarion authored the confirmation, Keith approved it, and Toby merged it.
+The three developers have accepted the existing map; D3-02 is complete.
 
 The guard (`scripts/guard.mjs`) reads the block below. One rule per line: `<pattern> <owner>`.
 Patterns start at the repo root; `**` = anything, `*` = anything except `/`. **The last matching rule wins.**

@@ -14,11 +14,11 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 
 ### D3-02 · Apply the ownership mode chosen at kickoff
 
-- Status: Review
+- Status: Done
 - Depends on: D1-01
 - Paths: docs/OWNERSHIP.md
 - Accept: map matches the kickoff decision (layer or feature slices); all three approved the PR
-- Notes: the existing enforced map already matches the layer-based kickoff choice. Team names and decision reference are documented; awaiting all three developers' approval of the confirmation PR.
+- Notes: the enforced map matches the layer-based kickoff choice. Confirmed in merged PR #7: Ilarion authored the changes, Keith approved them, and Toby merged them. No ownership rules changed.
 
 ### D3-03 · Checkpoint 1 — walking skeleton on main
 
@@ -52,3 +52,4 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - 13:56 D3-02 → Review
 - 13:56 D3-03 → Blocked
 - 13:56 D3-04 → Blocked
+- 14:08 D3-02 → Done
