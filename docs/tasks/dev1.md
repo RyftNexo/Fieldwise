@@ -35,7 +35,7 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - Accept: Landing page is the advisor: hero input, example prompts, Extract → Rules → Explain stepper with each step's JSON, 'what we understood' chips, grant cards (eligibility, €, reasons, status, link), plain-English summary, next steps, disclaimer; runs on clearly bannered local preview data until C-03 exists; loading, empty and error states; mobile-first; npm run verify green
 
 ### D1-05 · Voice input (mic button, en-IE)
-- Status: Not Started
+- Status: In Progress
 - Depends on: —
 - Paths: apps/web/src/features/advisor/**
 - Accept: Mic button next to the input uses the browser's SpeechRecognition (en-IE, interim results fill the box live, auto-submits on a pause); hidden when unsupported; clear error if the mic is blocked; tested on the stage laptop in Chrome
@@ -69,3 +69,4 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - 11:48 D1-01 → In Progress
 - 11:48 D1-04 → In Progress
 - 12:14 D1-04 → Review
+- 12:38 D1-05 → In Progress

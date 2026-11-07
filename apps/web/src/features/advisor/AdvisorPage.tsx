@@ -45,7 +45,7 @@ export function AdvisorPage() {
     <div className="mx-auto max-w-3xl space-y-8">
       {isIdle ? <Hero /> : <h1 className="sr-only">{HERO_TITLE}</h1>}
 
-      <AskBox value={text} onChange={setText} onSubmit={() => ask(text)} busy={advisor.isRunning} />
+      <AskBox value={text} onChange={setText} onSubmit={ask} busy={advisor.isRunning} />
 
       {isIdle && (
         <>
