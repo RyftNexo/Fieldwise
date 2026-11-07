@@ -1,8 +1,8 @@
+import { endpoints } from '@app/shared';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
-import { z } from 'zod';
 import { env } from '../../env';
-import { AppError } from '../../lib/http';
+import { AppError, parseBody, reply } from '../../lib/http';
 import { callPageHtml } from './callPage';
 import {
   beginVoiceAdvice,
@@ -31,15 +31,12 @@ const openingPrompt = [
   'How many hectares, what you keep, and where you farm.',
 ].join(' ');
 
-const ringInput = z.object({ to: z.string().trim().min(1) });
-
 router.get('/api/voice/call', (c) => c.html(callPageHtml()));
 
-// Dials the mobile, then Twilio loads /api/voice/incoming when they answer.
-router.post('/api/voice/ring', async (c) => {
-  const parsed = ringInput.safeParse(await c.req.json().catch(() => null));
-  if (!parsed.success) throw new AppError('VALIDATION_ERROR', 'Send the phone number to ring.');
-  const to = toE164(parsed.data.to);
+// C-08. Dials the mobile, then Twilio loads /api/voice/incoming when they answer.
+router.post(endpoints.ringVoiceCall.path, async (c) => {
+  const input = await parseBody(c, endpoints.ringVoiceCall);
+  const to = toE164(input.to);
   if (!to) {
     throw new AppError(
       'VALIDATION_ERROR',
@@ -60,14 +57,15 @@ router.post('/api/voice/ring', async (c) => {
   recordRing(Date.now());
   const callSid = await placeOutboundCall(to);
   noteOutboundCall(callSid, to);
-  return c.json({ data: { callSid, to } }, 201);
+  return reply(c, endpoints.ringVoiceCall, { callSid, to }, 201);
 });
 
-// The browser polls this. The phone still hears the same result through TwiML.
-router.get('/api/voice/calls/:callSid', (c) => {
-  const call = voiceCallView(c.req.param('callSid'));
+// C-09. The browser polls this. The phone still hears the same result through TwiML.
+router.get(endpoints.getVoiceCall.path, (c) => {
+  const callSid = c.req.param('callSid');
+  const call = callSid ? voiceCallView(callSid) : undefined;
   if (!call) throw new AppError('NOT_FOUND', 'That call is not on this server.');
-  return c.json({ data: call });
+  return reply(c, endpoints.getVoiceCall, call);
 });
 
 router.post('/api/voice/incoming', async (c) => {

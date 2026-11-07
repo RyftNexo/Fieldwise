@@ -1,12 +1,10 @@
-import type { AdviceResponse } from '@app/shared';
+import type { AdviceResponse, VoiceCall } from '@app/shared';
 import { env } from '../../env';
 import { explainMatches } from '../advice/explain';
 import { extractProfile } from '../advice/extract';
 import { adviseFromText } from '../advice/pipeline';
 import { replayRecording } from '../advice/recordings';
 import { scriptFromAdvice, spokenFailure } from './script';
-
-export type VoiceCallState = 'ringing' | 'pending' | 'done' | 'failed';
 
 interface VoiceJob {
   to?: string;
@@ -24,16 +22,6 @@ interface RingingCall {
 }
 
 type TrackedCall = VoiceJob | RingingCall;
-
-export interface VoiceCallView {
-  callSid: string;
-  to?: string;
-  state: VoiceCallState;
-  transcript?: string;
-  script?: string;
-  failure?: string;
-  advice?: AdviceResponse;
-}
 
 const jobs = new Map<string, TrackedCall>();
 
@@ -56,19 +44,19 @@ export function voiceJob(callSid: string): VoiceJob | undefined {
   return job;
 }
 
-/** What the web page renders while the phone call is in progress. */
-export function voiceCallView(callSid: string): VoiceCallView | undefined {
+/** What the web page renders while the phone call is in progress. Absent fields stay off the payload. */
+export function voiceCallView(callSid: string): VoiceCall | undefined {
   const job = jobs.get(callSid);
   if (!job) return undefined;
   if (job.state === 'ringing') return { callSid, to: job.to, state: 'ringing' };
   return {
     callSid,
-    to: job.to,
     state: job.state,
     transcript: job.text,
-    script: job.script,
-    failure: job.failure,
-    advice: job.advice,
+    ...(job.to !== undefined ? { to: job.to } : {}),
+    ...(job.script !== undefined ? { script: job.script } : {}),
+    ...(job.failure !== undefined ? { failure: job.failure } : {}),
+    ...(job.advice !== undefined ? { advice: job.advice } : {}),
   };
 }
 

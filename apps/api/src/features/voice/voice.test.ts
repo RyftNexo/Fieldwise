@@ -1,3 +1,4 @@
+import { ApiErrorBody, buildPath, endpoints, successBody } from '@app/shared';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createApp } from '../../app';
 import { ensureDatabase } from '../../db/client';
@@ -134,7 +135,7 @@ describe('POST /api/voice/ring', () => {
     const fetchImpl = twilioFetch();
     vi.stubGlobal('fetch', fetchImpl);
 
-    const res = await app.request('/api/voice/ring', {
+    const res = await app.request(endpoints.ringVoiceCall.path, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ to: '+353831111111' }),
@@ -152,17 +153,20 @@ describe('POST /api/voice/ring', () => {
     vi.stubGlobal('fetch', fetchImpl);
     const body = JSON.stringify({ to: '087 123 4567' });
 
-    const first = await app.request('/api/voice/ring', {
+    const first = await app.request(endpoints.ringVoiceCall.path, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body,
     });
-    const second = await app.request('/api/voice/ring', {
+    const second = await app.request(endpoints.ringVoiceCall.path, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body,
     });
 
+    const placed = successBody(endpoints.ringVoiceCall.response).parse(await first.json());
+    expect(placed.data.callSid).toBe('CA-outbound');
+    expect(placed.data.to).toBe('+353871234567');
     expect(first.status).toBe(201);
     expect(second.status).toBe(429);
     expect(fetchImpl).toHaveBeenCalledTimes(1);
@@ -172,11 +176,11 @@ describe('POST /api/voice/ring', () => {
 describe('GET /api/voice/calls/:callSid', () => {
   it('stays on ringing until the caller has described the farm', async () => {
     noteOutboundCall('CA-ring', '+353871234567');
-    const res = await app.request('/api/voice/calls/CA-ring');
+    const res = await app.request(buildPath(endpoints.getVoiceCall.path, { callSid: 'CA-ring' }));
     expect(res.status).toBe(200);
-    const body = (await res.json()) as { data: { state: string; to: string } };
-    expect(body.data.state).toBe('ringing');
-    expect(body.data.to).toBe('+353871234567');
+    const { data } = successBody(endpoints.getVoiceCall.response).parse(await res.json());
+    expect(data.state).toBe('ringing');
+    expect(data.to).toBe('+353871234567');
   });
 
   it('returns the advice once the phone line has a result', async () => {
@@ -190,19 +194,20 @@ describe('GET /api/voice/calls/:callSid', () => {
     };
     await postVoice(path, params, signed(path, params));
 
-    const res = await app.request('/api/voice/calls/CA-screen');
+    const res = await app.request(buildPath(endpoints.getVoiceCall.path, { callSid: 'CA-screen' }));
     expect(res.status).toBe(200);
-    const body = (await res.json()) as {
-      data: { state: string; to: string; advice: { summary: string } };
-    };
-    expect(body.data.state).toBe('done');
-    expect(body.data.to).toBe('+353871234567');
-    expect(body.data.advice.summary).toContain('58,388');
+    const { data } = successBody(endpoints.getVoiceCall.response).parse(await res.json());
+    expect(data.state).toBe('done');
+    expect(data.to).toBe('+353871234567');
+    expect(data.advice?.summary).toContain('58,388');
   });
 
   it('returns 404 for a call this server does not know', async () => {
-    const res = await app.request('/api/voice/calls/CA-missing');
+    const res = await app.request(
+      buildPath(endpoints.getVoiceCall.path, { callSid: 'CA-missing' }),
+    );
     expect(res.status).toBe(404);
+    expect(ApiErrorBody.parse(await res.json()).error.code).toBe('NOT_FOUND');
   });
 });
 
