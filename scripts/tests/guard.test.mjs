@@ -54,7 +54,7 @@ describe('globToRegExp', () => {
 
 describe('ownership map', () => {
   const sample =
-    '```ownership\n** dev3\napps/web/** dev1 # comment\napps/api/** dev2\npackage-lock.json any\n```';
+    '```ownership\n** dev3\napps/web/** dev1 # comment\napps/api/** dev2\ndocs/tasks/dev1.md dev1\npackage-lock.json any\n```';
 
   test('last matching rule wins', () => {
     const rules = parseOwnershipMap(sample);
@@ -73,19 +73,19 @@ describe('ownership map', () => {
   test('the real docs/OWNERSHIP.md assigns the key paths', () => {
     const rules = parseOwnershipMap(readFileSync(join(ROOT, 'docs/OWNERSHIP.md'), 'utf8'));
     const expected = {
-      'apps/web/src/features/home/HomePage.tsx': 'dev1',
-      'apps/web/package.json': 'dev1',
-      'apps/api/src/features/notes/schema.ts': 'dev2',
-      'apps/api/.env.example': 'dev2',
-      'packages/shared/src/contracts/endpoints.ts': 'dev3',
-      'scripts/guard.mjs': 'dev3',
-      '.claude/settings.json': 'dev3',
-      '.claude/rules/web.md': 'dev1',
-      '.claude/rules/api.md': 'dev2',
-      'AGENTS.md': 'dev3',
-      'docs/OWNERSHIP.md': 'dev3',
-      'docs/TASK_BOARD.md': 'dev1',
-      'docs/tasks/dev2.md': 'dev2',
+      'apps/web/src/features/home/HomePage.tsx': 'any',
+      'apps/web/package.json': 'any',
+      'apps/api/src/features/notes/schema.ts': 'any',
+      'apps/api/.env.example': 'any',
+      'packages/shared/src/contracts/endpoints.ts': 'any',
+      'scripts/guard.mjs': 'any',
+      '.claude/settings.json': 'any',
+      '.claude/rules/web.md': 'any',
+      '.claude/rules/api.md': 'any',
+      'AGENTS.md': 'any',
+      'docs/OWNERSHIP.md': 'any',
+      'docs/TASK_BOARD.md': 'any',
+      'docs/tasks/dev2.md': 'any',
       'package-lock.json': 'any',
       '.scratch/notes.md': 'any',
     };
@@ -131,7 +131,11 @@ function makeRepo() {
   mkdirSync(join(repo, 'docs'), { recursive: true });
   cpSync(join(ROOT, 'scripts'), join(repo, 'scripts'), { recursive: true });
   cpSync(join(ROOT, '.githooks'), join(repo, '.githooks'), { recursive: true });
-  cpSync(join(ROOT, 'docs/OWNERSHIP.md'), join(repo, 'docs/OWNERSHIP.md'));
+  // Exercise exclusive-map enforcement independently from the active shared policy.
+  writeFileSync(
+    join(repo, 'docs/OWNERSHIP.md'),
+    '```ownership\n** dev3\napps/web/** dev1\napps/api/** dev2\ndocs/tasks/dev1.md dev1\npackage-lock.json any\n.scratch/** any\n```',
+  );
   cpSync(join(ROOT, 'docs/tasks'), join(repo, 'docs/tasks'), { recursive: true });
   writeFileSync(
     join(repo, '.gitignore'),

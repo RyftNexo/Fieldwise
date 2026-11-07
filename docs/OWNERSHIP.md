@@ -1,79 +1,21 @@
-# Ownership
+# Final-stage shared ownership
 
-Every path in this repo has exactly one owner. Only the owner (or their agent) edits it.
-Owner of this file: **dev3**. Changing ownership needs all three developers to agree (see below).
+The project lead authorized all three developers to work across the project on 2026-11-07. This supersedes the earlier layer-exclusive map. The guard already supports the shared owner any; its code and secret/branch protections are unchanged.
 
-## Team
-
-| ID       | Who      | Tool        | Role                                             | Owns                                                                                                                                                                                                                              |
-| -------- | -------- | ----------- | ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **dev1** | Keith    | Claude Code | Experience & product lead · deputy merge captain | `apps/web/**`, `.claude/rules/web.md`, `docs/{ARCHITECTURE,TASK_BOARD,DECISIONS,DEMO}.md`, `docs/tasks/dev1.md`                                                                                                                   |
-| **dev2** | Toby     | Claude Code | Server lead                                      | `apps/api/**` — routes, business logic, auth, validation, DB schema, seeds, external/LLM calls — `.claude/rules/api.md`, `docs/tasks/dev2.md`                                                                                     |
-| **dev3** | Ilarion  | Codex       | Platform & integration lead · **merge captain**  | **Default owner of everything else**: `packages/shared/**` (contracts), root config, `scripts/`, `.github/`, `.githooks/`, `.claude/` + `.agents/` config, `tests/`, `AGENTS.md`, `CLAUDE.md`, process docs, `docs/tasks/dev3.md` |
-| any      | —        | —           | —                                                | `package-lock.json` (generated), `.scratch/**` (gitignored scratch space)                                                                                                                                                         |
-
-## The map (enforced)
-
-Kickoff confirmed **layer-based ownership**, as recorded in `docs/TASK_BOARD.md` and decision D-001.
-The existing map below already implements that decision: Keith owns web, Toby owns API/database, and
-Ilarion owns platform, contracts and integration. D3-02 confirms this map; it does not reassign any paths.
-Confirmed in PR #7: Ilarion authored the confirmation, Keith approved it, and Toby merged it.
-The three developers have accepted the existing map; D3-02 is complete.
-
-The guard (`scripts/guard.mjs`) reads the block below. One rule per line: `<pattern> <owner>`.
-Patterns start at the repo root; `**` = anything, `*` = anything except `/`. **The last matching rule wins.**
+## Enforced map
 
 ```ownership
-# pattern                         owner
-**                                dev3    # default owner: platform & integration
-apps/web/**                       dev1
-apps/api/**                       dev2
-.claude/rules/web.md              dev1
-.claude/rules/api.md              dev2
-docs/ARCHITECTURE.md              dev1
-docs/TASK_BOARD.md                dev1
-docs/DECISIONS.md                 dev1
-docs/DEMO.md                      dev1
-docs/tasks/dev1.md                dev1
-docs/tasks/dev2.md                dev2
-docs/tasks/dev3.md                dev3
-package-lock.json                 any     # generated: regenerate on conflict, never hand-merge
-.scratch/**                       any     # gitignored scratch space for agents
+** any
 ```
 
-Check a path: `npm run guard -- path <file>` · print the map: `npm run guard -- map`.
+This applies to web, API, shared contracts, tests, scripts, configuration and documentation. It takes effect for all developers after this PR merges and they sync main. Push/CI checks use main's map, so synchronize before submitting cross-area work.
 
-## How it is enforced
+## Coordination leads
 
-| When   | Check                                                                                                                      | Covers                          |
-| ------ | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
-| Edit   | Claude Code `PreToolUse` hook blocks Edit/Write outside your paths                                                         | Claude Code (dev1, dev2)        |
-| Commit | `.githooks/pre-commit`: staged files vs your role, branch must be `<role>/*`, no commits on `main`, no `.env`/keys/secrets | everyone, any tool              |
-| Push   | `.githooks/pre-push`: whole branch vs `origin/main`, no pushes to `main` or other people's branches                        | everyone                        |
-| PR     | CI `verify` job: same ownership check by branch prefix (+ format, lint, typecheck, tests, build, smoke)                    | everything, incl. `--no-verify` |
+- Keith / dev1: web, UX and product context.
+- Toby / dev2: API, rules, data and voice context.
+- Ilarion / dev3: contracts, platform and integration; merge captain.
 
-Your role comes from `git config hackathon.role` (set once by `node scripts/setup-dev.mjs <role>`; shared by all
-worktrees of that clone). CI derives it from the PR branch prefix. Push and CI checks use **`origin/main`'s copy
-of this map**, so nobody can grant themselves paths inside their own PR.
+These are review contacts, not exclusive editors. Keep your own branch, role and task IDs. Avoid concurrent edits to the same files; record scope in your own task file and coordinate overlaps before writing. Existing uncommitted changes always belong to their author.
 
-## When you need a change in someone else's files
-
-1. **The owner makes the change.** Add a request under "Requests to others" in _your_ task file and tell them:
-   `- REQ dev1→dev2 (open): add GET /api/stats (C-07) — needed by D1-05`
-2. Keep going with a mock or stub inside your own paths.
-3. Exception (rare, urgent, tiny): the owner reviews the PR and adds the GitHub label **`ownership-approved`**.
-   Agents never use `--no-verify`, never edit hook/guard files, and never set `HACKATHON_GUARD=off`.
-
-## Changing ownership (e.g. switching to feature slices at kickoff)
-
-dev3 edits the block above in a small PR that all three approve; it takes effect for everyone after merge
-(`npm run sync`). Feature-slice example — each developer owns a module end-to-end:
-
-```text
-apps/web/src/features/booking/**   dev1      apps/api/src/features/booking/**   dev1
-apps/web/src/features/admin/**     dev2      apps/api/src/features/admin/**     dev2
-apps/web/src/features/insights/**  dev3      apps/api/src/features/insights/**  dev3
-(app shells stay with dev1 / dev2; contracts stay with dev3)
-```
-
-Features auto-register in both apps, so a new module never requires editing a shared router or schema file.
+Follow AGENTS.md and docs/TEAM_POLICY.md for contract compatibility, verification and review. Do not disable hooks, secret checks or CI. Permission to edit governance files is not permission to remove their safeguards.
