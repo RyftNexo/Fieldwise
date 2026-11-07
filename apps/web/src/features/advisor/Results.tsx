@@ -6,10 +6,8 @@ import { call } from '@/api/client';
 import { Button } from '@/components/ui/Button';
 import { cardClasses } from '@/components/ui/Card';
 import { HillsArt } from '@/components/ui/HillsArt';
-import { ForesterCta } from './ForesterCta';
 import { formatEuro } from './format';
 import { GrantCard } from './GrantCard';
-import { forestryMatches } from './leads';
 import { ProfileChips } from './ProfileChips';
 import { RawDataDrawer } from './RawDataDrawer';
 import { summariseMatches } from './summary';
@@ -102,8 +100,6 @@ export function Results({ advice, headingRef, onStartAgain }: ResultsProps) {
       <RawDataDrawer />
 
       {currentAdvice.nextSteps.length > 0 && <NextSteps steps={currentAdvice.nextSteps} />}
-
-      {forestryMatches(currentAdvice.matches).length > 0 && <ForesterCta advice={currentAdvice} />}
 
       {currentAdvice.disclaimers.length > 0 && (
         <ul className="space-y-1.5 text-sm text-soil-600">

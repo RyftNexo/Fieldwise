@@ -12,10 +12,10 @@ they likely qualify for, each with a € estimate, the rule that fired, the dead
   just to find out whether they qualify.
 - **Users:** farmers who aren't technical, often on a phone. Persona: Declan, 55, farms 40 ha of suckler beef in West
   Cork; 3 ha beside a river are too wet to graze.
-- **Demo path:** describe the farm → watch Extract → Rules → Explain → check "what we understood" → grant cards with €
-  and reasons → next steps → send to a registered forester. Detail in DEMO.md.
+- **Demo path:** answer a phone call (or type as a fallback) → watch Extract → Rules → Explain → check "what we
+  understood" → grant cards with € and reasons → next steps → inspect the source data. Detail in DEMO.md.
 - **Out of scope:** DAFM login or herd-number checks, land-parcel (LPIS) maps, nitrates or soil compliance, user
-  accounts, live scraping of gov.ie, email alerts, a phone-call version.
+  accounts, live scraping of gov.ie and email alerts.
 - **Pitch line:** "We don't trust the AI to make grant decisions. Code does the matching and the maths; the LLM only
   listens and talks."
 
@@ -45,6 +45,9 @@ preview data (D1-04, decision D-018).
 | C-05 | GET    | `/api/schemes`         | —                 | `Scheme[]`                             |
 | C-06 | POST   | `/api/leads`           | `CreateLeadInput` | `Lead` (201)                           |
 | C-07 | GET    | `/api/leads`           | —                 | `Lead[]`, newest first                 |
+
+C-06 and C-07 remain implemented for contract compatibility, but the website no longer exposes the lead flow
+(D-023).
 
 ```text
 FarmProfile     hectares: number · enterprise: suckler|beef|dairy|sheep|tillage|mixed|other

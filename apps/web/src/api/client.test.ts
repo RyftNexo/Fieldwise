@@ -1,13 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import {
-  adviceFixtures,
-  createLeadFixture,
-  endpoints,
-  ringVoiceInputFixture,
-  schemeFixtures,
-} from '@app/shared';
+import { adviceFixtures, endpoints, ringVoiceInputFixture, schemeFixtures } from '@app/shared';
 import { describe, expect, it } from 'vitest';
 import { mockHandlers } from '@/mocks/handlers';
 
@@ -62,16 +56,6 @@ describe('mock handlers', () => {
 
     const schemes = await mockHandlers[endpoints.listSchemes.id]?.(empty);
     expect(endpoints.listSchemes.response.parse(schemes)).toHaveLength(schemeFixtures.length);
-
-    const lead = endpoints.createLead.response.parse(
-      await mockHandlers[endpoints.createLead.id]?.({ ...empty, body: createLeadFixture }),
-    );
-    expect(lead.matches.map((match) => match.schemeId)).toEqual(['ntas']);
-
-    const leads = endpoints.listLeads.response.parse(
-      await mockHandlers[endpoints.listLeads.id]?.(empty),
-    );
-    expect(leads[0]?.id).toBe(lead.id);
   });
 
   it('play a phone call through ringing, talking and the advice', async () => {
@@ -98,5 +82,37 @@ describe('mock handlers', () => {
     const finished = await poll();
     expect(finished.callSid).toBe(placed.callSid);
     expect(finished.advice).toEqual(adviceFixtures.declan);
+  });
+
+  it('refuse a number that is not an Irish mobile, fail a call ending in 9 and 404 an unknown call', () => {
+    const empty = { params: {}, query: {}, body: undefined };
+    const ring = mockHandlers[endpoints.ringVoiceCall.id];
+    const getCall = mockHandlers[endpoints.getVoiceCall.id];
+    const errorFrom = (run: () => unknown) => {
+      try {
+        run();
+      } catch (error) {
+        return error;
+      }
+      return undefined;
+    };
+
+    expect(errorFrom(() => ring?.({ ...empty, body: { to: '01 234 5678' } }))).toMatchObject({
+      code: 'FORBIDDEN',
+      status: 403,
+    });
+    expect(
+      errorFrom(() => getCall?.({ ...empty, params: { callSid: 'CA-unknown' } })),
+    ).toMatchObject({ code: 'NOT_FOUND', status: 404 });
+
+    const placed = endpoints.ringVoiceCall.response.parse(
+      ring?.({ ...empty, body: { to: '+353 87 000 0009' } }),
+    );
+    const states = [];
+    for (let i = 0; i < 4; i += 1) {
+      const polled = getCall?.({ ...empty, params: { callSid: placed.callSid } });
+      states.push(endpoints.getVoiceCall.response.parse(polled).state);
+    }
+    expect(states).toEqual(['ringing', 'ringing', 'failed', 'failed']);
   });
 });

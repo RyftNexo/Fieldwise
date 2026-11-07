@@ -40,17 +40,14 @@ Start 11:25 · hard deadline 19:00.
 To take one, the owner of its paths adds it to their own task file and it's removed here.
 
 - dev3: fresh-clone `npm run demo` rehearsal ×2 and the backup video
-- anyone: ring 2–3 Cork registered foresters before 15:00 (their fees, how many enquiries never become applications,
-  would pre-qualified leads be worth paying for); one real quote goes on a slide
 
 ## Cut list (dropped first if time runs short)
 
 1. Hosted URL
-2. Forester inbox page (keep the lead button)
-3. Third persona
-4. TAMS schemes
-5. Chip editing
-6. Raw-data drawer
+2. Third persona
+3. TAMS schemes
+4. Chip editing
+5. Raw-data drawer
 
 **Never cut:** extract → rules → explain, the € calculation, the fixture fallback, the stepper.
 

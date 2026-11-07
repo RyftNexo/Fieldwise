@@ -1,5 +1,4 @@
 import {
-  ArrowRight,
   Calculator,
   Eye,
   type LucideIcon,
@@ -7,13 +6,9 @@ import {
   Scale,
   ScanText,
   ShieldCheck,
-  Trees,
 } from 'lucide-react';
-import { Link } from 'react-router';
 import { Pill } from '@/components/ui/Badge';
-import { buttonClasses } from '@/components/ui/Button';
 import { cardClasses } from '@/components/ui/Card';
-import { HillsArt } from '@/components/ui/HillsArt';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 
 const STEPS: { title: string; body: string; Icon: LucideIcon; ai: boolean }[] = [
@@ -50,7 +45,7 @@ const PROMISES: { title: string; body: string; Icon: LucideIcon }[] = [
   },
   {
     title: 'Honest about its limits',
-    body: 'We can’t check herd numbers, land parcels, nitrates or soil tests, so some answers say “likely” or “check first” and point you to Teagasc or a registered forester.',
+    body: 'We can’t check herd numbers, land parcels, nitrates or soil tests, so some answers say “likely” or “check first” and point you to an official adviser.',
     Icon: Eye,
   },
 ];
@@ -105,42 +100,6 @@ export function Landing() {
               </li>
             ))}
           </ul>
-        </div>
-      </section>
-
-      <section aria-labelledby="forester-pitch-heading" className="px-4 sm:px-6">
-        <div
-          className={cardClasses(
-            'deep',
-            'relative mx-auto max-w-6xl overflow-hidden px-6 py-10 sm:px-12 sm:py-14',
-          )}
-        >
-          <HillsArt className="pointer-events-none absolute inset-x-0 bottom-0 h-28 w-full text-brand-300" />
-          <div className="relative grid items-center gap-8 md:grid-cols-[1fr_auto]">
-            <div className="max-w-xl">
-              <p className="flex items-center gap-2 text-sm font-bold tracking-wider text-harvest-300 uppercase">
-                <Trees className="size-4" aria-hidden />
-                For registered foresters
-              </p>
-              <h2
-                id="forester-pitch-heading"
-                className="mt-3 text-3xl font-semibold tracking-tight text-cream-50 sm:text-4xl"
-              >
-                Pre-qualified leads, free for farmers
-              </h2>
-              <p className="mt-3 text-lg text-cream-100/85">
-                Farmers with land that suits native woodland can send their results to a forester in
-                their area. Foresters pay per lead, so every call is to someone likely to qualify.
-              </p>
-            </div>
-            <Link
-              to="/forester"
-              className={buttonClasses({ variant: 'accent', size: 'lg', className: 'self-start' })}
-            >
-              Open the forester inbox
-              <ArrowRight className="size-5" aria-hidden />
-            </Link>
-          </div>
         </div>
       </section>
     </>
