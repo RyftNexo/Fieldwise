@@ -40,7 +40,7 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - Accept: NTAS, ANC, BISS, ACRES checked against a FarmProfile with euro maths and plain-English reasons; table tests per scheme; C-04 returns computed matches; unverifiable conditions return likely/check
 
 ### D2-06 · Gemini extract and explain behind C-03, with recorded fixtures
-- Status: In Progress
+- Status: Review
 - Depends on: —
 - Paths: apps/api/src/features/advice/**, apps/api/src/services/**
 - Accept: C-03 extracts a FarmProfile via Gemini, runs rules, explains in at most 120 words; DEMO_MODE=fixtures replays recordings for Declan, Aoife and Mary; timeout and UPSTREAM_ERROR handled; key stays server-side
@@ -58,3 +58,4 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - 13:29 D2-05 → In Progress
 - 13:32 D2-05 → Review
 - 13:33 D2-06 → In Progress
+- 13:54 D2-06 → Review
