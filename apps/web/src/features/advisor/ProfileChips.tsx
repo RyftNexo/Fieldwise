@@ -1,11 +1,16 @@
 import type { FarmProfile } from '@app/shared';
-import { LoaderCircle, Pencil, X } from 'lucide-react';
+import { Check, CircleQuestionMark, Pencil, X } from 'lucide-react';
 import { type FormEvent, type ReactNode, useState } from 'react';
+import { Button } from '@/components/ui/Button';
+import { cardClasses } from '@/components/ui/Card';
 import { cn } from '@/lib/utils';
 import { draftFromProfile, type ProfileDraft, profileFromDraft } from './profileEdit';
 import { profileToChips } from './summary';
 
-/** "What we understood": the extracted profile as chips, with dashed chips for what's missing. */
+/**
+ * "What we understood": the extracted profile as tags, with dashed tags for what's missing. Any tag opens the
+ * editor; saving re-runs the scheme rules through C-04 without calling the AI.
+ */
 export function ProfileChips({
   profile,
   onSave,
@@ -50,22 +55,19 @@ export function ProfileChips({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2
           id="understood-heading"
-          className="text-sm font-semibold tracking-wide text-stone-500 uppercase"
+          className="font-sans text-sm font-bold tracking-wider text-brand-600 uppercase"
         >
           What we understood
         </h2>
         {!editing && (
-          <button
-            type="button"
-            onClick={startEditing}
-            className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-semibold text-brand-700 hover:bg-brand-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
-          >
-            <Pencil className="size-3.5" aria-hidden />
+          <Button variant="ghost" onClick={startEditing} className="min-h-10 px-3">
+            <Pencil className="size-4" aria-hidden />
             Edit details
-          </button>
+          </Button>
         )}
       </div>
-      <ul className="mt-2 flex flex-wrap gap-2">
+
+      <ul className="mt-3 flex flex-wrap gap-2">
         {chips.map((chip) => (
           <li key={chip.key}>
             <button
@@ -73,54 +75,57 @@ export function ProfileChips({
               onClick={startEditing}
               aria-label={`Edit ${chip.label}`}
               className={cn(
-                'rounded-full border px-3 py-1 text-sm transition hover:border-brand-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600',
+                'focus-ring inline-flex min-h-10 cursor-pointer items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[0.95rem] transition duration-200',
                 chip.missing
-                  ? 'border-dashed border-stone-300 bg-white text-stone-500'
-                  : 'border-brand-200 bg-brand-50 font-medium text-brand-800',
+                  ? 'border border-dashed border-soil-300 text-soil-600 hover:border-brand-400 hover:text-brand-800'
+                  : 'bg-white font-semibold text-brand-900 shadow-card ring-1 ring-brand-100 hover:ring-brand-300',
               )}
             >
+              {chip.missing ? (
+                <CircleQuestionMark className="size-4 text-soil-400" aria-hidden />
+              ) : (
+                <Check className="size-4 text-brand-600" aria-hidden />
+              )}
               {chip.missing && <span className="sr-only">You didn't say: </span>}
               {chip.label}
             </button>
           </li>
         ))}
       </ul>
+
       {!editing && (
-        <p className="mt-2 text-sm text-stone-500">
-          Something wrong? Select any chip to correct it and re-run the rules without AI.
+        <p className="mt-3 text-sm text-soil-600">
+          Something wrong? Select any tag to correct it. The rules re-run without the AI.
         </p>
       )}
 
       {saved && !editing && (
-        <p aria-live="polite" className="mt-2 text-sm font-medium text-brand-700">
+        <p aria-live="polite" className="mt-2 text-sm font-semibold text-brand-700">
           Farm details and grant figures updated.
         </p>
       )}
 
       {editing && (
-        <form
-          onSubmit={submit}
-          className="mt-4 rounded-2xl border border-brand-200 bg-brand-50/60 p-4"
-        >
+        <form onSubmit={submit} className={cardClasses('tinted', 'mt-4 p-5 sm:p-6')}>
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h3 className="font-semibold text-stone-900">Correct the farm details</h3>
-              <p className="mt-1 text-sm text-stone-600">
-                Saving re-runs the scheme rules only. It does not call the AI.
+              <h3 className="text-lg font-semibold text-brand-900">Correct the farm details</h3>
+              <p className="mt-1 text-sm text-soil-600">
+                Saving re-runs the scheme rules only. It doesn't call the AI.
               </p>
             </div>
             <button
               type="button"
               onClick={() => setEditing(false)}
               aria-label="Close farm details editor"
-              className="rounded-lg p-1.5 text-stone-500 hover:bg-white hover:text-stone-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
+              className="focus-ring grid size-11 shrink-0 cursor-pointer place-items-center rounded-control text-soil-500 transition hover:bg-white hover:text-soil-800"
             >
               <X className="size-5" aria-hidden />
             </button>
           </div>
 
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <Field label="Farm size (hectares)" htmlFor="profile-hectares">
+          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            <LabelledControl label="Farm size (hectares)" htmlFor="profile-hectares">
               <input
                 id="profile-hectares"
                 type="number"
@@ -131,8 +136,8 @@ export function ProfileChips({
                 onChange={(event) => update('hectares', event.target.value)}
                 className={inputClass}
               />
-            </Field>
-            <Field label="Farm type" htmlFor="profile-enterprise">
+            </LabelledControl>
+            <LabelledControl label="Farm type" htmlFor="profile-enterprise">
               <select
                 id="profile-enterprise"
                 value={draft.enterprise}
@@ -149,8 +154,8 @@ export function ProfileChips({
                 <option value="mixed">Mixed farming</option>
                 <option value="other">Other</option>
               </select>
-            </Field>
-            <Field label="County" htmlFor="profile-county">
+            </LabelledControl>
+            <LabelledControl label="County" htmlFor="profile-county">
               <input
                 id="profile-county"
                 value={draft.county}
@@ -158,8 +163,8 @@ export function ProfileChips({
                 className={inputClass}
                 autoComplete="address-level1"
               />
-            </Field>
-            <Field label="Area or region" htmlFor="profile-region">
+            </LabelledControl>
+            <LabelledControl label="Area or region" htmlFor="profile-region">
               <input
                 id="profile-region"
                 value={draft.region}
@@ -167,8 +172,8 @@ export function ProfileChips({
                 className={inputClass}
                 placeholder="e.g. West Cork"
               />
-            </Field>
-            <Field label="Your age" htmlFor="profile-age">
+            </LabelledControl>
+            <LabelledControl label="Your age" htmlFor="profile-age">
               <input
                 id="profile-age"
                 type="number"
@@ -178,8 +183,8 @@ export function ProfileChips({
                 onChange={(event) => update('age', event.target.value)}
                 className={inputClass}
               />
-            </Field>
-            <Field label="Marginal land (hectares)" htmlFor="profile-marginal-hectares">
+            </LabelledControl>
+            <LabelledControl label="Marginal land (hectares)" htmlFor="profile-marginal-hectares">
               <input
                 id="profile-marginal-hectares"
                 type="number"
@@ -189,8 +194,8 @@ export function ProfileChips({
                 onChange={(event) => update('marginalHectares', event.target.value)}
                 className={inputClass}
               />
-            </Field>
-            <Field label="Planned investment" htmlFor="profile-investment">
+            </LabelledControl>
+            <LabelledControl label="Planned investment" htmlFor="profile-investment">
               <select
                 id="profile-investment"
                 value={draft.plannedInvestment}
@@ -209,8 +214,8 @@ export function ProfileChips({
                 <option value="slurry">Slurry storage</option>
                 <option value="machinery">Machinery</option>
               </select>
-            </Field>
-            <Field label="Land beside a river or stream" htmlFor="profile-watercourse">
+            </LabelledControl>
+            <LabelledControl label="Land beside a river or stream" htmlFor="profile-watercourse">
               <select
                 id="profile-watercourse"
                 value={draft.nearWatercourse}
@@ -223,8 +228,8 @@ export function ProfileChips({
                 <option value="yes">Yes</option>
                 <option value="no">No</option>
               </select>
-            </Field>
-            <Field label="Active farmer / claims BISS" htmlFor="profile-active-farmer">
+            </LabelledControl>
+            <LabelledControl label="Active farmer / claims BISS" htmlFor="profile-active-farmer">
               <select
                 id="profile-active-farmer"
                 value={draft.activeFarmer}
@@ -237,32 +242,22 @@ export function ProfileChips({
                 <option value="yes">Yes</option>
                 <option value="no">No</option>
               </select>
-            </Field>
+            </LabelledControl>
           </div>
 
           {error && (
-            <p role="alert" className="mt-3 text-sm font-medium text-red-700">
+            <p role="alert" className="mt-4 text-sm font-medium text-red-700">
               {error}
             </p>
           )}
 
-          <div className="mt-4 flex flex-wrap gap-2">
-            <button
-              type="submit"
-              disabled={saving}
-              className="inline-flex items-center gap-2 rounded-xl bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-700 disabled:cursor-wait disabled:opacity-70"
-            >
-              {saving && <LoaderCircle className="size-4 motion-safe:animate-spin" aria-hidden />}
+          <div className="mt-5 flex flex-wrap gap-2">
+            <Button type="submit" loading={saving}>
               {saving ? 'Rechecking the rules…' : 'Save and recalculate'}
-            </button>
-            <button
-              type="button"
-              onClick={() => setEditing(false)}
-              disabled={saving}
-              className="rounded-xl border border-stone-300 bg-white px-4 py-2.5 text-sm font-semibold text-stone-700 hover:bg-stone-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 disabled:opacity-60"
-            >
+            </Button>
+            <Button variant="secondary" onClick={() => setEditing(false)} disabled={saving}>
               Cancel
-            </button>
+            </Button>
           </div>
         </form>
       )}
@@ -271,9 +266,9 @@ export function ProfileChips({
 }
 
 const inputClass =
-  'mt-1.5 w-full rounded-xl border border-stone-300 bg-white px-3 py-2.5 text-stone-900 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20';
+  'mt-1.5 block min-h-12 w-full rounded-control border border-soil-200 bg-white px-3.5 text-base text-soil-900 outline-none transition duration-200 placeholder:text-soil-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-200';
 
-function Field({
+function LabelledControl({
   label,
   htmlFor,
   children,
@@ -283,7 +278,7 @@ function Field({
   children: ReactNode;
 }) {
   return (
-    <label htmlFor={htmlFor} className="text-sm font-medium text-stone-700">
+    <label htmlFor={htmlFor} className="text-sm font-semibold text-soil-800">
       {label}
       {children}
     </label>

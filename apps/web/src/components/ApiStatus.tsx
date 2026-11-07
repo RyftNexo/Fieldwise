@@ -24,17 +24,17 @@ export function ApiStatus() {
   return (
     <span
       title={health.error?.message ?? `db: ${health.data?.db ?? '…'}`}
-      className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-2 py-1.5 text-xs font-medium text-neutral-600 sm:px-3 sm:py-1"
+      className="inline-flex items-center gap-2 rounded-full bg-white/80 px-2 py-1.5 text-xs font-semibold text-soil-600 ring-1 ring-soil-100 sm:px-3 sm:py-1"
     >
       <span
         className={cn(
           'size-2 rounded-full',
           health.isPending
-            ? 'bg-neutral-300'
+            ? 'bg-soil-300'
             : ok
               ? API_MODE === 'mock'
-                ? 'bg-amber-400'
-                : 'bg-emerald-500'
+                ? 'bg-harvest-400'
+                : 'bg-brand-500'
               : 'bg-red-500',
         )}
       />

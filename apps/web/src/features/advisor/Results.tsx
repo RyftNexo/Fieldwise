@@ -3,6 +3,9 @@ import { useMutation } from '@tanstack/react-query';
 import { Info, RotateCcw, Sparkles } from 'lucide-react';
 import { type Ref, useEffect, useState } from 'react';
 import { call } from '@/api/client';
+import { Button } from '@/components/ui/Button';
+import { cardClasses } from '@/components/ui/Card';
+import { HillsArt } from '@/components/ui/HillsArt';
 import { ForesterCta } from './ForesterCta';
 import { formatEuro } from './format';
 import { GrantCard } from './GrantCard';
@@ -33,7 +36,7 @@ export function Results({ advice, headingRef, onStartAgain }: ResultsProps) {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 motion-safe:animate-rise">
       <ProfileChips
         profile={currentAdvice.profile}
         onSave={updateProfile}
@@ -42,36 +45,41 @@ export function Results({ advice, headingRef, onStartAgain }: ResultsProps) {
 
       <section
         aria-labelledby="results-heading"
-        className="rounded-2xl bg-brand-900 p-6 text-white shadow-sm sm:p-8"
+        className={cardClasses('deep', 'relative overflow-hidden p-6 sm:p-8')}
       >
-        <h2
-          id="results-heading"
-          ref={headingRef}
-          tabIndex={-1}
-          className="text-2xl font-bold tracking-tight focus:outline-none sm:text-3xl"
-        >
-          {headline.schemeCount === 0
-            ? 'No schemes matched yet'
-            : `${headline.schemeCount} ${headline.schemeCount === 1 ? 'scheme' : 'schemes'} worth a look`}
-        </h2>
-        {headline.totalEur > 0 && (
-          <p className="mt-3 flex flex-wrap items-baseline gap-x-2 text-brand-100">
-            Up to
-            <span className="text-4xl font-bold tracking-tight text-white tabular-nums">
-              {formatEuro(headline.totalEur)}
-            </span>
-            from{' '}
-            {headline.valuedCount === 1 ? 'the one scheme' : `the ${headline.valuedCount} schemes`}{' '}
-            we could put a figure on
+        <HillsArt className="pointer-events-none absolute inset-x-0 bottom-0 h-24 w-full text-brand-300" />
+        <div className="relative">
+          <h2
+            id="results-heading"
+            ref={headingRef}
+            tabIndex={-1}
+            className="text-2xl font-semibold tracking-tight text-cream-50 focus:outline-none sm:text-3xl"
+          >
+            {headline.schemeCount === 0
+              ? 'No schemes matched yet'
+              : `${headline.schemeCount} ${headline.schemeCount === 1 ? 'scheme' : 'schemes'} worth a look`}
+          </h2>
+          {headline.totalEur > 0 && (
+            <p className="mt-3 flex flex-wrap items-baseline gap-x-2 text-brand-100">
+              Up to
+              <span className="font-display text-4xl font-bold tracking-tight text-harvest-300 tabular-nums sm:text-5xl">
+                {formatEuro(headline.totalEur)}
+              </span>
+              from{' '}
+              {headline.valuedCount === 1
+                ? 'the one scheme'
+                : `the ${headline.valuedCount} schemes`}{' '}
+              we could put a figure on
+            </p>
+          )}
+          <p className="mt-5 text-lg leading-relaxed text-pretty text-cream-100">
+            {currentAdvice.summary}
           </p>
-        )}
-        <p className="mt-5 text-lg leading-relaxed text-pretty text-brand-50">
-          {currentAdvice.summary}
-        </p>
-        <p className="mt-4 flex items-center gap-1.5 text-xs text-brand-200">
-          <Sparkles className="size-3.5" aria-hidden />
-          Written by AI, using only the rules-engine results below.
-        </p>
+          <p className="mt-4 flex items-center gap-1.5 text-sm text-brand-200">
+            <Sparkles className="size-4" aria-hidden />
+            Written by AI, using only the rules-engine results below.
+          </p>
+        </div>
       </section>
 
       {currentAdvice.matches.length === 0 ? (
@@ -98,10 +106,10 @@ export function Results({ advice, headingRef, onStartAgain }: ResultsProps) {
       {forestryMatches(currentAdvice.matches).length > 0 && <ForesterCta advice={currentAdvice} />}
 
       {currentAdvice.disclaimers.length > 0 && (
-        <ul className="space-y-1.5 text-sm text-stone-500">
+        <ul className="space-y-1.5 text-sm text-soil-600">
           {currentAdvice.disclaimers.map((item) => (
             <li key={item} className="flex gap-2">
-              <Info className="mt-0.5 size-4 shrink-0" aria-hidden />
+              <Info className="mt-0.5 size-4 shrink-0 text-soil-400" aria-hidden />
               {item}
             </li>
           ))}
@@ -109,14 +117,10 @@ export function Results({ advice, headingRef, onStartAgain }: ResultsProps) {
       )}
 
       <div className="flex justify-center">
-        <button
-          type="button"
-          onClick={onStartAgain}
-          className="inline-flex items-center gap-2 rounded-xl border border-stone-300 bg-white px-5 py-2.5 text-sm font-semibold text-stone-800 shadow-sm transition hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
-        >
+        <Button variant="secondary" onClick={onStartAgain}>
           <RotateCcw className="size-4" aria-hidden />
           Start again
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -124,19 +128,19 @@ export function Results({ advice, headingRef, onStartAgain }: ResultsProps) {
 
 function NextSteps({ steps }: { steps: string[] }) {
   return (
-    <section
-      aria-labelledby="next-steps-heading"
-      className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm"
-    >
-      <h2 id="next-steps-heading" className="text-lg font-semibold text-stone-900">
+    <section aria-labelledby="next-steps-heading" className={cardClasses('surface', 'p-5 sm:p-6')}>
+      <h2 id="next-steps-heading" className="text-xl font-semibold text-brand-900">
         Your next steps
       </h2>
-      <ul className="mt-3 space-y-2.5">
+      <ul className="mt-4 space-y-1">
         {steps.map((step) => (
           <li key={step}>
-            <label className="flex cursor-pointer items-start gap-3 text-stone-800">
-              <input type="checkbox" className="mt-1 size-4 shrink-0 accent-brand-600" />
-              <span>{step}</span>
+            <label className="flex min-h-11 cursor-pointer items-start gap-3 rounded-xl p-2 text-soil-800 transition hover:bg-cream-50">
+              <input
+                type="checkbox"
+                className="peer focus-ring mt-0.5 size-5 shrink-0 cursor-pointer accent-brand-700"
+              />
+              <span className="peer-checked:text-soil-500 peer-checked:line-through">{step}</span>
             </label>
           </li>
         ))}
@@ -147,9 +151,11 @@ function NextSteps({ steps }: { steps: string[] }) {
 
 function NoMatches({ missing }: { missing: string[] }) {
   return (
-    <div className="rounded-2xl border border-dashed border-stone-300 bg-white p-6 text-center">
-      <p className="font-semibold text-stone-900">No schemes matched what you told us</p>
-      <p className="mt-1 text-sm text-stone-600">
+    <div className={cardClasses('cream', 'p-8 text-center')}>
+      <p className="font-display text-lg font-semibold text-brand-900">
+        No schemes matched what you told us
+      </p>
+      <p className="mt-1 text-soil-600">
         Try adding how many hectares you farm, your county and what you farm
         {missing.length > 0 ? `, and ${missing.join(', ')}` : ''}.
       </p>

@@ -7,7 +7,7 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 
 ### D1-01 · Run the kickoff and record the decisions
 
-- Status: Review
+- Status: Done
 - Depends on: —
 - Paths: docs/TASK_BOARD.md, docs/DECISIONS.md, docs/ARCHITECTURE.md, docs/DEMO.md
 - Accept: kickoff checklist in TASK_BOARD.md complete; one demo path written in DEMO.md; decisions logged; app name set in apps/web/src/app/config.ts
@@ -42,7 +42,7 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - Notes: microphone input confirmed on the demo laptop in Chrome
 
 ### D1-06 · Editable profile chips and raw-data drawer
-- Status: Review
+- Status: Done
 - Depends on: D3-01
 - Paths: apps/web/src/features/advisor/**, apps/web/src/mocks/handlers.ts
 - Accept: Editing a chip re-runs the rules via C-04 (no LLM) and the € figures update; 'Show the raw data' drawer lists the scheme criteria and sources from C-05; mocks for C-04/C-05 built from shared fixtures
@@ -64,6 +64,12 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - Depends on: —
 - Paths: apps/web/src/features/advisor/**, apps/web/src/features/forester/**, apps/web/src/components/**
 - Accept: When the results include a forestry scheme, a 'Send to a registered forester' form (name, phone, consent) saves a lead and confirms it; /forester inbox lists leads newest first with place, farm chips, matched schemes with badges, € estimate and contact; validation, loading, empty and error states; preview banner; npm run verify green
+
+### D1-10 · Design overhaul (Organic field)
+- Status: Review
+- Depends on: —
+- Paths: apps/web/**
+- Accept: New design system (Lexend + Source Sans 3 bundled, field green / harvest amber / cream tokens, shared UI primitives) applied to header, footer, advisor (hero, landing sections, stepper, results, cards, forester form) and forester inbox; behaviour unchanged; 375/768/1280 checked; AA contrast; reduced motion; npm run verify green
 
 ## Requests to others
 
@@ -91,6 +97,7 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - 13:25 D1-07 → In Progress
 - 13:27 D1-02 → Review
 - 13:27 D1-07 → Review
+- 13:53 D1-10 → In Progress
 - 14:11 D1-02 → Done
 - 14:11 D1-05 → Done
 - 14:11 D1-07 → Done
@@ -98,3 +105,6 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - 14:35 D1-05 microphone input confirmed on the demo laptop in Chrome
 - 14:44 D1-06 → Review
 - 14:44 D1-01 → Review
+- 15:08 D1-10 → Review
+- 15:08 D1-06 → Done
+- 15:09 D1-01 → Done
