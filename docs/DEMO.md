@@ -2,28 +2,43 @@
 
 Owner: **dev1**. The demo path is the product: build it first, protect it always.
 
-## The demo path (fill in at kickoff)
+## The demo path (under 2 minutes)
 
-1. _(the judge sees …)_
-2. _(they click / type …)_
-3. _(the app shows …)_
-4. _(the "wow" moment …)_
+1. The judge sees one big input, the tagline, a mic button and three example prompts (Declan, Aoife, Mary).
+2. We speak (or type) Declan's situation; the words fill the box live.
+3. The **pipeline stepper** lights up Extract → Rules → Explain. Click a step to see its JSON.
+4. **"What we understood"** chips: 40 ha · suckler beef · West Cork · 3 ha too wet · next to a river. Editing one
+   re-runs the rules without the AI (this also fixes speech-recognition mistakes).
+5. **Grant cards** (NTAS, ANC, BISS, ACRES): the rule that fired, the € figure, the status, a link, and a
+   "likely / check first" badge where we can't verify something.
+6. Plain-English summary and a **next-steps checklist**.
+7. **The wow:** "Send to a registered forester" saves a lead, and it appears in the forester inbox.
+8. "Show the raw data": the scheme criteria table the decision came from.
 
 ## Story (3 minutes)
 
-| Part         | Time | Content                                       |
-| ------------ | ---- | --------------------------------------------- |
-| Problem      | 0:20 | Who hurts and how (one real example)          |
-| Solution     | 0:20 | One sentence: what our app does               |
-| Live demo    | 1:40 | The demo path above, narrated                 |
-| How it works | 0:30 | Architecture in one picture; AI or data parts |
-| What's next  | 0:10 | One or two concrete next steps                |
+| Part         | Time | Content                                                                                          |
+| ------------ | ---- | ------------------------------------------------------------------------------------------------ |
+| Problem      | 0:20 | Declan, 55, West Cork: 3 ha too wet for cattle. The answer is buried in DAFM PDFs, so he pays a consultant or gives up. |
+| Solution     | 0:20 | GrantGuide: describe your farm in plain English and see the grants you qualify for, with the maths and the reason. |
+| Live demo    | 1:40 | The demo path above, narrated                                                                    |
+| How it works | 0:30 | Extract → Rules → Explain. "Code does the matching and the maths; the LLM only listens and talks." |
+| What's next  | 0:10 | Free for farmers, foresters pay per pre-qualified lead. Next: map-based field selection and alerts when a scheme opens. |
+
+## Honest limits (read this when asked, or at the end)
+
+"This is a top-of-funnel advisor, not a compliance engine. Eligibility comes from a hand-coded snapshot of a few DAFM
+schemes, so rates and deadlines change and would need a maintained feed. We can't check herd numbers, land parcels,
+nitrates or soil tests, so some answers are 'likely' and point you to Teagasc or a registered forester to confirm. The
+AI only extracts your details and phrases the result. If it mishears you, fix the chips and the rules re-run without
+it. Next: map-based field selection and alerts when a new scheme opens."
 
 ## Data and accounts
 
-- Seed data: `npm run db:reset` (realistic names and numbers that tell the story — dev2, D2-02)
-- Demo login (if any): _(user / password — not a real person's credentials)_
-- External APIs: keys in `apps/api/.env` on the demo laptop only; `DEMO_MODE=fixtures` as the fallback
+- Demo data: the shared fixtures (Declan, Aoife, Mary) plus the seeded schemes (`npm run db:reset`, dev2).
+- Demo login: none. The forester inbox is open in the demo.
+- External APIs: the Gemini key lives in `apps/api/.env` on the demo laptop only. `DEMO_MODE=fixtures` is the fallback.
+- Voice input uses Chrome's speech recognition, which needs internet. Offline, use the example prompts.
 
 ## Run it
 
@@ -35,15 +50,19 @@ npm run demo             # reset DB → build web → serve everything on http:/
 
 ## Fallback ladder
 
-1. **Live, local:** `demo-v1` on Keith's laptop, offline, seeded data.
-2. **Degraded:** an external API fails or is slow → restart with `DEMO_MODE=fixtures` in `apps/api/.env`.
-3. **Last good build:** `git checkout cp-N && npm run demo`.
-4. **Video:** the backup recording from code freeze (on the laptop and a phone).
-5. **Slides:** screenshots of every demo-path step.
+1. **Live, local:** `demo-v1` on Keith's laptop, seeded data, real Gemini.
+2. **Voice fails or the Wi-Fi drops:** click Declan's example prompt instead of speaking.
+3. **Degraded:** Gemini fails or is slow → restart with `DEMO_MODE=fixtures` in `apps/api/.env`.
+4. **Last good build:** `git checkout cp-N && npm run demo`.
+5. **Video:** the backup recording from code freeze (on the laptop, a phone and YouTube).
+6. **Slides:** screenshots of every demo-path step.
 
 ## Pre-demo checklist
 
-- [ ] Code freeze → `demo-v1` tagged; backup video recorded
-- [ ] Fresh-clone rehearsal ×2 (time it)
-- [ ] Laptop: charged, notifications off, browser zoom ~125%, tabs closed, Wi-Fi not required
-- [ ] Slides final; screenshots included; presenter and backup presenter agreed
+- [ ] Feature freeze → `demo-v1` tagged; backup video recorded in fixtures mode
+- [ ] Video uploaded to YouTube and the link sent to the dev post (by 18:00)
+- [ ] Fresh-clone rehearsal ×2 (time it), full rehearsal ×3
+- [ ] Mic tested on the stage laptop in Chrome
+- [ ] Laptop: charged, notifications off, browser zoom ~125%, tabs closed, works with Wi-Fi off
+- [ ] Slides final (one real forester quote); screenshots included; presenter and backup presenter agreed
+- [ ] Room confirmed: Dora Allman, 4th floor, the Hub
