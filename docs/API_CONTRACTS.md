@@ -38,9 +38,17 @@ conventions and lists every endpoint. Both must change in the same PR.
 | api | `PORT`          | `8787`          | API port (also serves the web build in demo mode)                 |
 | api | `DB_FILE`       | `./data/app.db` | SQLite file, relative to `apps/api` (`:memory:` in tests)         |
 | api | `DEMO_MODE`     | `off`           | `fixtures` → external calls return recorded responses             |
+| api | `OPENAI_API_KEY` | unset (optional) | Server-side secret for fresh extraction/explanation calls; not needed in fixture mode |
+| api | `OPENAI_MODEL` | `gpt-4.1-mini` | Model requested by the API's OpenAI client |
+| api | `OPENAI_TIMEOUT_MS` | `20000` | Timeout in milliseconds for each OpenAI request |
 | web | `VITE_API_MODE` | `live`          | `mock` → use `src/mocks/handlers.ts` (same as `npm run dev:mock`) |
 
 Add new variables to `apps/<app>/.env.example` **and** this table (API: also `src/env.ts`). Secrets: server-side only.
+
+These OpenAI variables match `apps/api/src/env.ts` and `.env.example` (D2-06). Real keys belong only in the
+API's gitignored `.env` on the machine making fresh model calls; never in web configuration, fixtures or logs.
+`DEMO_MODE=fixtures` replays the three recorded personas while still executing the rules engine and database.
+The checkpoint verifies that offline path; it does not establish that a live OpenAI key or account is ready.
 
 ## Endpoints
 
@@ -49,11 +57,11 @@ Add new variables to `apps/<app>/.env.example` **and** this table (API: also `sr
 | C-00 | GET    | `/api/health` | no   | —                 | `HealthStatus`  | live    | Liveness + DB check              |
 | C-01 | GET    | `/api/notes`  | no   | —                 | `Note[]`        | EXAMPLE | Remove after real features exist |
 | C-02 | POST   | `/api/notes`  | no   | `CreateNoteInput` | `Note` (201)    | EXAMPLE | Remove after real features exist |
-| C-03 | POST | `/api/advice` | no | `AdviceInput` (`{ text }`) | `AdviceResponse` | live | Extract → deterministic rules → explain |
-| C-04 | POST | `/api/advice/evaluate` | no | `EvaluateAdviceInput` (`{ profile }`) | `AdviceResponse` | live | Rules only; no LLM calls |
-| C-05 | GET | `/api/schemes` | no | — | `Scheme[]` | live | Criteria, sources and verification timestamp |
-| C-06 | POST | `/api/leads` | no | `CreateLeadInput` | `Lead` (201) | live | Explicit consent and contact method required |
-| C-07 | GET | `/api/leads` | no | — | `Lead[]` | live | Newest first; local demo only |
+| C-03 | POST | `/api/advice` | no | `AdviceInput` (`{ text }`) | `AdviceResponse` | implemented | Extract → deterministic rules → explain; checkpoint uses recordings |
+| C-04 | POST | `/api/advice/evaluate` | no | `EvaluateAdviceInput` (`{ profile }`) | `AdviceResponse` | implemented | Rules only; no LLM calls |
+| C-05 | GET | `/api/schemes` | no | — | `Scheme[]` | implemented | Criteria, sources and verification timestamp |
+| C-06 | POST | `/api/leads` | no | `CreateLeadInput` | `Lead` (201) | implemented | Explicit consent and contact method required |
+| C-07 | GET | `/api/leads` | no | — | `Lead[]` | implemented | Newest first; local demo only |
 
 Statuses: _proposed_ (agreed, not in code) → _live_ (in the registry; mocks may exist) → _implemented_ (API done)
 → _removed_. Use `C-03` onwards for new endpoints.
@@ -69,8 +77,9 @@ Statuses: _proposed_ (agreed, not in code) → _live_ (in the registry; mocks ma
 
 ## GrantGuide v1 details (C-03–C-07)
 
-- Registry keys: `advice`, `evaluateAdvice`, `listSchemes`, `createLead`, `listLeads`. These are registered
-  contracts; API implementation belongs to dev2. Keep the example notes endpoints until D3-04's prerequisites pass.
+- Registry keys: `advice`, `evaluateAdvice`, `listSchemes`, `createLead`, `listLeads`. Dev2's API implementation
+  is merged in PRs #9/#10 and integration-tested against these contracts. Keep the example notes endpoints
+  until D3-04's prerequisites pass. Fresh OpenAI calls remain a separate live-mode check.
 - The shapes follow the kickoff draft in `docs/ARCHITECTURE.md`. Public schemas and inferred types are exported
   from `@app/shared`. `AdviceInput.text` is trimmed, nonempty and at most 10,000 characters.
 - `FarmProfile.hectares` must be positive; `marginalHectares` is nonnegative and cannot exceed it. Unmentioned
@@ -84,7 +93,8 @@ Statuses: _proposed_ (agreed, not in code) → _live_ (in the registry; mocks ma
   Deadlines are ISO calendar dates; timestamps are UTC ISO datetimes. Scheme URLs must use HTTPS.
 - `Scheme.checkedAt` is a UTC timestamp or `null` when criteria/rates have not been verified. Contract fixtures
   use `null`, `status: unknown` and `eligible: check`, and omit payment estimates. Their metadata is not a
-  verified scheme catalogue. Dev2 must replace it with sourced, checked rules before presenting real advice.
+  verified scheme catalogue. The merged API maintains its catalogue and rules under `apps/api/src/features/`;
+  do not confuse those results with the shared illustrative web mocks.
 - C-06 requires `consent: true`, a nonblank name, at least one scheme ID, and a valid email or phone number
   (7–15 digits, optional leading +, spaces/parentheses/dots/hyphens). Missing contact details or consent return
   `VALIDATION_ERROR`. Dev2 must validate scheme IDs against its catalogue and recompute matches and totals from
@@ -102,3 +112,4 @@ Statuses: _proposed_ (agreed, not in code) → _live_ (in the registry; mocks ma
 | ----- | ---------------- | ---------------------------------------- | --------- | ----- |
 | setup | C-00, C-01, C-02 | Initial skeleton: health + example notes | —         | setup |
 | 2026-11-07 | C-03–C-07 | GrantGuide v1 schemas, registry and three persona fixtures; consent/contact validation, nullable verification timestamp | no (additive) | dev3 |
+| 2026-11-07 | C-03–C-07 | API implementation merged in PRs #9/#10; production HTTP/browser integration verified in fixture mode. Documented OpenAI environment variables from D2-06; schemas unchanged | no | dev3 |

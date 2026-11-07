@@ -22,11 +22,11 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 
 ### D3-03 · Checkpoint 1 — walking skeleton on main
 
-- Status: Blocked
+- Status: Done
 - Depends on: D1-02, D2-01
-- Paths: docs/INTEGRATION.md
+- Paths: docs/INTEGRATION.md, docs/API_CONTRACTS.md
 - Accept: one screen ↔ one endpoint ↔ DB works on main; `npm run verify` and `npm run smoke` green on main; tagged `cp-1`
-- Notes: web contract integration merged in PR #5; blocked on D2-01's real API implementation. Mock responses and pending-endpoint smoke skips do not satisfy cp-1. No checkpoint tag published.
+- Notes: API work merged in PRs #9/#10. Verified main 38acc12 with 222 tests, 7 smoke checks (no skips), all three personas, rules re-evaluation, invalid-input checks, browser lead submission and restart persistence. Recorded AI replies were used with the real API/rules/database; fresh model calls and microphone input remain separate checks. OpenAI environment documentation requested by dev2 is included.
 
 ### D3-04 · Remove the example notes contract after web and API dropped it
 
@@ -39,10 +39,12 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 ## Requests to others
 
 <!-- - REQ dev3→dev2 (open): <what> — needed by <task> -->
-- REQ dev3→dev2 (open): implement C-03–C-07 after D3-01 merges; validate scheme IDs and recompute lead totals server-side. Fixtures deliberately contain no verified eligibility or payment amounts — needed by D3-03.
+- REQ dev3→dev2 (closed): C-03–C-07 and server-side scheme/total validation merged in PRs #9/#10 and passed integration checks — needed by D3-03.
 - REQ dev3→dev1 (closed): shared model and mock integration merged in PR #5 — needed by D1-02, D1-07.
 - REQ dev3→dev1 (open): confirm kickoff completion, reconcile D1-02/D1-03/D1-07 statuses with merged PRs, and update TASK_BOARD's contract-v1 milestone/dependency rows — needed by D3-02, D3-03.
 - REQ dev3→dev2 (open): remove the notes API and its tests after the merged web removal; mark D2-03 complete only when verified — needed by D3-04.
+- REQ dev3→dev1 (open): replace stale Gemini labels in the UI and reconcile product/demo docs with the merged OpenAI backend; verify microphone input on the presentation laptop — needed before the live-AI/voice checkpoint.
+- REQ dev3→dev2 (closed): documented OPENAI_API_KEY, OPENAI_MODEL and OPENAI_TIMEOUT_MS in API_CONTRACTS from the existing API env schema — needed by D2-06.
 
 ## Log
 - 13:11 D3-01 → In Progress
@@ -53,3 +55,5 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - 13:56 D3-03 → Blocked
 - 13:56 D3-04 → Blocked
 - 14:08 D3-02 → Done
+- 14:26 D3-03 → In Progress
+- 14:28 D3-03 → Done
