@@ -52,6 +52,21 @@ export function joinTranscript(
   return text.replace(/\s+/g, ' ').trim();
 }
 
+// Mishearings we saw in testing that change a number or read as one. Kept narrow on purpose: only patterns a farmer
+// would never mean, so nothing they actually said gets rewritten.
+const TRANSCRIPT_FIXES: [RegExp, string][] = [
+  [/\btree (acres?|hectares?)\b/gi, 'three $1'],
+  [/\b(?:two|to) wet\b/gi, 'too wet'],
+];
+
+/** Fixes the few speech-recognition slips that would feed a wrong number into the rules. */
+export function tidyTranscript(text: string): string {
+  return TRANSCRIPT_FIXES.reduce(
+    (fixed, [pattern, replacement]) => fixed.replace(pattern, replacement),
+    text,
+  );
+}
+
 export type SpeechError = 'blocked' | 'no-mic' | 'network' | 'no-speech' | 'failed';
 
 /** Maps the browser's error code to what we tell the farmer. `aborted` means we cancelled, so it's not an error. */

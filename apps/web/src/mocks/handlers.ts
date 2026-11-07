@@ -1,4 +1,4 @@
-import { type EndpointDef, endpoints, type Note, noteFixtures, type ResponseOf } from '@app/shared';
+import { type EndpointDef, endpoints, type ResponseOf } from '@app/shared';
 import type { z } from 'zod';
 
 /**
@@ -35,9 +35,6 @@ function mock<E extends EndpointDef>(endpoint: E) {
   ): [string, AnyMockHandler] => [endpoint.id, handler as unknown as AnyMockHandler];
 }
 
-// In-memory state so creates show up until the page reloads.
-let notes: Note[] = [...noteFixtures];
-
 export const mockHandlers: Record<string, AnyMockHandler> = Object.fromEntries([
   mock(endpoints.health)(() => ({
     status: 'ok',
@@ -45,19 +42,4 @@ export const mockHandlers: Record<string, AnyMockHandler> = Object.fromEntries([
     db: 'mock',
     demoMode: 'off',
   })),
-
-  // EXAMPLE handlers — remove with the example feature.
-  mock(endpoints.listNotes)(() =>
-    [...notes].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
-  ),
-  mock(endpoints.createNote)(({ body }) => {
-    const note: Note = {
-      id: crypto.randomUUID(),
-      title: body.title,
-      body: body.body,
-      createdAt: new Date().toISOString(),
-    };
-    notes = [note, ...notes];
-    return note;
-  }),
 ]);
