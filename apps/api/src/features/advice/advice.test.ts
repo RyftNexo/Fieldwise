@@ -1,7 +1,9 @@
 import { ApiErrorBody, endpoints, farmProfileFixtures, successBody } from '@app/shared';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createApp } from '../../app';
 import { ensureDatabase } from '../../db/client';
+import { env } from '../../env';
+import { loadRecordings } from './recordings';
 
 let app: Awaited<ReturnType<typeof createApp>>;
 
@@ -17,14 +19,122 @@ const post = (path: string, body: unknown) =>
     body: JSON.stringify(body),
   });
 
-describe('C-03 POST /api/advice', () => {
-  it('returns advice that matches the contract', async () => {
-    const res = await post(endpoints.advice.path, { text: 'I farm 40 hectares of suckler beef.' });
-    expect(res.status).toBe(200);
-    const { data } = successBody(endpoints.advice.response).parse(await res.json());
-    expect(data.matches.length).toBeGreaterThan(0);
+const declanText = loadRecordings()[0]?.text ?? '';
+const originalDemoMode = env.DEMO_MODE;
+const originalKey = env.GEMINI_API_KEY;
+
+afterEach(() => {
+  env.DEMO_MODE = originalDemoMode;
+  env.GEMINI_API_KEY = originalKey;
+  vi.unstubAllGlobals();
+});
+
+/** A fake Gemini: the first call extracts a profile (JSON), the second writes the summary. */
+function stubGemini(extraction: unknown, summary: string) {
+  const reply = (text: string) =>
+    new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text }] } }] }), {
+      status: 200,
+    });
+  const fetchStub = vi
+    .fn()
+    .mockResolvedValueOnce(reply(JSON.stringify(extraction)))
+    .mockResolvedValueOnce(reply(summary));
+  vi.stubGlobal('fetch', fetchStub);
+  return fetchStub;
+}
+
+describe('C-03 POST /api/advice (live, Gemini stubbed)', () => {
+  beforeEach(() => {
+    env.DEMO_MODE = 'off';
+    env.GEMINI_API_KEY = 'test-key-not-real';
   });
 
+  it('extracts, runs the rules and explains, returning contract-valid advice', async () => {
+    stubGemini(
+      {
+        hectares: 40,
+        enterprise: 'suckler',
+        marginalHectares: 3,
+        nearWatercourse: true,
+        missing: [],
+      },
+      'Your wet land by the river could bring up to €58,388 from NTAS.',
+    );
+    const res = await post(endpoints.advice.path, { text: declanText });
+    expect(res.status).toBe(200);
+    const { data } = successBody(endpoints.advice.response).parse(await res.json());
+    expect(data.mode).toBe('live');
+    expect(data.matches[0]?.value?.totalEur).toBe(58_388);
+    expect(data.summary).toContain('€58,388');
+  });
+
+  it('keeps the rules’ summary when Gemini invents a figure', async () => {
+    stubGemini(
+      {
+        hectares: 40,
+        enterprise: 'suckler',
+        marginalHectares: 3,
+        nearWatercourse: true,
+        missing: [],
+      },
+      'Get €1,000,000!',
+    );
+    const res = await post(endpoints.advice.path, { text: declanText });
+    const { data } = successBody(endpoints.advice.response).parse(await res.json());
+    expect(data.summary).not.toContain('1,000,000');
+    expect(data.steps.explain).toMatchObject({ method: 'template' });
+  });
+
+  it('answers 502 UPSTREAM_ERROR when Gemini is unreachable', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('fetch failed')));
+    const res = await post(endpoints.advice.path, { text: declanText });
+    expect(res.status).toBe(502);
+    expect(ApiErrorBody.parse(await res.json()).error.code).toBe('UPSTREAM_ERROR');
+  });
+
+  it('answers UPSTREAM_ERROR when no key is configured, without calling Gemini', async () => {
+    delete env.GEMINI_API_KEY;
+    const fetchStub = vi.fn();
+    vi.stubGlobal('fetch', fetchStub);
+    const res = await post(endpoints.advice.path, { text: declanText });
+    expect(res.status).toBe(502);
+    expect(fetchStub).not.toHaveBeenCalled();
+  });
+
+  it('asks for the farm size when the text has none', async () => {
+    stubGemini({ hectares: 0, enterprise: 'other', missing: ['farm size'] }, 'unused');
+    const res = await post(endpoints.advice.path, { text: 'I want a grant' });
+    expect(res.status).toBe(400);
+    expect(ApiErrorBody.parse(await res.json()).error.code).toBe('VALIDATION_ERROR');
+  });
+});
+
+describe('C-03 POST /api/advice (DEMO_MODE=fixtures)', () => {
+  beforeEach(() => {
+    env.DEMO_MODE = 'fixtures';
+  });
+
+  it.each(loadRecordings().map((recording) => [recording.id, recording.text] as const))(
+    'replays the %s recording without calling Gemini',
+    async (_id, text) => {
+      const fetchStub = vi.fn();
+      vi.stubGlobal('fetch', fetchStub);
+      const res = await post(endpoints.advice.path, { text });
+      expect(res.status).toBe(200);
+      const { data } = successBody(endpoints.advice.response).parse(await res.json());
+      expect(data.mode).toBe('fixtures');
+      expect(fetchStub).not.toHaveBeenCalled();
+    },
+  );
+
+  it('says the offline demo only knows the examples when the farm is not recorded', async () => {
+    const res = await post(endpoints.advice.path, { text: 'I grow potatoes in Wexford' });
+    expect(res.status).toBe(502);
+    expect(ApiErrorBody.parse(await res.json()).error.message).toContain('three example farms');
+  });
+});
+
+describe('C-03 input validation', () => {
   it('rejects empty text with VALIDATION_ERROR', async () => {
     const res = await post(endpoints.advice.path, { text: '   ' });
     expect(res.status).toBe(400);

@@ -1,0 +1,47 @@
+[
+  {
+    "id": "declan",
+    "text": "I have a 40-hectare suckler beef farm in West Cork. About 3 hectares beside the river are too wet for the cattle. What grants could I get for that land?",
+    "keywords": ["declan", "west cork", "suckler"],
+    "source": "handWritten",
+    "profile": {
+      "hectares": 40,
+      "enterprise": "suckler",
+      "county": "Cork",
+      "region": "West Cork",
+      "marginalHectares": 3,
+      "nearWatercourse": true,
+      "missing": ["your age", "the soil type of the wet land", "whether you already claim BISS"]
+    },
+    "summary": "Your 3 wet hectares beside the river are your best opportunity. The Native Tree Area Scheme could pay up to €58,388 over 10 years for 2 hectares of native trees, once a registered forester confirms the soil is not peat and the land is not a designated site. Keep claiming BISS, check whether your townlands qualify for ANC, and ask an adviser whether ACRES is taking new applicants. These are estimates, not promises."
+  },
+  {
+    "id": "aoife",
+    "text": "I'm 29 and I took over the home farm last year: 60 hectares of dairy in Tipperary. I'd like to put solar panels on the milking parlour roof.",
+    "keywords": ["aoife", "tipperary", "dairy", "solar"],
+    "source": "handWritten",
+    "profile": {
+      "hectares": 60,
+      "enterprise": "dairy",
+      "county": "Tipperary",
+      "age": 29,
+      "plannedInvestment": "solar",
+      "missing": ["the planned installation cost", "whether you already claim BISS"]
+    },
+    "summary": "Make sure you are claiming BISS, the main yearly payment, on your 60 hectares. Check whether your townlands qualify for ANC, and ask an adviser whether ACRES is open to new applicants. For the solar panels, a farm adviser can tell you which investment scheme applies. We have not verified those rules yet, so we cannot say what you would get."
+  },
+  {
+    "id": "mary",
+    "text": "I farm 35 hectares of sheep in Kerry with my husband, and I am planning to build a new slatted shed next year.",
+    "keywords": ["mary", "kerry", "sheep", "slatted"],
+    "source": "handWritten",
+    "profile": {
+      "hectares": 35,
+      "enterprise": "sheep",
+      "county": "Kerry",
+      "plannedInvestment": "shed",
+      "missing": ["your age", "the planned building cost", "whether planning permission is needed"]
+    },
+    "summary": "Make sure you are claiming BISS on your 35 hectares. Sheep farms in Kerry may qualify for ANC, so check your townlands, and ask an adviser whether ACRES is taking new applicants. For the new slatted shed, an adviser can tell you which investment scheme applies. We have not verified those rules yet, so we cannot say what you would get."
+  }
+]

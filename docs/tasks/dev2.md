@@ -40,7 +40,7 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - Accept: NTAS, ANC, BISS, ACRES checked against a FarmProfile with euro maths and plain-English reasons; table tests per scheme; C-04 returns computed matches; unverifiable conditions return likely/check
 
 ### D2-06 · Gemini extract and explain behind C-03, with recorded fixtures
-- Status: Not Started
+- Status: In Progress
 - Depends on: —
 - Paths: apps/api/src/features/advice/**, apps/api/src/services/**
 - Accept: C-03 extracts a FarmProfile via Gemini, runs rules, explains in at most 120 words; DEMO_MODE=fixtures replays recordings for Declan, Aoife and Mary; timeout and UPSTREAM_ERROR handled; key stays server-side
@@ -49,9 +49,12 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 
 <!-- - REQ dev2→dev3 (open): <what> — needed by <task> -->
 
+- REQ dev2→dev3 (open): add `GEMINI_API_KEY` (secret, optional), `GEMINI_MODEL` (default `gemini-2.5-flash`) and `GEMINI_TIMEOUT_MS` (default `15000`) to the env table in `docs/API_CONTRACTS.md` — needed by D2-06 (already in `apps/api/src/env.ts` and `.env.example`)
+
 ## Log
 - 13:23 D2-01 → In Progress
 - 13:27 D2-04 → In Progress
 - 13:28 D2-04 → Review
 - 13:29 D2-05 → In Progress
 - 13:32 D2-05 → Review
+- 13:33 D2-06 → In Progress
