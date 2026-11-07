@@ -17,7 +17,7 @@ const STEP_INFO: Record<
 > = {
   extract: {
     title: 'Understand',
-    detail: 'Gemini turns your words into farm details.',
+    detail: 'AI turns your words into farm details.',
     Icon: ScanText,
     ai: true,
   },
@@ -29,7 +29,7 @@ const STEP_INFO: Record<
   },
   explain: {
     title: 'Explain',
-    detail: 'Gemini writes up the results in plain English.',
+    detail: 'AI writes up the results in plain English.',
     Icon: MessageSquareText,
     ai: true,
   },
