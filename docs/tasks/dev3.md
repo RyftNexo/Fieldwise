@@ -7,7 +7,7 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 
 ### D3-01 · Contract v1 and fixtures from the kickoff
 
-- Status: Review
+- Status: Done
 - Depends on: D1-01
 - Paths: packages/shared/**, docs/API_CONTRACTS.md, tests/smoke/smoke.ts
 - Accept: every v1 endpoint in the registry with request/response schemas; typed realistic fixtures; endpoint table + change log updated; merged to main and tagged `contract-v1` within the first hour
@@ -42,3 +42,4 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 ## Log
 - 13:11 D3-01 → In Progress
 - 13:15 D3-01 → Review
+- 13:24 D3-01 → Done
