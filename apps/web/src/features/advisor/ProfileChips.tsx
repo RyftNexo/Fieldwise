@@ -1,6 +1,6 @@
+import type { FarmProfile } from '@app/shared';
 import { cn } from '@/lib/utils';
 import { profileToChips } from './summary';
-import type { FarmProfile } from './types';
 
 /** "What we understood": the extracted profile as chips, with dashed chips for what's missing. */
 export function ProfileChips({ profile }: { profile: FarmProfile }) {

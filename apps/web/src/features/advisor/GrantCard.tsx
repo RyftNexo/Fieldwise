@@ -1,7 +1,7 @@
+import type { Eligibility, GrantMatch, GrantValue, SchemeStatus } from '@app/shared';
 import { CircleCheck, CircleQuestionMark, ExternalLink, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatDate, formatEuro } from './format';
-import type { Eligibility, GrantMatch, GrantValue, SchemeStatus } from './types';
 
 const ELIGIBILITY: Record<Eligibility, { label: string; className: string; Icon: LucideIcon }> = {
   yes: { label: 'You qualify', className: 'bg-brand-600 text-white', Icon: CircleCheck },

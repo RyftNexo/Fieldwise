@@ -1,6 +1,6 @@
+import type { FarmProfile, GrantMatch } from '@app/shared';
 import { describe, expect, it } from 'vitest';
 import { profileToChips, summariseMatches } from './summary';
-import type { FarmProfile, GrantMatch } from './types';
 
 const match = (overrides: Partial<GrantMatch>): GrantMatch => ({
   schemeId: 'x',

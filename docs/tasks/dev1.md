@@ -15,7 +15,7 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 
 ### D1-02 · First real screen on the demo path (mock mode)
 
-- Status: Not Started
+- Status: Review
 - Depends on: D3-01
 - Paths: apps/web/src/features/**
 - Accept: renders from mocks (`npm run dev:mock`), handles loading/empty/error, typed via @app/shared, `npm run verify` green
@@ -47,7 +47,7 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - Accept: Editing a chip re-runs the rules via C-04 (no LLM) and the € figures update; 'Show the raw data' drawer lists the scheme criteria and sources from C-05; mocks for C-04/C-05 built from shared fixtures
 
 ### D1-07 · Send to a registered forester + forester inbox
-- Status: Not Started
+- Status: Review
 - Depends on: D3-01
 - Paths: apps/web/src/features/advisor/**, apps/web/src/features/forester/**, apps/web/src/mocks/handlers.ts
 - Accept: Button on the results saves a lead via C-06 with a confirmation; /forester inbox lists leads (newest first) with profile, matched schemes and € estimate; loading, empty and error states
@@ -85,3 +85,7 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - 13:10 D1-03 → Review
 - 13:22 D1-05 → Review
 - 13:24 D1-03 → Done
+- 13:25 D1-02 → In Progress
+- 13:25 D1-07 → In Progress
+- 13:27 D1-02 → Review
+- 13:27 D1-07 → Review

@@ -1,3 +1,4 @@
+import type { AdviceResponse } from '@app/shared';
 import { CircleCheck, Send, Trees } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
 import { Link } from 'react-router';
@@ -5,7 +6,6 @@ import { cn } from '@/lib/utils';
 import { isPlausiblePhone } from './contact';
 import { forestryMatches, useCreateLead } from './leads';
 import { placeOf } from './summary';
-import type { AdviceResponse } from './types';
 
 /**
  * "Send to a registered forester": turns a forestry result into a pre-qualified lead. Free for the farmer;
@@ -58,14 +58,11 @@ export function ForesterCta({ advice }: { advice: AdviceResponse }) {
     if (nameError || phoneError || consentError) return;
     const matches = forestryMatches(advice.matches);
     createLead.mutate({
-      input: {
-        profile: advice.profile,
-        schemeIds: matches.map((match) => match.schemeId),
-        name: name.trim(),
-        phone: phone.trim(),
-        consent: true,
-      },
-      matches,
+      profile: advice.profile,
+      schemeIds: matches.map((match) => match.schemeId),
+      name: name.trim(),
+      phone: phone.trim(),
+      consent: true,
     });
   }
 
@@ -93,6 +90,7 @@ export function ForesterCta({ advice }: { advice: AdviceResponse }) {
         <TextField
           id="lead-name"
           label="Your name"
+          maxLength={120}
           value={name}
           onChange={setName}
           autoComplete="name"
@@ -153,6 +151,7 @@ interface TextFieldProps {
   error?: string;
   type?: 'text' | 'tel';
   autoComplete?: string;
+  maxLength?: number;
 }
 
 function TextField({
@@ -163,6 +162,7 @@ function TextField({
   error,
   type = 'text',
   autoComplete,
+  maxLength,
 }: TextFieldProps) {
   const errorId = `${id}-error`;
   return (
@@ -175,6 +175,7 @@ function TextField({
         type={type}
         inputMode={type === 'tel' ? 'tel' : undefined}
         autoComplete={autoComplete}
+        maxLength={maxLength}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         aria-invalid={error ? true : undefined}
