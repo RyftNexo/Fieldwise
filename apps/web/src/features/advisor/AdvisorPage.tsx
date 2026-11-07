@@ -1,7 +1,6 @@
 import { RotateCcw } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { APP_TAGLINE } from '@/app/config';
-import { PreviewBanner } from '@/components/PreviewBanner';
 import { AskBox } from './AskBox';
 import { ExamplePrompts } from './ExamplePrompts';
 import { PipelineStepper } from './PipelineStepper';
@@ -67,15 +66,7 @@ export function AdvisorPage() {
       )}
 
       {advisor.result && (
-        <>
-          {advisor.isPreview && (
-            <PreviewBanner>
-              Until the advice API is connected, every question shows Declan's worked example, and
-              the figures haven't been checked against gov.ie yet.
-            </PreviewBanner>
-          )}
-          <Results advice={advisor.result} headingRef={resultsHeading} onStartAgain={startAgain} />
-        </>
+        <Results advice={advisor.result} headingRef={resultsHeading} onStartAgain={startAgain} />
       )}
 
       <p aria-live="polite" className="sr-only">

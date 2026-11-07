@@ -1,5 +1,4 @@
 import { Inbox } from 'lucide-react';
-import { PreviewBanner } from '@/components/PreviewBanner';
 import { useLeads } from '@/features/advisor/leads';
 import { LeadCard } from './LeadCard';
 
@@ -18,11 +17,6 @@ export function ForesterInboxPage() {
           for them, and you pay per lead, so every call is to someone likely to qualify.
         </p>
       </header>
-
-      <PreviewBanner>
-        Until the leads API is connected, new leads are only kept until the page reloads. The first
-        two are made-up examples.
-      </PreviewBanner>
 
       {leads.isPending && <p className="text-sm text-stone-500">Loading leads…</p>}
       {leads.error && (

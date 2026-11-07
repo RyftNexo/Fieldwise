@@ -1,12 +1,19 @@
+import { endpoints } from '@app/shared';
 import { useMutation } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
-import { isPipelineStage, type Stage } from './pipeline';
-import { getPreviewAdvice } from './preview';
+import { call } from '@/api/client';
+import { isPipelineStage, PIPELINE_STAGES, type Stage } from './pipeline';
+
+/** While C-03 is working we can't see inside it, so the stepper moves on a schedule… */
+const STAGE_AFTER_MS = [0, 1500, 3000];
+/** …and when the answer comes back early, every remaining stage still shows for a moment. */
+const MIN_STAGE_MS = 400;
+
+const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 /**
- * Sends one question through Extract → Rules → Explain and tracks which stage it is in.
- * Pre-contract (D1-04): answers come from local preview data. D1-02 swaps `getPreviewAdvice` for
- * `call(endpoints.…, { body: { text } })`, drops `isPreview`, and keeps the rest of this hook's shape.
+ * Sends one question through Extract → Rules → Explain (C-03, one request) and tracks which stage to show.
+ * The raw JSON for each stage comes back in `steps` for the stepper to display.
  */
 export function useAdvisor() {
   const [stage, setStage] = useState<Stage>('idle');
@@ -14,10 +21,26 @@ export function useAdvisor() {
   const latestRun = useRef(0);
 
   const advice = useMutation({
-    mutationFn: ({ text, run }: { text: string; run: number }) =>
-      getPreviewAdvice(text, (next) => {
+    mutationFn: async ({ text, run }: { text: string; run: number }) => {
+      let shown = -1;
+      const show = (index: number) => {
+        const next = PIPELINE_STAGES[index];
+        if (index <= shown || !next) return;
+        shown = index;
         if (latestRun.current === run) setStage(next);
-      }),
+      };
+      const timers = STAGE_AFTER_MS.map((ms, index) => setTimeout(() => show(index), ms));
+      try {
+        const result = await call(endpoints.advice, { body: { text } });
+        for (let index = shown + 1; index < PIPELINE_STAGES.length; index += 1) {
+          show(index);
+          await wait(MIN_STAGE_MS);
+        }
+        return result;
+      } finally {
+        for (const timer of timers) clearTimeout(timer);
+      }
+    },
     onSuccess: (_data, { run }) => {
       if (latestRun.current === run) setStage('done');
     },
@@ -31,7 +54,6 @@ export function useAdvisor() {
     result: stage === 'done' ? advice.data : undefined,
     error: advice.error,
     isRunning: isPipelineStage(stage),
-    isPreview: true,
     ask(text: string) {
       latestRun.current += 1;
       advice.mutate({ text, run: latestRun.current });
