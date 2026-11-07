@@ -4,6 +4,9 @@ description: Finish a task in this repo (IDs like D1-03) — verify, self-review
 argument-hint: <task-id>
 ---
 
+Final-stage policy: AGENTS.md overrides older exclusive-owner wording below. All project paths are shared. Keep your own task IDs/branch; check and coordinate overlaps before editing. Cross-area fixes and conflict resolution are allowed after understanding affected work, with relevant tests and review; never discard others’ edits or bypass guards.
+
+
 Finish task **$ARGUMENTS** (definition of done: `AGENTS.md` §7).
 
 1. `npm run verify`. Fix failures in your own files only; a failure in someone else's area → stop and report it.

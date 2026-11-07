@@ -3,6 +3,9 @@ name: task-start
 description: Start work on a task from this repo's task board (IDs like D3-01). Use before writing any code for a task — runs the ownership, dependency and duplicate preflight, then plans the work.
 ---
 
+Final-stage policy: AGENTS.md overrides older exclusive-owner wording below. All project paths are shared. Keep your own task IDs/branch; check and coordinate overlaps before editing. Cross-area fixes and conflict resolution are allowed after understanding affected work, with relevant tests and review; never discard others’ edits or bypass guards.
+
+
 Start the task ID the user gave you (procedure: `docs/TEAM_POLICY.md` § Task protocol).
 
 1. Run `npm run task:start -- <ID>`. If it prints any ✗ (not your task, not on the board, path not yours, wrong

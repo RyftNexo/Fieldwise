@@ -42,6 +42,12 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - Paths: packages/shared/**, docs/API_CONTRACTS.md
 - Accept: C-08 ring and C-09 call polling schemas, fixtures and tests match dev2 request; documentation updated; verify passes; contract PR merged before API integration
 
+### D3-06 · Enable final-stage shared ownership with integration safeguards
+- Status: Done
+- Depends on: —
+- Paths: AGENTS.md, CLAUDE.md, docs/**, .claude/**, .agents/**, scripts/tests/guard.test.mjs
+- Accept: All roles may edit any path after overlap check; contracts and tests remain protected; updated policy and guard tests pass
+
 ## Requests to others
 
 <!-- - REQ dev3→dev2 (open): <what> — needed by <task> -->
@@ -69,3 +75,5 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - 15:59 D3-05 → In Progress
 - 16:00 D3-05 → Review
 - 16:37 D3-05 → Done
+- 16:57 D3-06 → In Progress
+- 16:59 D3-06 → Done
