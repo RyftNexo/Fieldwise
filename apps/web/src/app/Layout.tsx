@@ -1,7 +1,7 @@
 import { Sprout } from 'lucide-react';
 import { Link, Outlet } from 'react-router';
 import { HillsArt } from '@/components/ui/HillsArt';
-import { APP_NAME } from './config';
+import { APP_NAME, APP_TAGLINE } from './config';
 
 export function Layout() {
   return (
@@ -59,6 +59,7 @@ export function Layout() {
               </span>
               {APP_NAME}
             </p>
+            <p className="mt-3 font-semibold text-cream-50">{APP_TAGLINE}</p>
             <p className="mt-3 max-w-md text-cream-100/85">
               Plain-language grant checks for Irish farmers. Code decides what you qualify for; the
               AI only reads your words and writes the summary.

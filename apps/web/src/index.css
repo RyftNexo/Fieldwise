@@ -1,7 +1,7 @@
 @import "@xyflow/react/dist/style.css";
 @import "tailwindcss";
 
-/* GrantGuide design system: "Organic field". Warm cream ground, deep field green, harvest-amber accent.
+/* Fieldwise design system: "Organic field". Warm cream ground, deep field green, harvest-amber accent.
    Fonts are bundled (see main.tsx), so the demo looks the same with the Wi-Fi off.
    Change these tokens to re-theme the whole app. Keep global CSS to this file. */
 @theme {

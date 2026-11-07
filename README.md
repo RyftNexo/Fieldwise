@@ -1,4 +1,8 @@
-# UCC Hackathon — team repo
+# Fieldwise
+
+**Your farm. Your options**
+
+Fieldwise helps Irish farmers explore relevant schemes by phone or in their own words, with transparent rules, supported estimates and official sources.
 
 Three developers, three AI agents, one app. This repo ships with a **coordination layer** (ownership map, guard
 hooks, CI, task board, contracts) and a **working full-stack skeleton** (React + Hono + SQLite), so the team can

@@ -21,7 +21,7 @@ Owner: **dev1**. The demo path is the product: build it first, protect it always
 | Part         | Time | Content                                                                                          |
 | ------------ | ---- | ------------------------------------------------------------------------------------------------ |
 | Problem      | 0:20 | Declan, 55, West Cork: 3 ha too wet for cattle. The answer is buried in DAFM PDFs, so he pays a consultant or gives up. |
-| Solution     | 0:20 | GrantGuide: describe your farm in plain English and see the grants you qualify for, with the maths and the reason. |
+| Solution     | 0:20 | Fieldwise — Your farm. Your options: describe your farm in plain English and see the grants you qualify for, with the maths and the reason. |
 | Live demo    | 1:40 | The demo path above, narrated                                                                    |
 | How it works | 0:30 | Extract → Rules → Explain. "Code does the matching and the maths; the LLM only listens and talks." |
 | What's next  | 0:10 | Next: map-based field selection, a maintained scheme feed and alerts when a scheme opens. |

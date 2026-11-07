@@ -1,7 +1,7 @@
 import { RotateCcw } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
-import { APP_TAGLINE } from '@/app/config';
+import { APP_DESCRIPTION, APP_TAGLINE } from '@/app/config';
 import { Button } from '@/components/ui/Button';
 import { cardClasses } from '@/components/ui/Card';
 import { cn } from '@/lib/utils';
@@ -196,12 +196,13 @@ export function AdvisorPage() {
 function Hero() {
   return (
     <header className="text-center">
+      <p className="mb-5 text-lg font-semibold text-brand-800 sm:text-xl">{APP_TAGLINE}</p>
       <h1 className="text-[clamp(3.1rem,5.4vw,4.75rem)] leading-[1.04] font-bold tracking-[-0.045em] text-[#171d1b]">
         <span className="block">Find the farm grants</span>
         <span className="block">you’re missing</span>
       </h1>
       <p className="mx-auto mt-8 max-w-[54rem] text-lg leading-relaxed text-pretty text-soil-700 sm:text-[1.75rem] sm:leading-[1.45]">
-        {APP_TAGLINE}
+        {APP_DESCRIPTION}
       </p>
     </header>
   );

@@ -9,7 +9,7 @@ export function callPageHtml(): string {
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Call GrantGuide</title>
+  <title>Call Fieldwise</title>
   <style>
     body { font-family: Georgia, serif; margin: 0; background: #faf7f2; color: #1c1917; }
     main { max-width: 28rem; margin: 4rem auto; padding: 0 1.25rem; }
@@ -24,7 +24,8 @@ export function callPageHtml(): string {
 </head>
 <body>
   <main>
-    <h1>Call GrantGuide</h1>
+    <h1>Call Fieldwise</h1>
+    <p>Your farm. Your options</p>
     <p>Answer the phone, describe the farm, and the advice line reads back the grants.</p>
     <label for="to">Mobile to ring</label>
     <input id="to" name="to" value="${to}" autocomplete="tel" />

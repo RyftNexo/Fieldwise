@@ -38,11 +38,11 @@ describe('webhookUrls', () => {
         requestUrl: 'http://localhost:8787/api/voice/incoming',
         forwardedProto: 'https',
         forwardedHost: 'demo.trycloudflare.com',
-        publicBase: 'https://grantguide.example/',
+        publicBase: 'https://fieldwise.example/',
       }),
     ).toEqual([
       'http://localhost:8787/api/voice/incoming',
-      'https://grantguide.example/api/voice/incoming',
+      'https://fieldwise.example/api/voice/incoming',
       'https://demo.trycloudflare.com/api/voice/incoming',
     ]);
   });

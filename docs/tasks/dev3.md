@@ -48,6 +48,12 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - Paths: AGENTS.md, CLAUDE.md, docs/**, .claude/**, .agents/**, scripts/tests/guard.test.mjs
 - Accept: All roles may edit any path after overlap check; contracts and tests remain protected; updated policy and guard tests pass
 
+### D3-07 · Rename the product to Fieldwise
+- Status: Review
+- Depends on: —
+- Paths: apps/**, docs/**, packages/shared/src/advice.test.ts, README.md
+- Accept: Fieldwise and Your farm. Your options appear consistently in product surfaces and documentation; existing routes, contracts, persistence and phone behaviour remain compatible; verify and production smoke pass
+
 ## Requests to others
 
 <!-- - REQ dev3→dev2 (open): <what> — needed by <task> -->
@@ -77,3 +83,5 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - 16:37 D3-05 → Done
 - 16:57 D3-06 → In Progress
 - 16:59 D3-06 → Done
+- 17:38 D3-07 → In Progress
+- 17:42 D3-07 → Review

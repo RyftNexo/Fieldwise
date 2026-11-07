@@ -17,7 +17,7 @@ import {
   schemeFixtures,
 } from './index';
 
-describe('GrantGuide contract v1', () => {
+describe('Fieldwise contract v1', () => {
   it('registers the five agreed endpoint methods and paths', () => {
     expect(
       Object.values(endpoints)
