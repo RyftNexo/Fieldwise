@@ -45,6 +45,11 @@ describe('NTAS evaluation', () => {
     expect(match?.deadline).toBe('2027-12-31');
   });
 
+  it('rounds a fractional hectare, such as two acres, to whole euros', () => {
+    const match = evaluateNtas(makeProfile({ marginalHectares: 0.8, nearWatercourse: true }));
+    expect(match?.value).toMatchObject({ oneOffEur: 5_395, annualEur: 1_827, totalEur: 23_665 });
+  });
+
   it('returns nothing when there is no land to plant', () => {
     expect(evaluateNtas(makeProfile())).toBeNull();
     expect(evaluateNtas(makeProfile({ marginalHectares: 0 }))).toBeNull();
