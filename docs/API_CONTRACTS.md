@@ -75,8 +75,8 @@ Statuses: _proposed_ (agreed, not in code) → _live_ (in the registry; mocks ma
 
 | ID | Method | Path | Request | Response data | State |
 | --- | --- | --- | --- | --- | --- |
-| C-08 | POST | `/api/voice/ring` | `RingVoiceInput` (`{ to: string }`) | `RingVoiceResponse` (`{ callSid, to }`), HTTP 201 | registered; API migration pending |
-| C-09 | GET | `/api/voice/calls/:callSid` | path parameter `callSid` | `VoiceCall` | registered; API migration pending |
+| C-08 | POST | `/api/voice/ring` | `RingVoiceInput` (`{ to: string }`) | `RingVoiceResponse` (`{ callSid, to }`), HTTP 201 | implemented (PR #17) |
+| C-09 | GET | `/api/voice/calls/:callSid` | path parameter `callSid` | `VoiceCall` | implemented (PR #17) |
 
 Registry keys are `ringVoiceCall` and `getVoiceCall`. Call C-09 with
 `call(endpoints.getVoiceCall, { params: { callSid } })`; never use a direct browser fetch.
@@ -88,7 +88,9 @@ It returns HTTP 403 `FORBIDDEN` for disallowed destinations and HTTP 429 `RATE_L
 These demo routes do not use bearer authentication; destination restrictions and rate limits remain mandatory.
 TwiML callbacks continue to require valid Twilio signatures. Do not place real calls from automated tests.
 Fixtures: `ringVoiceInputFixture`, `ringVoiceResponseFixture`, `voiceCallFixtures` (all four states).
-These contracts must merge before PR #17 migrates to `parseBody`/`reply` and dev1 wires its shared client/mocks.
+Contracts merged in PR #18; API `parseBody`/`reply` migration merged in PR #17; homepage shared-client integration merged in PR #19.
+The merged webhook code still accepts unsigned requests when the forwarded host matches its configuration;
+this unresolved authentication finding is separate from schema implementation status.
 
 ### General procedure
 
