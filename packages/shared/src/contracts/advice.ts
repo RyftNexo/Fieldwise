@@ -23,7 +23,7 @@ export type SchemeStatus = z.infer<typeof SchemeStatus>;
 /** Missing facts stay absent (or explicitly unknown); extraction must not invent them. */
 export const FarmProfile = z
   .object({
-    hectares: z.number().positive(),
+    hectares: z.number().positive().optional(),
     enterprise: Enterprise,
     county: Text.optional(),
     region: Text.optional(),
@@ -37,10 +37,14 @@ export const FarmProfile = z
     plannedInvestment: Investment.optional(),
     missing: z.array(Text),
   })
-  .refine((profile) => (profile.marginalHectares ?? 0) <= profile.hectares, {
-    path: ['marginalHectares'],
-    message: 'Marginal land cannot exceed the total farm area',
-  });
+  .refine(
+    (profile) =>
+      profile.hectares === undefined || (profile.marginalHectares ?? 0) <= profile.hectares,
+    {
+      path: ['marginalHectares'],
+      message: 'Marginal land cannot exceed the total farm area',
+    },
+  );
 export type FarmProfile = z.infer<typeof FarmProfile>;
 
 export const GrantValue = z.object({

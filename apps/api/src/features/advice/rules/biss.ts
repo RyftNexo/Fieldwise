@@ -7,7 +7,9 @@ import { formatEur, formatHa } from './format';
 export function evaluateBiss(profile: FarmProfile): GrantMatch {
   const notActive = profile.activeFarmer === false;
   const reasons = [
-    `You farm ${formatHa(profile.hectares)}. BISS pays on each eligible hectare you farm, up to the number of payment entitlements you hold.`,
+    profile.hectares === undefined
+      ? 'BISS pays on each eligible hectare you farm, up to the number of payment entitlements you hold. You did not give a farm size, so there is no hectare total here.'
+      : `You farm ${formatHa(profile.hectares)}. BISS pays on each eligible hectare you farm, up to the number of payment entitlements you hold.`,
     notActive
       ? 'You must be the active farmer on the land, and you said you are not, so check before you claim.'
       : 'You must be an active farmer with a herd number. We assume you are, so confirm it.',

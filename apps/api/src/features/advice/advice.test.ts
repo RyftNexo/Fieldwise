@@ -102,11 +102,16 @@ describe('C-03 POST /api/advice (live, model stubbed)', () => {
     expect(fetchStub).not.toHaveBeenCalled();
   });
 
-  it('asks for the farm size when the text has none', async () => {
-    stubLlm({ hectares: 0, enterprise: 'other', missing: ['farm size'] }, 'unused');
+  it('still answers when the text has no farm size', async () => {
+    stubLlm(
+      { hectares: 0, enterprise: 'other', missing: ['farm size'] },
+      'Schemes may still apply.',
+    );
     const res = await post(endpoints.advice.path, { text: 'I want a grant' });
-    expect(res.status).toBe(400);
-    expect(ApiErrorBody.parse(await res.json()).error.code).toBe('VALIDATION_ERROR');
+    expect(res.status).toBe(200);
+    const { data } = successBody(endpoints.advice.response).parse(await res.json());
+    expect(data.profile.hectares).toBeUndefined();
+    expect(data.profile.missing).toContain('farm size');
   });
 });
 

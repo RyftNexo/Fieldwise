@@ -50,11 +50,11 @@ describe('parseExtractedProfile', () => {
     expect(profile.designatedSite).toBeNull();
   });
 
-  it('asks for the farm size when none was given', () => {
+  it('continues when the farm size was not given', () => {
     for (const hectares of [0, null, undefined, 'forty']) {
-      const error = errorOf(json({ hectares, enterprise: 'other', missing: [] }));
-      expect(error.code).toBe('VALIDATION_ERROR');
-      expect(error.message).toContain('how big');
+      const profile = parseExtractedProfile(json({ hectares, enterprise: 'other', missing: [] }));
+      expect(profile.hectares).toBeUndefined();
+      expect(profile.missing).toContain('the size of the farm');
     }
   });
 

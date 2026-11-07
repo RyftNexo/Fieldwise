@@ -21,7 +21,7 @@ export type OptionalBooleanDraft = '' | 'yes' | 'no';
 
 export function draftFromProfile(profile: FarmProfile): ProfileDraft {
   return {
-    hectares: String(profile.hectares),
+    hectares: profile.hectares === undefined ? '' : String(profile.hectares),
     enterprise: profile.enterprise,
     county: profile.county ?? '',
     region: profile.region ?? '',
@@ -37,6 +37,7 @@ export function draftFromProfile(profile: FarmProfile): ProfileDraft {
 /** Turns the edit form back into the shared contract shape without inventing missing facts. */
 export function profileFromDraft(original: FarmProfile, draft: ProfileDraft): FarmProfile {
   const missing = original.missing.filter((item) => {
+    if (draft.hectares && /size|hectare|acre/iu.test(item)) return false;
     if (draft.age && /age/iu.test(item)) return false;
     if ((draft.county || draft.region) && /county|location|where/iu.test(item)) return false;
     if (draft.marginalHectares && /marginal|wet|rough|unused land/iu.test(item)) return false;
@@ -49,7 +50,7 @@ export function profileFromDraft(original: FarmProfile, draft: ProfileDraft): Fa
 
   const checked = FarmProfileSchema.safeParse({
     ...original,
-    hectares: Number(draft.hectares),
+    hectares: optionalNumber(draft.hectares),
     enterprise: draft.enterprise,
     county: optionalText(draft.county),
     region: optionalText(draft.region),

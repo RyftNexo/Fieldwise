@@ -47,10 +47,11 @@ const INVESTMENT_LABELS: Record<Exclude<Investment, 'none'>, string> = {
 
 /** What the farmer told us as short chips, followed by the things worth asking about. */
 export function profileToChips(profile: FarmProfile): ProfileChip[] {
-  const chips: ProfileChip[] = [
-    { key: 'hectares', label: formatHectares(profile.hectares) },
-    { key: 'enterprise', label: ENTERPRISE_LABELS[profile.enterprise] },
-  ];
+  const chips: ProfileChip[] = [];
+  if (profile.hectares !== undefined) {
+    chips.push({ key: 'hectares', label: formatHectares(profile.hectares) });
+  }
+  chips.push({ key: 'enterprise', label: ENTERPRISE_LABELS[profile.enterprise] });
   const place = placeOf(profile);
   if (place) chips.push({ key: 'place', label: place });
   if (profile.age !== undefined) chips.push({ key: 'age', label: `Age ${profile.age}` });

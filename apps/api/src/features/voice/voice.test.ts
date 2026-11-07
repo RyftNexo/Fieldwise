@@ -3,7 +3,7 @@ import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createApp } from '../../app';
 import { ensureDatabase } from '../../db/client';
 import { env } from '../../env';
-import { clearVoiceJobs, noteOutboundCall } from './jobs';
+import { clearVoiceJobs, followUpQuestion, noteOutboundCall } from './jobs';
 import { clearRingAttempts } from './ringPolicy';
 import { signTwilioWebhook } from './signature';
 import { voiceMaxPolls } from './twiml';
@@ -193,6 +193,11 @@ describe('GET /api/voice/calls/:callSid', () => {
       SpeechResult: 'A suckler farm in West Cork, about 40 hectares, wet land by the river.',
     };
     await postVoice(path, params, signed(path, params));
+    await postVoice(
+      path,
+      { CallSid: 'CA-screen', SpeechResult: 'Nothing else.' },
+      signed(path, { CallSid: 'CA-screen', SpeechResult: 'Nothing else.' }),
+    );
 
     const res = await app.request(buildPath(endpoints.getVoiceCall.path, { callSid: 'CA-screen' }));
     expect(res.status).toBe(200);
@@ -220,12 +225,30 @@ describe('POST /api/voice/advice', () => {
       CallSid: 'CA1',
       SpeechResult: 'A suckler farm in West Cork, about 40 hectares, wet land by the river.',
     };
-    const res = await postVoice(path, params, signed(path, params));
-    expect(res.status).toBe(200);
+    const asked = await postVoice(path, params, signed(path, params));
+    expect(asked.status).toBe(200);
+    const question = await asked.text();
+    expect(question).toContain('<Gather');
+    expect(question).toContain(followUpQuestion);
+    expect(question).not.toContain('<Hangup/>');
+
+    const followUp = { CallSid: 'CA1', SpeechResult: 'Nothing else.' };
+    const res = await postVoice(path, followUp, signed(path, followUp));
     const body = await res.text();
     expect(body).toContain('58,388');
     expect(body).toContain('<Hangup/>');
     expect(body).toContain('Department of Agriculture');
+  });
+
+  it('asks the same follow-up on every call before it checks the schemes', async () => {
+    configureLine();
+    const path = '/api/voice/advice?attempt=1';
+    const params = { CallSid: 'CA-ask', SpeechResult: 'Forty hectares of sheep in Kerry.' };
+    const res = await postVoice(path, params, signed(path, params));
+    const spoken = await res.text();
+    expect(spoken).toContain('<Gather');
+    expect(spoken).toContain(followUpQuestion);
+    expect(spoken).not.toContain('<Hangup/>');
   });
 
   it('asks again when the line stays quiet', async () => {
@@ -256,7 +279,12 @@ describe('POST /api/voice/advice', () => {
     env.DEMO_MODE = 'fixtures';
     const path = '/api/voice/advice?attempt=1';
     const params = { CallSid: 'CA1', SpeechResult: 'I grow bananas in a greenhouse.' };
-    const res = await postVoice(path, params, signed(path, params));
+    await postVoice(path, params, signed(path, params));
+    const res = await postVoice(
+      path,
+      { CallSid: 'CA1', SpeechResult: '' },
+      signed(path, { CallSid: 'CA1', SpeechResult: '' }),
+    );
     const body = await res.text();
     expect(body).toContain('West Cork suckler farm');
     expect(body).toContain('<Hangup/>');
@@ -283,11 +311,16 @@ describe('POST /api/voice/advice', () => {
     );
 
     const path = '/api/voice/advice?attempt=1';
-    const params = {
+    const first = {
       CallSid: 'CA-slow',
       SpeechResult:
         '40 hectares of suckler beef in West Cork, with 3 hectares wet beside the river.',
     };
+    const asked = await postVoice(path, first, signed(path, first));
+    expect(await asked.text()).toContain(followUpQuestion);
+    expect(releases).toHaveLength(0);
+
+    const params = { CallSid: 'CA-slow', SpeechResult: 'There is a river beside the wet land.' };
     const started = Date.now();
     const res = await postVoice(path, params, signed(path, params));
     expect(Date.now() - started).toBeLessThan(1_000);
@@ -334,7 +367,9 @@ describe('POST /api/voice/advice', () => {
     );
 
     const advicePath = '/api/voice/advice?attempt=1';
-    const params = { CallSid: 'CA-budget', SpeechResult: 'Forty hectares of sheep in Kerry.' };
+    const first = { CallSid: 'CA-budget', SpeechResult: 'Forty hectares of sheep in Kerry.' };
+    await postVoice(advicePath, first, signed(advicePath, first));
+    const params = { CallSid: 'CA-budget', SpeechResult: 'The land is wet.' };
     await postVoice(advicePath, params, signed(advicePath, params));
 
     const resultPath = `/api/voice/result?poll=${voiceMaxPolls}`;

@@ -3,7 +3,6 @@ import type { Context } from 'hono';
 import { Hono } from 'hono';
 import { env } from '../../env';
 import { AppError, parseBody, reply } from '../../lib/http';
-import { callPageHtml } from './callPage';
 import {
   beginVoiceAdvice,
   cancelVoiceJob,
@@ -19,7 +18,7 @@ import { gatherTwiml, hangupTwiml, voiceMaxPolls, waitTwiml } from './twiml';
 
 /**
  * Inbound phone line. Twilio posts form data here and expects TwiML, not the JSON API.
- * One description from the caller, then the same advice pipeline as POST /api/advice.
+ * The caller describes the farm, answers one fixed follow-up, then hears the same advice as POST /api/advice.
  * The model runs off the webhook: each response goes back before Twilio's 15 second limit.
  */
 export const router = new Hono();
@@ -27,7 +26,7 @@ export const router = new Hono();
 const maxAttempts = 2;
 const tookTooLong = 'This is taking too long. Please call again in a moment.';
 const openingPrompt = [
-  'Fieldwise. Your farm. Your options. Tell me about your farm in your own words.',
+  'Hey there, my name is Fieldwise. Tell me a bit about your farm?',
   'How many hectares, what you keep, and where you farm.',
 ].join(' ');
 
@@ -82,17 +81,21 @@ router.post('/api/voice/advice', async (c) => {
 
   const speech = params.SpeechResult?.trim() ?? '';
   const attempt = attemptOf(c, 'attempt');
-  if (speech.length < 3) return xml(c, missedTwiml(attempt));
-
   const callSid = params.CallSid?.trim() ?? '';
+  if (speech.length < 3) {
+    const waiting = callSid ? voiceJob(callSid) : undefined;
+    if (waiting?.state === 'question') {
+      return xml(c, voiceReply(beginVoiceAdvice(callSid, ''), 1));
+    }
+    return xml(c, missedTwiml(attempt));
+  }
+
   if (!callSid) {
     return xml(c, hangupTwiml('We could not keep track of this call. Please call again.'));
   }
 
   const job = beginVoiceAdvice(callSid, speech.slice(0, 10_000));
-  if (job.state === 'done' && job.script) return xml(c, hangupTwiml(job.script));
-  if (job.state === 'failed') return xml(c, hangupTwiml(job.failure ?? tookTooLong));
-  return xml(c, waitTwiml(1, voiceUrl('/api/voice/result?poll=1')));
+  return xml(c, voiceReply(job, 1));
 });
 
 router.post('/api/voice/result', async (c) => {
@@ -103,16 +106,23 @@ router.post('/api/voice/result', async (c) => {
   const callSid = params.CallSid?.trim() ?? '';
   const job = callSid ? voiceJob(callSid) : undefined;
   if (!job) return xml(c, hangupTwiml('I lost the thread of that call. Please call again.'));
-  if (job.state === 'done' && job.script) return xml(c, hangupTwiml(job.script));
-  if (job.state === 'failed') return xml(c, hangupTwiml(job.failure ?? tookTooLong));
-
   const poll = attemptOf(c, 'poll');
-  if (poll >= voiceMaxPolls) {
+  if (job.state === 'pending' && poll >= voiceMaxPolls) {
     cancelVoiceJob(callSid, tookTooLong);
     return xml(c, hangupTwiml(tookTooLong));
   }
-  return xml(c, waitTwiml(poll + 1, voiceUrl(`/api/voice/result?poll=${poll + 1}`)));
+  return xml(c, voiceReply(job, poll));
 });
+
+function voiceReply(job: NonNullable<ReturnType<typeof voiceJob>>, nextPoll: number) {
+  if (job.state === 'question' && job.question) {
+    return gatherTwiml(job.question, voiceUrl('/api/voice/advice?attempt=1'));
+  }
+  if (job.state === 'done' && job.script) return hangupTwiml(job.script);
+  if (job.state === 'failed') return hangupTwiml(job.failure ?? tookTooLong);
+  if (nextPoll > voiceMaxPolls) return hangupTwiml(tookTooLong);
+  return waitTwiml(nextPoll, voiceUrl(`/api/voice/result?poll=${nextPoll}`));
+}
 
 function missedTwiml(attempt: number): string {
   if (attempt >= maxAttempts) {
@@ -141,13 +151,13 @@ function denyUnlessTwilio(c: Context, params: Record<string, string>) {
     isValidTwilioSignature({ authToken: token, signature, url, params }),
   );
   if (valid) return undefined;
-  // This tunnel's Twilio requests arrive with no signature header. Only the configured public host may pass.
+  // This ngrok tunnel delivers Twilio with no signature header. Only the configured public host may pass.
   const host = c.req.header('x-forwarded-host')?.split(',')[0]?.trim();
   if (!signature && host && host === publicHost()) return undefined;
   return c.text('Twilio signature required', 403);
 }
 
-/** Absolute when the tunnel is set, so Twilio posts the next step back to this API. */
+/** Host of TWILIO_PUBLIC_BASE, used to recognise this tunnel when the signature header is absent. */
 function publicHost(): string | undefined {
   if (!env.TWILIO_PUBLIC_BASE) return undefined;
   try {

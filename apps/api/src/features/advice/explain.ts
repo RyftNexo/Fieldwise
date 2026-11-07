@@ -76,7 +76,7 @@ export async function explainMatches(
   try {
     const data = {
       farm: {
-        hectares: profile.hectares,
+        ...(profile.hectares !== undefined ? { hectares: profile.hectares } : {}),
         enterprise: profile.enterprise,
         region: profile.region ?? profile.county,
       },

@@ -9,7 +9,12 @@ import { scriptFromAdvice, spokenFailure } from './script';
 interface VoiceJob {
   to?: string;
   text: string;
-  state: 'pending' | 'done' | 'failed';
+  /** The latest utterance, so a Twilio retry does not start a second advice run. */
+  lastSpeech: string;
+  state: 'pending' | 'question' | 'done' | 'failed';
+  /** How many answers we have already taken after a spoken question. */
+  followUps: number;
+  question?: string;
   script?: string;
   failure?: string;
   advice?: AdviceResponse;
@@ -51,7 +56,7 @@ export function voiceCallView(callSid: string): VoiceCall | undefined {
   if (job.state === 'ringing') return { callSid, to: job.to, state: 'ringing' };
   return {
     callSid,
-    state: job.state,
+    state: job.state === 'question' ? 'pending' : job.state,
     transcript: job.text,
     ...(job.to !== undefined ? { to: job.to } : {}),
     ...(job.script !== undefined ? { script: job.script } : {}),
@@ -69,21 +74,58 @@ export function cancelVoiceJob(callSid: string, failure: string): void {
   job.failure = failure;
 }
 
+/** Asked after the first description, on every call. */
+export const followUpQuestion = 'Anything else about the land, the animals, or where you farm?';
+
 /**
- * One advice run per call. A Twilio retry of the same transcript reuses the job
- * instead of starting a second model call.
+ * The first description only stores the words and asks the follow-up.
+ * The next thing the caller says is added on, and then the advice runs once.
+ * A Twilio retry of the same transcript reuses the job.
  */
 export function beginVoiceAdvice(callSid: string, text: string): VoiceJob {
   const current = jobs.get(callSid);
-  if (current && current.state !== 'ringing') {
-    if (current.text === text) return current;
-    current.controller.abort();
+  const prior = current && current.state !== 'ringing' ? current : undefined;
+  const to = prior?.to ?? (current?.state === 'ringing' ? current.to : undefined);
+
+  if (prior && text.length >= 3 && text === prior.lastSpeech) return prior;
+
+  if (prior?.state === 'question') {
+    const textForJob = text.length >= 3 ? `${prior.text}\n${text}` : prior.text;
+    return startAdvice(callSid, to, textForJob, text.length >= 3 ? text : prior.lastSpeech);
   }
 
+  if (!prior) return askFollowUp(callSid, to, text);
+
+  if (prior.state === 'pending') prior.controller.abort();
+  return startAdvice(callSid, to, text, text);
+}
+
+function askFollowUp(callSid: string, to: string | undefined, text: string): VoiceJob {
   const job: VoiceJob = {
-    to: current?.to,
+    to,
     text,
+    lastSpeech: text,
+    state: 'question',
+    followUps: 0,
+    question: followUpQuestion,
+    controller: new AbortController(),
+  };
+  jobs.set(callSid, job);
+  return job;
+}
+
+function startAdvice(
+  callSid: string,
+  to: string | undefined,
+  text: string,
+  lastSpeech: string,
+): VoiceJob {
+  const job: VoiceJob = {
+    to,
+    text,
+    lastSpeech,
     state: 'pending',
+    followUps: 1,
     controller: new AbortController(),
   };
   jobs.set(callSid, job);

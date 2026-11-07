@@ -22,10 +22,11 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 
 ### D2-03 · Remove the example notes API once real features exist
 
-- Status: In Progress
+- Status: Done
 - Depends on: D1-03
 - Paths: apps/api/src/features/notes/**
 - Accept: folder deleted after dev1 removed the UI; API tests and smoke test still pass
+- Notes: removed in PR #13. D3-04 then retired the notes contracts. Nothing under `apps/api` still serves notes.
 
 ### D2-04 · Verified scheme facts for NTAS, ANC, BISS, ACRES
 - Status: Done
@@ -54,9 +55,9 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
   - `POST /api/voice/incoming` asks the caller to describe the farm. Gather uses `language="en-GB"` and `speechTimeout="3"` on the default recogniser. `speechTimeout="auto"` is Twilio error 13335 on that model, and a trial account rejects Polly voices, so Say is a plain en-GB voice. `actionOnEmptyResult="true"` sends silence to the retry. Action and redirect URLs are absolute when `TWILIO_PUBLIC_BASE` is set.
   - `POST /api/voice/advice` runs the same pipeline as C-03. A finished result is spoken immediately. A slow model gets `<Pause>` and a redirect to `POST /api/voice/result`, so the webhook itself stays inside Twilio's 15 second limit. The caller hears the summary, one next step and the Department disclaimer, then the call hangs up. The fetch is cancelled if the wait budget runs out.
   - `POST /api/voice/ring` with `{ to }` asks Twilio to dial that mobile from `TWILIO_FROM_NUMBER`, but only when `to` is on `TWILIO_RING_TO`. Repeats inside 15 seconds, or more than 3 in a minute, never reach Twilio. When they answer, Twilio loads `/api/voice/incoming`.
-  - These voice routes are not in the shared JSON contract yet. The Ring button in `apps/web/src/features/forester/LeadCard.tsx` is still a `tel:` link, which dev1 owns.
-  - A bad `X-Twilio-Signature` is rejected. This ngrok tunnel delivers Twilio with no signature header, so a missing signature is accepted only when `x-forwarded-host` is `TWILIO_PUBLIC_BASE`. Names only, never values: `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER`, `TWILIO_RING_TO`, and `TWILIO_PUBLIC_BASE`. They live in `apps/api/.env`.
-  - Still to do before anyone can dial in: buy a Voice number (UK or US; an Irish number needs address checks), tunnel localhost:8787, set `TWILIO_PUBLIC_BASE` to that https origin with no path, point the number's webhook at `https://<tunnel>/api/voice/incoming` (HTTP POST), restart the API.
+  - C-08 and C-09 are in the shared contract and the API validates them with `parseBody`/`reply`. The homepage rings through that client (D1-12, PR #19). The temporary `GET /api/voice/call` page is removed. The Ring button in `apps/web/src/features/forester/LeadCard.tsx` is still a `tel:` link, which dev1 owns.
+  - A bad `X-Twilio-Signature` is rejected. The live ngrok tunnel delivers Twilio's webhook with that header missing, and Twilio then says it cannot reach the TwiML server if the API returns 403. A missing signature is accepted only when `x-forwarded-host` matches `TWILIO_PUBLIC_BASE`. Names only, never values: `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER`, `TWILIO_RING_TO`, and `TWILIO_PUBLIC_BASE`. They live in `apps/api/.env`.
+  - Still to do before this task is Done: place one real allowlisted call that shows advice on the homepage. The tunnel and number are already in use.
   - `DEMO_MODE=fixtures` only knows Declan, Aoife and Mary. Live mode uses the OpenAI key already on the API.
 
 ## Requests to others
@@ -65,10 +66,11 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 
 - REQ dev2→dev3 (closed): `OPENAI_API_KEY`, `OPENAI_MODEL` and `OPENAI_TIMEOUT_MS` are in the env table in `docs/API_CONTRACTS.md` (D3-03, PR #12) — needed by D2-06
 - REQ dev2→dev3 (closed): Twilio env vars, including `TWILIO_RING_TO`, are in the env table in `docs/API_CONTRACTS.md` — needed by D2-07
-- REQ dev2→dev1 (open): the Ring button in `apps/web/src/features/forester/LeadCard.tsx` is a `tel:` link and the ownership guard blocks dev2 from editing it. Please POST `{ to: lead.phone }` to `/api/voice/ring` and show `error.message`. Until then the clickable page is `GET /api/voice/call` — needed by D2-07
-- REQ dev2→dev1 (open): make the homepage (`apps/web/src/features/advisor/AdvisorPage.tsx`) a phone call. The farmer types a mobile, the page POSTs `{ to }` to `/api/voice/ring`, then polls `GET /api/voice/calls/:callSid` and renders `data.advice` with the existing `Results` component on that same screen. `data.state` is `ringing`, `pending`, `done`, or `failed` (`data.failure` on failure). The guard blocks dev2 from `apps/web` — needed by D2-07
+- REQ dev2→dev1 (open): the Ring button in `apps/web/src/features/forester/LeadCard.tsx` is a `tel:` link and the ownership guard blocks dev2 from editing it. Please POST `{ to: lead.phone }` to `/api/voice/ring` and show `error.message`. The homepage call card is the working screen — needed by D2-07
+- REQ dev2→dev1 (closed): the homepage (`apps/web/src/features/advisor/AdvisorPage.tsx`) rings through C-08/C-09 and shows the results (D1-12, PR #19) — needed by D2-07
 - REQ dev2→dev3 (closed): C-08 and C-09 are registered (D3-05) and the API now uses `parseBody`/`reply` for them — needed by D2-07
-- REQ dev2→dev3 (open): mark C-08 and C-09 as implemented in `docs/API_CONTRACTS.md` (the table still says "API migration pending") — needed by D2-07
+- REQ dev2→dev3 (closed): C-08 and C-09 are marked implemented in `docs/API_CONTRACTS.md` (PR #20) — needed by D2-07
+- REQ dev2→dev3 (open): `GET /api/voice/call` is removed. The unsigned-host bypass stays: this ngrok tunnel delivers Twilio with no `X-Twilio-Signature`, and rejecting it makes Twilio say it cannot reach the TwiML server. Please say that in `docs/INTEGRATION.md` and `docs/API_CONTRACTS.md` — needed by D2-07
 - REQ dev2→dev1 (closed): we now use OpenAI instead of Gemini (Gemini's free tier allows only 20 requests a day per model, too few to rehearse). Please (1) add a decision after D-019 that replaces D-012 and fixes the Gemini wording in D-010: "LLM: OpenAI chat completions called with plain `fetch` (no SDK), key `OPENAI_API_KEY` in `apps/api/.env` only, default model `gpt-4.1-mini`; `DEMO_MODE=fixtures` still replays recorded replies"; (2) change "Gemini" to OpenAI, or better a neutral "AI", in `docs/ARCHITECTURE.md`, `docs/DEMO.md`, `docs/TASK_BOARD.md`, and the web copy in `apps/web/src/features/advisor/Results.tsx` ("Written by Gemini…"), `PipelineStepper.tsx` (two lines) and the `'gemini (preview)'` labels in `preview.ts`; (3) tell whoever runs the demo laptop to put `OPENAI_API_KEY` in that laptop's `apps/api/.env` — needed by D1 copy and the demo checklist
 - REQ dev2→dev1 (open): replace the three-card `PipelineStepper` on the advisor page with a React Flow graph (`@xyflow/react`) that lights up while advice is generated. Nodes, left to right: the farmer's words → Understand (AI) → a Farm profile card → one box per scheme dataset the rules engine actually checks (NTAS, ANC, BISS, ACRES, plus the investment schemes already in the rules) → Explain (AI) → the executive report (the existing `Results` summary). While `useAdvisor` walks `extract` → `rules` → `explain`, pulse the active node and draw the edge into it; during `rules`, light the scheme boxes one after another. On `done`, every visited node stays solid and the report node opens into the existing results. Keep the raw JSON "see the data" behaviour. New dependency `@xyflow/react` in `apps/web` only. The guard blocks dev2 from `apps/web` — needed so the demo shows the agent calling the datasets as it writes the report.
 
@@ -95,3 +97,8 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - 14:40 D2-01, D2-02, D2-04, D2-05 and D2-06 → Done because PRs #9 and #10 are on main. D2-03 verified locally (notes API removed, smoke passes with C-01 still pending for D3-04); not merged yet, so it stays In Progress.
 - 16:05 Asked dev1 for a React Flow pipeline on the advisor page (scheme dataset boxes lighting up while the report is written). Not started here: `apps/web` is dev1's.
 - 16:10 D2-07: C-08 and C-09 now go through parseBody and reply. The notes-contract and design work from main is merged in.
+- 16:55 D2-07: removed `GET /api/voice/call`. A missing `X-Twilio-Signature` is now 403 even when `x-forwarded-host` matches `TWILIO_PUBLIC_BASE`. A real allowlisted call is still unverified, so this stays In Progress.
+- 17:02 D2-07: the live ngrok webhook arrived with no signature and Twilio reported it could not reach the TwiML server. A missing signature is accepted again only for the configured public host. A wrong signature is still rejected.
+- 17:14 D2-07: a missing farm size no longer fails the call. If the spoken advice asks a question, the line listens for the answer and runs again, up to two follow-ups.
+- 17:16 D2-07: every call asks one fixed follow-up, "Anything else about the land, the animals, or where you farm?", then checks the schemes and hangs up.
+- 16:55 D2-03 → Done
