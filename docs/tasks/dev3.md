@@ -30,11 +30,11 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 
 ### D3-04 · Remove the example notes contract after web and API dropped it
 
-- Status: Blocked
+- Status: Done
 - Depends on: D2-03
 - Paths: packages/shared/src/contracts/notes.ts, packages/shared/src/fixtures/notes.ts, packages/shared/src/contracts/endpoints.ts, packages/shared/src/index.ts
 - Accept: C-01/C-02 removed and marked removed in the API_CONTRACTS.md change log; everything builds
-- Notes: notes UI removal is merged, but D2-03 has not removed the API consumer. Preserve C-01/C-02 until then.
+- Notes: web and API consumers removed in PRs #2/#13; shared contracts now retired.
 
 ## Requests to others
 
@@ -57,3 +57,4 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - 14:08 D3-02 → Done
 - 14:26 D3-03 → In Progress
 - 14:28 D3-03 → Done
+- 15:07 D3-04 → Done

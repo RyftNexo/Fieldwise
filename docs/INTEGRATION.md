@@ -21,14 +21,13 @@ Owner: **dev3** (merge captain). Deputy: **dev1** (Keith). Nobody else merges in
   Declan's example → advice results → forester form → saved lead in the forester inbox. The SPA route also
   loads directly. Recorded OpenAI replies were used; rules and database operations ran normally.
 - **Still unverified:** fresh OpenAI calls, microphone input on the presentation laptop, and a final
-  independent review of scheme facts. The UI's Gemini wording must be reconciled with the OpenAI backend
-  by dev1. This is the walking-skeleton checkpoint, not the full live-AI/voice checkpoint or demo release.
+  independent review of scheme facts. Provider wording was reconciled in PR #14. This is the walking-skeleton checkpoint, not the full live-AI/voice checkpoint or demo release.
 - API environment variables are documented in `docs/API_CONTRACTS.md`. For offline operation, set
   `DEMO_MODE=fixtures` in the API environment before startup; this is separate from `npm run dev:mock`, which
   uses browser-side illustrative fixtures and does not exercise API/database persistence.
-- **D3-04 is blocked on D2-03.** The notes UI is removed, but the API still uses C-01/C-02. Keep the shared
-  notes schemas and fixtures until dev2 removes its notes feature and tests. Remove the contracts afterward,
-  update the API contract change log, and verify all workspaces.
+- Notes API removed in PR #13; shared notes contracts are now retired (D3-04).
+- PR #14 adds profile editing and source data, fixes provider wording and records microphone testing.
+- Twilio implementation merged in PR #13; real dial-in still needs number/tunnel testing.
 - D3-02's layer-based map matches the kickoff decision and was confirmed in PR #7: Ilarion authored it,
   Keith approved it, and Toby merged it. Ownership confirmation is complete.
 

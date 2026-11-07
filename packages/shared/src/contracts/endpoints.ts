@@ -2,7 +2,6 @@ import { AdviceInput, AdviceResponse, EvaluateAdviceInput } from './advice';
 import { defineEndpoint } from './endpoint';
 import { HealthStatus } from './health';
 import { CreateLeadInput, Lead, LeadList } from './leads';
-import { CreateNoteInput, Note, NoteList } from './notes';
 import { SchemeList } from './schemes';
 
 /**
@@ -61,25 +60,6 @@ export const endpoints = {
     auth: false,
     summary: 'Liveness and database check',
     response: HealthStatus,
-  }),
-
-  // ── EXAMPLE (remove when real resources exist) ─────────────────────────────
-  listNotes: defineEndpoint({
-    id: 'C-01',
-    method: 'GET',
-    path: '/api/notes',
-    auth: false,
-    summary: 'EXAMPLE: list notes, newest first',
-    response: NoteList,
-  }),
-  createNote: defineEndpoint({
-    id: 'C-02',
-    method: 'POST',
-    path: '/api/notes',
-    auth: false,
-    summary: 'EXAMPLE: create a note',
-    request: CreateNoteInput,
-    response: Note,
   }),
 } as const;
 
