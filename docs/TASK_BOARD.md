@@ -5,45 +5,65 @@ three people never edit the same lines. Print everything with `npm run board`. T
 
 ## Kickoff checklist (first 30–60 minutes, humans, no code)
 
-- [ ] Read the brief together; list the judging criteria
-- [ ] Pick the idea (optional: pressure-test it with the `llm-council` skill in Claude/Cowork, ~10 min)
-- [ ] Write the **one demo path** (3–6 steps) in DEMO.md — everything else is optional
-- [ ] Decide the division: layer-based (default) or feature slices → dev3 updates OWNERSHIP.md if it changes
-- [ ] Decide the stack profile: A (TypeScript, default) or B (Python API)
-- [ ] Data: local SQLite (default) or hosted · Auth: none / demo user / real
-- [ ] External APIs or LLMs: which, who holds the keys, fixture fallback
-- [ ] Demo: local laptop (default) or hosted URL
-- [ ] Contract v1: endpoints and data shapes for the demo path → dev3 writes them (D3-01)
-- [ ] Each developer adds their first tasks to their own task file
-- [ ] Set checkpoint, feature-freeze and code-freeze times below; set the app name in `apps/web/src/app/config.ts`
-- [ ] Record the decisions in DECISIONS.md
+- [x] Read the brief; judging criteria: scattered, complex data → something actionable · non-technical users ·
+      plain-language interface · no static dashboards · honest about the prototype's limits · presentation quality
+- [x] Pick the idea: **GrantGuide**, a plain-language farm grant advisor (D-009)
+- [x] Write the **one demo path** in DEMO.md
+- [x] Decide the division: layer-based (default, OWNERSHIP.md unchanged)
+- [x] Decide the stack profile: A, TypeScript (D-011)
+- [x] Data: local SQLite · Auth: none
+- [x] External APIs or LLMs: Gemini; dev2 holds the dev key, the demo key lives in `apps/api/.env` on Keith's laptop;
+      fixture fallback (D-012)
+- [x] Demo: local laptop (D-017)
+- [ ] Contract v1: draft in ARCHITECTURE.md § Contract v1 draft → dev3 writes it (D3-01)
+- [ ] Each developer adds their first tasks to their own task file (dev1 ✓ · dev2 ☐ · dev3 ☐)
+- [x] Set checkpoint, feature-freeze and code-freeze times below; app name set to GrantGuide
+- [x] Record the decisions in DECISIONS.md
 
 ## Milestones
 
-| Milestone                                       | Time             | Status |
-| ----------------------------------------------- | ---------------- | ------ |
-| Kickoff done                                    | _(start + 0:30)_ | ☐      |
-| Contract v1 merged (`contract-v1`)              | _(start + 1:00)_ | ☐      |
-| Checkpoint 1: walking skeleton on main (`cp-1`) | _(start + 2:30)_ | ☐      |
-| Checkpoint 2 (`cp-2`)                           |                  | ☐      |
-| Checkpoint 3 (`cp-3`)                           |                  | ☐      |
-| Feature freeze                                  | _(~70% of time)_ | ☐      |
-| Code freeze + `demo-v1` + backup video          | _(end − 1:30)_   | ☐      |
-| Rehearsals done, slides final                   | _(end − 1:00)_   | ☐      |
+Start 11:25 · hard deadline 19:00.
+
+| Milestone                                                            | Time  | Status |
+| -------------------------------------------------------------------- | ----- | ------ |
+| Kickoff done                                                         | 12:00 | ☐      |
+| Contract v1 merged (`contract-v1`)                                   | 12:20 | ☐      |
+| Checkpoint 1: hard-coded profile end to end on main (`cp-1`)         | 13:30 | ☐      |
+| Checkpoint 2: full path with real Gemini and voice (`cp-2`)          | 15:30 | ☐      |
+| Feature freeze, tag `demo-v1`                                        | 16:30 | ☐      |
+| Backup video recorded (fixtures mode), slides done                   | 17:15 | ☐      |
+| Video on YouTube, link sent to the dev post                          | 18:00 | ☐      |
+| Rehearsals ×3 done; room confirmed (Dora Allman, 4th floor, the Hub) | 19:00 | ☐      |
 
 ## Backlog (agreed but unassigned)
 
 To take one, the owner of its paths adds it to their own task file and it's removed here.
 
-- _(empty)_
+- dev2: verified scheme facts from gov.ie (NTAS, ANC, BISS, ACRES; TAMS only if time): rates, caps, deadlines, URLs
+- dev2: schemes table + seed + C-05 `GET /api/schemes`
+- dev2: rules engine (pure functions + table tests) + C-04 `POST /api/advice/evaluate`
+- dev2: Gemini extract + explain + C-03 `POST /api/advice`; record fixtures for Declan, Aoife and Mary
+- dev2: leads table + C-06 `POST /api/leads` + C-07 `GET /api/leads`
+- dev3: fresh-clone `npm run demo` rehearsal ×2 and the backup video
+- anyone: ring 2–3 Cork registered foresters before 15:00 (their fees, how many enquiries never become applications,
+  would pre-qualified leads be worth paying for); one real quote goes on a slide
 
 ## Cut list (dropped first if time runs short)
 
-- _(stretch goals go here, lowest value first)_
+1. Hosted URL
+2. Forester inbox page (keep the lead button)
+3. Third persona
+4. TAMS schemes
+5. Chip editing
+6. Raw-data drawer
+
+**Never cut:** extract → rules → explain, the € calculation, the fixture fallback, the stepper.
 
 ## Cross-team dependencies
 
-| Needed by | From  | What               | Status |
-| --------- | ----- | ------------------ | ------ |
-| D1-02     | D3-01 | Contract v1 merged | open   |
-| D2-01     | D3-01 | Contract v1 merged | open   |
+| Needed by | From  | What                                          | Status |
+| --------- | ----- | --------------------------------------------- | ------ |
+| D1-02     | D3-01 | Contract v1 merged (C-03 + fixtures)          | open   |
+| D1-06     | D3-01 | C-04 and C-05 in the registry, with fixtures  | open   |
+| D1-07     | D3-01 | C-06 and C-07 in the registry, with fixtures  | open   |
+| D2-01     | D3-01 | Contract v1 merged                            | open   |

@@ -29,7 +29,8 @@ function fail(message: string): never {
 
 function cleanup() {
   server?.kill();
-  if (tmp) rmSync(tmp, { recursive: true, force: true });
+  // Windows may hold the SQLite file briefly after the server is terminated.
+  if (tmp) rmSync(tmp, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
 }
 
 function freePort(): Promise<number> {

@@ -7,9 +7,9 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 
 ### D3-01 · Contract v1 and fixtures from the kickoff
 
-- Status: Not Started
+- Status: Review
 - Depends on: D1-01
-- Paths: packages/shared/**, docs/API_CONTRACTS.md
+- Paths: packages/shared/**, docs/API_CONTRACTS.md, tests/smoke/smoke.ts
 - Accept: every v1 endpoint in the registry with request/response schemas; typed realistic fixtures; endpoint table + change log updated; merged to main and tagged `contract-v1` within the first hour
 
 ### D3-02 · Apply the ownership mode chosen at kickoff
@@ -36,5 +36,9 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 ## Requests to others
 
 <!-- - REQ dev3→dev2 (open): <what> — needed by <task> -->
+- REQ dev3→dev2 (open): implement C-03–C-07 after D3-01 merges; validate scheme IDs and recompute lead totals server-side. Fixtures deliberately contain no verified eligibility or payment amounts — needed by D3-03.
+- REQ dev3→dev1 (open): switch preview models/mocks to the D3-01 shared schemas and fixtures after merge; confirm kickoff D1-01 completion. C-06 requires contact details and consent; Scheme.checkedAt is nullable until verified — needed by D1-02, D1-06, D1-07.
 
 ## Log
+- 13:11 D3-01 → In Progress
+- 13:15 D3-01 → Review
