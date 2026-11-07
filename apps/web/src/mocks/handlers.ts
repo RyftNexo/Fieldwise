@@ -8,7 +8,10 @@ import {
   type Lead,
   leadFixtures,
   type ResponseOf,
+  ringVoiceResponseFixture,
   schemeFixtures,
+  type VoiceCallState,
+  voiceCallFixtures,
 } from '@app/shared';
 import type { z } from 'zod';
 
@@ -69,6 +72,10 @@ const fixtureMatches: GrantMatch[] = Object.values(adviceFixtures).flatMap(
 // In-memory state so new leads show up in the forester inbox until the page reloads.
 let leads: Lead[] = [...leadFixtures];
 
+// Each mock phone call moves one step per poll, like a real call: ringing, the farmer talks, then the advice.
+const VOICE_STEPS: VoiceCallState[] = ['ringing', 'ringing', 'pending', 'done'];
+const voicePolls = new Map<string, number>();
+
 export const mockHandlers: Record<string, AnyMockHandler> = Object.fromEntries([
   mock(endpoints.health)(() => ({
     status: 'ok',
@@ -109,4 +116,19 @@ export const mockHandlers: Record<string, AnyMockHandler> = Object.fromEntries([
   mock(endpoints.listLeads)(() =>
     [...leads].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
   ),
+
+  // No phone rings in mock mode: every call gets a fresh id and replays the shared voice fixtures.
+  mock(endpoints.ringVoiceCall)(({ body }) => {
+    const callSid = `CA${crypto.randomUUID().replaceAll('-', '')}`;
+    voicePolls.set(callSid, 0);
+    return { ...ringVoiceResponseFixture, callSid, to: body.to };
+  }),
+
+  mock(endpoints.getVoiceCall)(({ params }) => {
+    const callSid = String(params.callSid);
+    const polls = voicePolls.get(callSid) ?? VOICE_STEPS.length - 1;
+    voicePolls.set(callSid, polls + 1);
+    const state = VOICE_STEPS[Math.min(polls, VOICE_STEPS.length - 1)] ?? 'done';
+    return { ...voiceCallFixtures[state], callSid };
+  }),
 ]);

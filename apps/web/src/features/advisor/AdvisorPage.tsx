@@ -1,3 +1,4 @@
+import type { VoiceCall } from '@app/shared';
 import { RotateCcw, Sprout } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { APP_TAGLINE } from '@/app/config';
@@ -8,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { AskBox } from './AskBox';
 import { ExamplePrompts } from './ExamplePrompts';
 import { Landing } from './Landing';
+import { PhoneCallCard, PhoneCallSummary } from './PhoneCallCard';
 import { PipelineStepper } from './PipelineStepper';
 import type { Stage } from './pipeline';
 import { Results } from './Results';
@@ -28,21 +30,26 @@ export function AdvisorPage() {
   const [text, setText] = useState('');
   const advisor = useAdvisor();
   const resultsHeading = useRef<HTMLHeadingElement>(null);
-  const isIdle = advisor.stage === 'idle';
+  // A finished phone call (C-09) shows its advice here until the farmer types a question or starts again.
+  const [phoneCall, setPhoneCall] = useState<VoiceCall | null>(null);
+  const phoneAdvice = advisor.stage === 'idle' ? phoneCall?.advice : undefined;
+  const isIdle = advisor.stage === 'idle' && !phoneAdvice;
 
   useEffect(() => {
-    if (advisor.stage === 'done') resultsHeading.current?.focus();
-  }, [advisor.stage]);
+    if (advisor.stage === 'done' || phoneAdvice) resultsHeading.current?.focus();
+  }, [advisor.stage, phoneAdvice]);
 
   function ask(question: string) {
     const trimmed = question.trim();
     if (!trimmed || advisor.isRunning) return;
+    setPhoneCall(null);
     setText(question);
     advisor.ask(trimmed);
   }
 
   function startAgain() {
     advisor.reset();
+    setPhoneCall(null);
     setText('');
   }
 
@@ -64,11 +71,17 @@ export function AdvisorPage() {
             <AskBox value={text} onChange={setText} onSubmit={ask} busy={advisor.isRunning} />
           </div>
           {isIdle && <ExamplePrompts onPick={(prompt) => ask(prompt.text)} />}
+          {isIdle && <PhoneCallCard onAdvice={setPhoneCall} />}
         </div>
       </section>
 
       {isIdle ? (
         <Landing />
+      ) : phoneCall && phoneAdvice ? (
+        <div className="mx-auto max-w-3xl space-y-8 px-4 pt-6 sm:px-6">
+          <PhoneCallSummary call={phoneCall} />
+          <Results advice={phoneAdvice} headingRef={resultsHeading} onStartAgain={startAgain} />
+        </div>
       ) : (
         <div className="mx-auto max-w-3xl space-y-8 px-4 pt-6 sm:px-6">
           {advisor.stage !== 'error' && (
@@ -90,7 +103,7 @@ export function AdvisorPage() {
       )}
 
       <p aria-live="polite" className="sr-only">
-        {ANNOUNCEMENTS[advisor.stage]}
+        {phoneAdvice ? 'Your results from the phone call are ready.' : ANNOUNCEMENTS[advisor.stage]}
       </p>
     </div>
   );
