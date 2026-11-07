@@ -58,6 +58,12 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - Paths: apps/web/**, docs/DEMO.md
 - Accept: Mobile and projector check at 125% zoom, focus states, copy pass; slides: problem, Declan, demo, architecture (code decides, AI talks), honest limits, business (forester leads)
 
+### D1-09 · Forester lead flow on local preview data (pre-contract)
+- Status: Review
+- Depends on: —
+- Paths: apps/web/src/features/advisor/**, apps/web/src/features/forester/**, apps/web/src/components/**
+- Accept: When the results include a forestry scheme, a 'Send to a registered forester' form (name, phone, consent) saves a lead and confirms it; /forester inbox lists leads newest first with place, farm chips, matched schemes with badges, € estimate and contact; validation, loading, empty and error states; preview banner; npm run verify green
+
 ## Requests to others
 
 <!-- - REQ dev1→dev3 (open): <what> — needed by <task> -->
@@ -70,3 +76,5 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - 11:48 D1-04 → In Progress
 - 12:14 D1-04 → Review
 - 12:38 D1-05 → In Progress
+- 12:51 D1-09 → In Progress
+- 12:56 D1-09 → Review

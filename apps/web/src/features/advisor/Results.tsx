@@ -1,7 +1,9 @@
 import { Info, RotateCcw, Sparkles } from 'lucide-react';
 import type { Ref } from 'react';
+import { ForesterCta } from './ForesterCta';
 import { formatEuro } from './format';
 import { GrantCard } from './GrantCard';
+import { forestryMatches } from './leads';
 import { ProfileChips } from './ProfileChips';
 import { summariseMatches } from './summary';
 import type { AdviceResponse } from './types';
@@ -69,6 +71,8 @@ export function Results({ advice, headingRef, onStartAgain }: ResultsProps) {
       )}
 
       {advice.nextSteps.length > 0 && <NextSteps steps={advice.nextSteps} />}
+
+      {forestryMatches(advice.matches).length > 0 && <ForesterCta advice={advice} />}
 
       {advice.disclaimers.length > 0 && (
         <ul className="space-y-1.5 text-sm text-stone-500">

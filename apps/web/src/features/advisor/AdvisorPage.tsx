@@ -1,6 +1,7 @@
-import { RotateCcw, TriangleExclamationPoint } from 'lucide-react';
+import { RotateCcw } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { APP_TAGLINE } from '@/app/config';
+import { PreviewBanner } from '@/components/PreviewBanner';
 import { AskBox } from './AskBox';
 import { ExamplePrompts } from './ExamplePrompts';
 import { PipelineStepper } from './PipelineStepper';
@@ -67,7 +68,12 @@ export function AdvisorPage() {
 
       {advisor.result && (
         <>
-          {advisor.isPreview && <PreviewBanner />}
+          {advisor.isPreview && (
+            <PreviewBanner>
+              Until the advice API is connected, every question shows Declan's worked example, and
+              the figures haven't been checked against gov.ie yet.
+            </PreviewBanner>
+          )}
           <Results advice={advisor.result} headingRef={resultsHeading} onStartAgain={startAgain} />
         </>
       )}
@@ -90,18 +96,6 @@ function Hero() {
       </h1>
       <p className="mx-auto mt-4 max-w-2xl text-lg text-pretty text-stone-600">{APP_TAGLINE}</p>
     </header>
-  );
-}
-
-function PreviewBanner() {
-  return (
-    <aside className="flex gap-3 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
-      <TriangleExclamationPoint className="mt-0.5 size-5 shrink-0" aria-hidden />
-      <p>
-        <strong>Preview data.</strong> Until the advice API is connected, every question shows
-        Declan's worked example, and the figures haven't been checked against gov.ie yet.
-      </p>
-    </aside>
   );
 }
 

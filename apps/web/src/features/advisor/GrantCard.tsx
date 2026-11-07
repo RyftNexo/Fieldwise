@@ -20,9 +20,24 @@ const STATUS_LABELS: Record<SchemeStatus, string> = {
   unknown: 'Check the dates',
 };
 
+/** "You qualify" / "Likely" / "Check first". Colour plus words, never colour alone. */
+export function EligibilityBadge({ eligible }: { eligible: Eligibility }) {
+  const badge = ELIGIBILITY[eligible];
+  return (
+    <span
+      className={cn(
+        'inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold',
+        badge.className,
+      )}
+    >
+      <badge.Icon className="size-3.5" aria-hidden />
+      {badge.label}
+    </span>
+  );
+}
+
 /** One scheme: badge, € figure, the rules that fired, status, next step and the official link. */
 export function GrantCard({ match }: { match: GrantMatch }) {
-  const badge = ELIGIBILITY[match.eligible];
   const headingId = `grant-${match.schemeId}`;
   return (
     <article
@@ -38,15 +53,7 @@ export function GrantCard({ match }: { match: GrantMatch }) {
             {match.name}
           </h3>
         </div>
-        <span
-          className={cn(
-            'inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold',
-            badge.className,
-          )}
-        >
-          <badge.Icon className="size-3.5" aria-hidden />
-          {badge.label}
-        </span>
+        <EligibilityBadge eligible={match.eligible} />
       </div>
 
       <Value value={match.value} />

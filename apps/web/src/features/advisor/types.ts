@@ -65,3 +65,25 @@ export interface AdviceResponse {
   steps: { extract: unknown; rules: unknown; explain: unknown };
   mode: 'live' | 'fixtures';
 }
+
+export interface CreateLeadInput {
+  profile: FarmProfile;
+  /** The matched schemes the farmer wants a forester to look at. */
+  schemeIds: string[];
+  name: string;
+  phone?: string;
+  email?: string;
+  consent: true;
+}
+
+export interface Lead {
+  id: string;
+  /** ISO timestamp. */
+  createdAt: string;
+  name: string;
+  phone?: string;
+  email?: string;
+  profile: FarmProfile;
+  matches: GrantMatch[];
+  estimatedTotalEur: number;
+}

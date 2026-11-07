@@ -51,7 +51,7 @@ export function profileToChips(profile: FarmProfile): ProfileChip[] {
     { key: 'hectares', label: formatHectares(profile.hectares) },
     { key: 'enterprise', label: ENTERPRISE_LABELS[profile.enterprise] },
   ];
-  const place = profile.region ?? (profile.county ? `Co. ${profile.county}` : undefined);
+  const place = placeOf(profile);
   if (place) chips.push({ key: 'place', label: place });
   if (profile.age !== undefined) chips.push({ key: 'age', label: `Age ${profile.age}` });
   if (profile.gender === 'female') chips.push({ key: 'gender', label: 'Woman farmer' });
@@ -72,6 +72,11 @@ export function profileToChips(profile: FarmProfile): ProfileChip[] {
     chips.push({ key: `missing:${item}`, label: `${capitalise(item)}?`, missing: true });
   }
   return chips;
+}
+
+/** Where the farm is, in the farmer's words if they gave them ("West Cork"), else "Co. Cork". */
+export function placeOf(profile: FarmProfile): string | undefined {
+  return profile.region ?? (profile.county ? `Co. ${profile.county}` : undefined);
 }
 
 function capitalise(text: string): string {
