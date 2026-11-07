@@ -15,7 +15,7 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 
 ### D2-02 · Data model and demo seed data for the demo path
 
-- Status: Not Started
+- Status: Review
 - Depends on: D2-01
 - Paths: apps/api/src/features/*/schema.ts, apps/api/src/features/*/seed.ts
 - Accept: `npm run db:reset` creates and seeds everything; seed data tells the demo story (realistic names/numbers)
@@ -46,10 +46,16 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - Accept: C-03 extracts a FarmProfile via OpenAI, runs rules, explains in at most 120 words; DEMO_MODE=fixtures replays recordings for Declan, Aoife and Mary; timeout and UPSTREAM_ERROR handled; key stays server-side
 
 ### D2-07 · Inbound Twilio voice line for the advice pipeline
-- Status: Not Started
+- Status: In Progress
 - Depends on: D2-06
 - Paths: apps/api/**
 - Accept: A signed Twilio call to POST /api/voice/incoming returns Gather TwiML; POST /api/voice/advice speaks the advice summary; unsigned requests are rejected; the auth token stays in .env
+- Notes: Plan for the other devs. One inbound Twilio number, one spoken turn. Twilio is only the phone, the speech-to-text and the Irish voice (Polly Niamh, en-IE). A voice model does not decide grants.
+  - `POST /api/voice/incoming` asks the caller to describe the farm. `POST /api/voice/advice` runs the same pipeline as C-03, speaks the summary, one next step and the Department disclaimer, then hangs up.
+  - These routes return TwiML, not the shared JSON contract. Nothing in `packages/shared` changes, and dev1 does not need a web change for this slice.
+  - Unsigned requests are rejected (`X-Twilio-Signature`). Names only, never values: `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, and `TWILIO_PUBLIC_BASE` once a tunnel exists. They live in `apps/api/.env`.
+  - Still to do before anyone can dial in: buy a Voice number (UK or US; an Irish number needs address checks), tunnel localhost:8787, set `TWILIO_PUBLIC_BASE` to that https origin with no path, point the number's webhook at `https://<tunnel>/api/voice/incoming` (HTTP POST), restart the API.
+  - `DEMO_MODE=fixtures` only knows Declan, Aoife and Mary. Live mode uses the OpenAI key already on the API.
 
 ## Requests to others
 
@@ -67,3 +73,7 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - 13:33 D2-06 → In Progress
 - 13:54 D2-06 → Review
 - 14:10 D2-06: switched the LLM from Gemini to OpenAI (gpt-4.1-mini); fixtures re-recorded; requests sent to dev1 and dev3
+- 14:05 D2-07 → In Progress
+- 14:29 D2-07: plan shared for the other devs (one Twilio turn, then the advice pipeline; a number and a tunnel are still required)
+- 14:09 D2-02 → In Progress
+- 14:10 D2-02 → Review
