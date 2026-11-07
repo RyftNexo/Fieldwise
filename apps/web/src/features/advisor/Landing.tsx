@@ -8,39 +8,51 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 
-const STEPS: { title: string; body: string; Icon: LucideIcon }[] = [
+const STEPS: { title: string; body: string; Icon: LucideIcon; card: string; icon: string }[] = [
   {
     title: 'Understand',
     body: 'The AI reads your farm details — hectares, what you farm, where, and the land you can’t use.',
     Icon: ScanText,
+    card: 'border-brand-200 bg-brand-50',
+    icon: 'bg-brand-600 text-white',
   },
   {
     title: 'Check the rules',
     body: 'The code checks those details against each scheme’s criteria and does the maths. The AI isn’t involved.',
     Icon: Scale,
+    card: 'border-harvest-200 bg-harvest-50',
+    icon: 'bg-harvest-400 text-harvest-900',
   },
   {
     title: 'Explain',
     body: 'The AI writes a short summary of the results only. It can’t add a scheme or change a number.',
     Icon: MessageSquareText,
+    card: 'border-brand-300 bg-cream-100',
+    icon: 'bg-brand-800 text-cream-50',
   },
 ];
 
-const PROMISES: { title: string; body: string; Icon: LucideIcon }[] = [
+const PROMISES: { title: string; body: string; Icon: LucideIcon; card: string; icon: string }[] = [
   {
     title: 'Code decides, AI only talks',
     body: 'Whether you qualify, and how much, comes from rules built on Department of Agriculture scheme criteria, not from a chatbot’s guess.',
     Icon: ShieldCheck,
+    card: 'border-brand-200 bg-white',
+    icon: 'bg-brand-100 text-brand-800',
   },
   {
     title: 'Every answer shows its working',
     body: 'Each grant lists the rule that matched, how any figure was worked out, and a link to the official scheme page.',
     Icon: Calculator,
+    card: 'border-harvest-200 bg-harvest-50',
+    icon: 'bg-harvest-100 text-harvest-800',
   },
   {
     title: 'Honest about its limits',
     body: 'We can’t check herd numbers, land parcels, nitrates or soil tests, so some answers say “likely” or “check first” and point you to an official adviser.',
     Icon: Eye,
+    card: 'border-brand-200 bg-brand-50',
+    icon: 'bg-brand-700 text-cream-50',
   },
 ];
 
@@ -51,7 +63,7 @@ export function Landing() {
       <section
         id="how-it-works"
         aria-labelledby="how-heading"
-        className="min-h-[calc(100svh-4.5rem)] scroll-mt-[4.5rem] bg-white py-20 sm:py-24 md:min-h-[calc(100svh-6.75rem)] md:scroll-mt-[6.75rem] md:py-28"
+        className="min-h-[calc(100svh-4.5rem)] scroll-mt-[4.5rem] bg-cream-100 py-20 sm:py-24 md:min-h-[calc(100svh-6.75rem)] md:scroll-mt-[6.75rem] md:py-28"
       >
         <div className="mx-auto max-w-[91rem] px-5 sm:px-8 md:px-20">
           <div className="md:pl-5">
@@ -74,9 +86,11 @@ export function Landing() {
             {STEPS.map((step, index) => (
               <li
                 key={step.title}
-                className="min-h-[21.5rem] rounded-[1.5rem] border border-soil-200 bg-white p-8 shadow-[0_1px_2px_rgb(0_0_0/0.02)] sm:px-9 sm:py-8"
+                className={`min-h-[21.5rem] rounded-[1.5rem] border p-8 shadow-card sm:px-9 sm:py-8 ${step.card}`}
               >
-                <span className="grid size-[4.65rem] place-items-center rounded-[1.5rem] bg-brand-50 text-brand-700">
+                <span
+                  className={`grid size-[4.65rem] place-items-center rounded-[1.5rem] ${step.icon}`}
+                >
                   <step.Icon className="size-8" strokeWidth={2.1} aria-hidden />
                 </span>
                 <h3 className="mt-7 text-[1.7rem] leading-tight font-semibold tracking-[-0.025em] text-[#171d1b]">
@@ -94,7 +108,7 @@ export function Landing() {
       <section
         id="about"
         aria-labelledby="trust-heading"
-        className="min-h-[calc(100svh-4.5rem)] scroll-mt-[4.5rem] border-t border-soil-100 bg-white py-20 sm:py-24 md:min-h-[calc(100svh-6.75rem)] md:scroll-mt-[6.75rem] md:py-28"
+        className="min-h-[calc(100svh-4.5rem)] scroll-mt-[4.5rem] border-t border-brand-100 bg-gradient-to-b from-white to-brand-50 py-20 sm:py-24 md:min-h-[calc(100svh-6.75rem)] md:scroll-mt-[6.75rem] md:py-28"
       >
         <div className="mx-auto max-w-[91rem] px-5 sm:px-8 md:px-20">
           <header className="md:pl-5">
@@ -113,9 +127,11 @@ export function Landing() {
             {PROMISES.map((promise) => (
               <li
                 key={promise.title}
-                className="min-h-[20rem] rounded-[1.5rem] border border-soil-200 bg-white p-8 shadow-[0_1px_2px_rgb(0_0_0/0.02)] sm:px-9 sm:py-8"
+                className={`min-h-[20rem] rounded-[1.5rem] border p-8 shadow-card sm:px-9 sm:py-8 ${promise.card}`}
               >
-                <span className="grid size-[4.65rem] place-items-center rounded-[1.5rem] bg-brand-50 text-brand-700">
+                <span
+                  className={`grid size-[4.65rem] place-items-center rounded-[1.5rem] ${promise.icon}`}
+                >
                   <promise.Icon className="size-8" strokeWidth={2.1} aria-hidden />
                 </span>
                 <h3 className="mt-7 text-[1.7rem] leading-tight font-semibold tracking-[-0.025em] text-[#171d1b]">

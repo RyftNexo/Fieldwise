@@ -13,7 +13,7 @@ export function Layout() {
         Skip to content
       </a>
 
-      <header className="sticky top-0 z-20 border-b border-soil-100 bg-white/95 backdrop-blur">
+      <header className="sticky top-0 z-20 border-b border-brand-100 bg-cream-50/95 shadow-[inset_0_4px_0_0_var(--color-brand-600)] backdrop-blur">
         <div className="mx-auto flex h-[4.5rem] max-w-[91rem] items-center px-5 sm:px-8 md:h-[6.75rem] md:px-20">
           <Link
             to="/"

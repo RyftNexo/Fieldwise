@@ -1,14 +1,27 @@
-import type { AdviceResponse } from '@app/shared';
+import type { AdviceResponse, GrantMatch } from '@app/shared';
 import { AppError } from '../../lib/http';
 
-/** What the caller hears. The summary already comes from the rules, so this adds no new figures. */
+const closingLine = 'Thank you for your time. Call me back if you need anything else.';
+
+/** What the caller hears: the grants that fit, in at most three sentences, then goodbye. */
 export function scriptFromAdvice(advice: AdviceResponse): string {
-  const step = advice.nextSteps[0];
-  const followUp = step ? ` Next step: ${step}` : '';
-  return (
-    `${advice.summary}${followUp} This is a guide, not a decision. ` +
-    'The Department of Agriculture makes the final call.'
-  );
+  return `${grantSentences(advice.matches)} ${closingLine}`;
+}
+
+function grantSentences(matches: GrantMatch[]): string {
+  const names = matches
+    .filter((match) => match.eligible === 'yes' || match.eligible === 'likely')
+    .map((match) => match.shortName);
+  if (names.length === 0) {
+    return 'I could not see a grant that clearly fits from what you told me.';
+  }
+  return `The grants that look available are ${joinNames(names)}.`;
+}
+
+function joinNames(names: string[]): string {
+  if (names.length <= 1) return names[0] ?? '';
+  if (names.length === 2) return `${names[0]} and ${names[1]}`;
+  return `${names.slice(0, -1).join(', ')}, and ${names.at(-1)}`;
 }
 
 export function spokenFailure(error: unknown): string {

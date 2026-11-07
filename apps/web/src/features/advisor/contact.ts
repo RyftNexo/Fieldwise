@@ -1,7 +1,8 @@
 function withoutIrishPrefix(input: string): string {
   const digits = input.replace(/\D/g, '');
   if (digits.startsWith('353')) return digits.slice(3);
-  if (digits.startsWith('0')) return digits.slice(1);
+  // 0871234567 is ten digits: the trunk 0 plus the nine-digit national number. A 0 inside those nine stays.
+  if (digits.startsWith('0') && digits.length > 9) return digits.slice(1);
   return digits;
 }
 

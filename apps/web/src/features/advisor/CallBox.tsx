@@ -61,7 +61,10 @@ export function CallBox({
     incoming.split('').forEach((digit, offset) => {
       if (index + offset < DIGIT_COUNT) next[index + offset] = digit;
     });
-    const joined = next.filter(Boolean).join('').slice(0, DIGIT_COUNT);
+    const joined = next
+      .filter((digit) => digit !== undefined && digit !== '')
+      .join('')
+      .slice(0, DIGIT_COUNT);
     commit(joined);
     fields.current[Math.min(index + incoming.length, DIGIT_COUNT - 1)]?.focus();
   }
@@ -104,8 +107,8 @@ export function CallBox({
         disabled={inProgress}
         aria-describedby={shownError ? `${HINT_ID} ${ERROR_ID}` : HINT_ID}
         className={cn(
-          'flex min-w-0 flex-col gap-5 rounded-[1.75rem] border bg-white p-4 transition sm:p-8 lg:flex-row lg:items-center lg:gap-9 lg:px-8',
-          shownError ? 'border-red-400' : 'border-soil-200',
+          'flex min-w-0 flex-col gap-5 rounded-[1.75rem] border bg-gradient-to-br from-white via-cream-50 to-brand-50 p-4 shadow-card transition sm:p-8 lg:flex-row lg:items-center lg:gap-9 lg:px-8',
+          shownError ? 'border-red-400' : 'border-brand-200',
         )}
       >
         <legend className="sr-only">Your Irish mobile number</legend>
@@ -140,7 +143,7 @@ export function CallBox({
               maxLength={DIGIT_COUNT}
               aria-label={`Phone number digit ${index + 1} of ${DIGIT_COUNT}`}
               aria-invalid={shownError ? true : undefined}
-              className="focus-ring h-14 min-w-0 rounded-xl border border-soil-200 bg-white text-center text-xl font-medium text-soil-900 tabular-nums outline-none transition placeholder:text-soil-400 read-only:bg-soil-50 focus:border-brand-600 sm:h-[5.25rem] sm:rounded-2xl sm:text-2xl"
+              className="focus-ring h-14 min-w-0 rounded-xl border border-brand-200 bg-white text-center text-xl font-medium text-brand-950 tabular-nums outline-none transition placeholder:text-brand-300 read-only:bg-brand-50 focus:border-harvest-400 focus:bg-harvest-50 sm:h-[5.25rem] sm:rounded-2xl sm:text-2xl"
               placeholder="–"
             />
           ))}

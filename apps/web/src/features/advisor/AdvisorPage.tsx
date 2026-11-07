@@ -11,6 +11,7 @@ import { CallBox } from './CallBox';
 import { CallStatus } from './CallStatus';
 import { ExamplePrompts } from './ExamplePrompts';
 import { Landing } from './Landing';
+import { LogicTrace } from './LogicTrace';
 import type { Stage } from './pipeline';
 import { Results } from './Results';
 import { useAdvisor } from './useAdvisor';
@@ -97,7 +98,7 @@ export function AdvisorPage() {
         id="grant-checker"
         aria-label="Describe your farm"
         className={cn(
-          'scroll-mt-[4.5rem] bg-white md:scroll-mt-[6.75rem]',
+          'scroll-mt-[4.5rem] bg-gradient-to-b from-brand-50 via-cream-50 to-cream-100 md:scroll-mt-[6.75rem]',
           isIdle
             ? 'min-h-[calc(100svh-4.5rem)] px-4 pt-12 pb-20 sm:px-6 md:min-h-[calc(100svh-6.75rem)] md:pt-[6.65rem] md:pb-24'
             : 'px-4 pt-6 pb-2 sm:px-6 sm:pt-10',
@@ -162,26 +163,32 @@ export function AdvisorPage() {
           </div>
         </div>
       ) : (
-        <div className="mx-auto max-w-3xl space-y-8 px-4 pt-6 sm:px-6">
+        <div className="mx-auto max-w-5xl space-y-8 px-4 pt-6 sm:px-6">
           {voice.view !== 'idle' && (
-            <CallStatus
-              view={voice.view}
-              call={voice.call}
-              dialled={voice.dialled}
-              checkError={voice.checkError}
-              headingRef={callHeading}
-              onStartAgain={startAgainCall}
-              onCheckAgain={voice.checkAgain}
-              onTypeInstead={typeInstead}
-            />
+            <div className="mx-auto max-w-3xl">
+              <CallStatus
+                view={voice.view}
+                call={voice.call}
+                dialled={voice.dialled}
+                checkError={voice.checkError}
+                headingRef={callHeading}
+                onStartAgain={startAgainCall}
+                onCheckAgain={voice.checkAgain}
+                onTypeInstead={typeInstead}
+              />
+            </div>
           )}
 
+          {voice.view === 'pending' && voice.call?.checking && <LogicTrace />}
+
           {voice.advice && (
-            <Results
-              advice={voice.advice}
-              headingRef={resultsHeading}
-              onStartAgain={startAgainCall}
-            />
+            <div className="mx-auto max-w-3xl">
+              <Results
+                advice={voice.advice}
+                headingRef={resultsHeading}
+                onStartAgain={startAgainCall}
+              />
+            </div>
           )}
         </div>
       )}
@@ -196,10 +203,9 @@ export function AdvisorPage() {
 function Hero() {
   return (
     <header className="text-center">
-      <p className="mb-5 text-lg font-semibold text-brand-800 sm:text-xl">{APP_TAGLINE}</p>
-      <h1 className="text-[clamp(3.1rem,5.4vw,4.75rem)] leading-[1.04] font-bold tracking-[-0.045em] text-[#171d1b]">
+      <h1 className="text-[clamp(3.1rem,5.4vw,4.75rem)] leading-[1.04] font-bold tracking-[-0.045em] text-brand-950">
         <span className="block">Find the farm grants</span>
-        <span className="block">you’re missing</span>
+        <span className="block text-brand-600">you’re missing</span>
       </h1>
       <p className="mx-auto mt-8 max-w-[54rem] text-lg leading-relaxed text-pretty text-soil-700 sm:text-[1.75rem] sm:leading-[1.45]">
         {APP_DESCRIPTION}

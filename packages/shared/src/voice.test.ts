@@ -31,6 +31,9 @@ describe('voice JSON contracts', () => {
       expect(endpoints.getVoiceCall.response.parse(fixture)).toEqual(fixture);
     }
     expect(VoiceCall.parse({ callSid: 'CA-test', state: 'ringing' })).not.toHaveProperty('advice');
+    expect(VoiceCall.parse({ callSid: 'CA-test', state: 'pending', checking: true }).checking).toBe(
+      true,
+    );
     expect(RingVoiceInput.parse({ to: ' 087 000 0000 ' }).to).toBe('087 000 0000');
   });
   it('rejects blank destinations, invalid states and malformed nested advice', () => {

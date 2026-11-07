@@ -6,6 +6,9 @@ describe('Irish mobile number helpers', () => {
     expect(irishLocalDigits('087 123 4567')).toBe('871234567');
     expect(irishLocalDigits('+353 87 123 4567')).toBe('871234567');
     expect(irishLocalDigits('871234567')).toBe('871234567');
+    expect(irishLocalDigits('0')).toBe('0');
+    expect(irishLocalDigits('00')).toBe('00');
+    expect(irishLocalDigits('871230456')).toBe('871230456');
   });
 
   it('accepts only complete Irish mobile numbers', () => {

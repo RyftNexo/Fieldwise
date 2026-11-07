@@ -18,6 +18,8 @@ export const VoiceCall = z.object({
   to: z.string().min(1).optional(),
   state: VoiceCallState,
   transcript: z.string().optional(),
+  /** True only while the schemes are being checked, after the follow-up has been answered. */
+  checking: z.boolean().optional(),
   script: z.string().optional(),
   failure: z.string().optional(),
   advice: AdviceResponse.optional(),

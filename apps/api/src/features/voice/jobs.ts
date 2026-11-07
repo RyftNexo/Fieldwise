@@ -59,6 +59,7 @@ export function voiceCallView(callSid: string): VoiceCall | undefined {
     state: job.state === 'question' ? 'pending' : job.state,
     transcript: job.text,
     ...(job.to !== undefined ? { to: job.to } : {}),
+    ...(job.state === 'pending' && job.followUps > 0 ? { checking: true } : {}),
     ...(job.script !== undefined ? { script: job.script } : {}),
     ...(job.failure !== undefined ? { failure: job.failure } : {}),
     ...(job.advice !== undefined ? { advice: job.advice } : {}),
@@ -133,23 +134,57 @@ function startAdvice(
   return job;
 }
 
+/** Pause after the last answer so the page can show the check before anyone hears the result. */
+export const voiceRevealMs = 12_000;
+
 async function settle(job: VoiceJob, text: string): Promise<void> {
+  const startedAt = Date.now();
   try {
-    const advice =
-      env.DEMO_MODE === 'fixtures'
-        ? replayRecording(text)
-        : await adviseFromText(text, {
-            extract: (farmerText) => extractProfile(farmerText, job.controller.signal),
-            explain: (profile, matches) => explainMatches(profile, matches, job.controller.signal),
-          });
-    if (job.state !== 'pending') return;
-    job.advice = advice;
-    job.script = scriptFromAdvice(advice);
-    job.state = 'done';
+    if (env.DEMO_MODE === 'fixtures') {
+      const advice = replayRecording(text);
+      // Tests read the result on the same turn. A real call waits so the page can show the check.
+      if (process.env.VITEST) {
+        finish(job, advice);
+        return;
+      }
+      await waitForReveal(startedAt, job.controller.signal);
+      finish(job, advice);
+      return;
+    }
+    const advice = await adviseFromText(text, {
+      extract: (farmerText) => extractProfile(farmerText, job.controller.signal),
+      explain: (profile, matches) => explainMatches(profile, matches, job.controller.signal),
+    });
+    await waitForReveal(startedAt, job.controller.signal);
+    finish(job, advice);
   } catch (error) {
     if (job.state !== 'pending') return;
     console.error('voice advice failed');
     job.failure = spokenFailure(error);
     job.state = 'failed';
   }
+}
+
+function finish(job: VoiceJob, advice: AdviceResponse): void {
+  if (job.state !== 'pending') return;
+  job.advice = advice;
+  job.script = scriptFromAdvice(advice);
+  job.state = 'done';
+}
+
+function waitForReveal(startedAt: number, signal: AbortSignal): Promise<void> {
+  if (process.env.VITEST) return Promise.resolve();
+  const remaining = voiceRevealMs - (Date.now() - startedAt);
+  if (remaining <= 0 || signal.aborted) return Promise.resolve();
+  return new Promise((resolve) => {
+    const timer = setTimeout(resolve, remaining);
+    signal.addEventListener(
+      'abort',
+      () => {
+        clearTimeout(timer);
+        resolve();
+      },
+      { once: true },
+    );
+  });
 }

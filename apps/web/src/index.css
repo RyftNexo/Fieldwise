@@ -93,7 +93,7 @@
   }
 
   body {
-    @apply bg-white font-sans text-soil-900 antialiased;
+    @apply bg-cream-50 font-sans text-soil-900 antialiased;
     font-size: 1.0625rem;
     line-height: 1.6;
   }
@@ -170,6 +170,22 @@
 
 @media (prefers-reduced-motion: reduce) {
   .agent-flow .react-flow__node.agent-flow-node--active {
+    animation: none;
+  }
+}
+
+.logic-box-active {
+  animation: logic-flash 1s ease-in-out infinite;
+}
+
+@keyframes logic-flash {
+  50% {
+    box-shadow: 0 0 0 4px rgb(226 164 44 / 0.55);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logic-box-active {
     animation: none;
   }
 }

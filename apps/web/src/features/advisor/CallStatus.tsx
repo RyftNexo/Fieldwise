@@ -102,7 +102,9 @@ export function CallStatus({
           )}
 
           {view === 'pending' &&
-            (call?.transcript ? (
+            (call?.checking ? (
+              <p className="mt-1 text-soil-600">The check below is running on what you said.</p>
+            ) : call?.transcript ? (
               <Transcript label="What you said" text={call.transcript} />
             ) : (
               <p className="mt-1 text-soil-600">Your results will show here in a moment.</p>

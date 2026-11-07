@@ -76,8 +76,22 @@ describe('mock handlers', () => {
         }),
       );
     const states = [];
-    for (let i = 0; i < 5; i += 1) states.push((await poll()).state);
-    expect(states).toEqual(['ringing', 'ringing', 'pending', 'done', 'done']);
+    for (let i = 0; i < 10; i += 1) {
+      const polled = await poll();
+      states.push(polled.checking ? `${polled.state}:checking` : polled.state);
+    }
+    expect(states).toEqual([
+      'ringing',
+      'ringing',
+      'pending',
+      'pending:checking',
+      'pending:checking',
+      'pending:checking',
+      'pending:checking',
+      'pending:checking',
+      'done',
+      'done',
+    ]);
 
     const finished = await poll();
     expect(finished.callSid).toBe(placed.callSid);

@@ -235,9 +235,12 @@ describe('POST /api/voice/advice', () => {
     const followUp = { CallSid: 'CA1', SpeechResult: 'Nothing else.' };
     const res = await postVoice(path, followUp, signed(path, followUp));
     const body = await res.text();
-    expect(body).toContain('58,388');
+    expect(body).toContain('The grants that look available are');
+    expect(body).toContain('NTAS');
+    expect(body).toContain('Thank you for your time');
+    expect(body).toContain('Call me back if you need anything else');
     expect(body).toContain('<Hangup/>');
-    expect(body).toContain('Department of Agriculture');
+    expect(body).not.toContain('Department of Agriculture');
   });
 
   it('asks the same follow-up on every call before it checks the schemes', async () => {
@@ -344,7 +347,8 @@ describe('POST /api/voice/advice', () => {
       const done = await postVoice(resultPath, resultParams, signed(resultPath, resultParams));
       const spoken = await done.text();
       expect(spoken).toContain('<Hangup/>');
-      expect(spoken).toContain('58,388');
+      expect(spoken).toContain('Thank you for your time');
+      expect(spoken).toContain('NTAS');
     });
   });
 

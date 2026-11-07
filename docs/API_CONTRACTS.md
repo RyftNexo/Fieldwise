@@ -81,7 +81,8 @@ Statuses: _proposed_ (agreed, not in code) → _live_ (in the registry; mocks ma
 Registry keys are `ringVoiceCall` and `getVoiceCall`. Call C-09 with
 `call(endpoints.getVoiceCall, { params: { callSid } })`; never use a direct browser fetch.
 `VoiceCall` contains required `callSid` and `state` (`ringing | pending | done | failed`), with optional
-`to`, `transcript`, `script`, `failure`, and `advice` (`AdviceResponse`). Optional values are absent, not null.
+`to`, `transcript`, `checking`, `script`, `failure`, and `advice` (`AdviceResponse`). Optional values are absent, not null.
+`checking` is true only while the schemes are being checked, after the caller has answered the follow-up.
 Unknown call IDs return HTTP 404 `NOT_FOUND`; records are in memory and disappear on API restart.
 Input `to` is trimmed and nonempty; the API normalizes it, validates dialability and checks its allowlist.
 It returns HTTP 403 `FORBIDDEN` for disallowed destinations and HTTP 429 `RATE_LIMITED` for excessive requests.
