@@ -84,6 +84,12 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - Paths: apps/web/src/features/advisor/**, apps/web/src/features/forester/**, apps/web/src/mocks/handlers.ts, apps/web/src/api/client.test.ts, docs/ARCHITECTURE.md, docs/DECISIONS.md, docs/DEMO.md, docs/TASK_BOARD.md
 - Accept: No forester CTA, landing pitch, navigation item or inbox route remains in the website; dead web lead code and mocks are removed; farmer-facing copy and demo docs no longer promote the forester flow; API and shared contracts remain unchanged; npm run verify passes
 
+### D1-14 · Animated React Flow advice pipeline
+- Status: Review
+- Depends on: —
+- Paths: apps/web/**, package-lock.json
+- Accept: Replace the three-card pipeline stepper with an accessible @xyflow/react graph showing farmer words, Understand AI, farm profile, every scheme dataset checked by the rules engine, Explain AI and the final report; active work pulses and edges illuminate, rule datasets light sequentially, visited nodes stay solid, done opens the existing Results report, raw JSON inspection remains available, mobile fallback is usable, npm run verify passes
+
 ## Requests to others
 
 <!-- - REQ dev1→dev3 (open): <what> — needed by <task> -->
@@ -127,3 +133,5 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - 16:42 D1-12 → Review
 - 16:52 D1-13 → In Progress
 - 16:56 D1-13 → Review
+- 17:00 D1-14 → In Progress
+- 17:07 D1-14 → Review

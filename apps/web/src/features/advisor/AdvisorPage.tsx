@@ -6,12 +6,12 @@ import { Button } from '@/components/ui/Button';
 import { cardClasses } from '@/components/ui/Card';
 import { HillsArt } from '@/components/ui/HillsArt';
 import { cn } from '@/lib/utils';
+import { AgentFlowGraph } from './AgentFlowGraph';
 import { AskBox } from './AskBox';
 import { CallBox } from './CallBox';
 import { CallStatus } from './CallStatus';
 import { ExamplePrompts } from './ExamplePrompts';
 import { Landing } from './Landing';
-import { PipelineStepper } from './PipelineStepper';
 import type { Stage } from './pipeline';
 import { Results } from './Results';
 import { useAdvisor } from './useAdvisor';
@@ -140,22 +140,26 @@ export function AdvisorPage() {
       {isIdle ? (
         <Landing />
       ) : typing ? (
-        <div className="mx-auto max-w-3xl space-y-8 px-4 pt-6 sm:px-6">
+        <div className="space-y-8 pt-6">
           {advisor.stage !== 'error' && (
-            <PipelineStepper stage={advisor.stage} steps={advisor.result?.steps} />
+            <div className="mx-auto max-w-6xl px-4 sm:px-6">
+              <AgentFlowGraph stage={advisor.stage} advice={advisor.result} question={text} />
+            </div>
           )}
 
-          {advisor.stage === 'error' && (
-            <ErrorPanel message={advisor.error?.message} onRetry={() => ask(text)} />
-          )}
+          <div className="mx-auto max-w-3xl px-4 sm:px-6">
+            {advisor.stage === 'error' && (
+              <ErrorPanel message={advisor.error?.message} onRetry={() => ask(text)} />
+            )}
 
-          {advisor.result && (
-            <Results
-              advice={advisor.result}
-              headingRef={resultsHeading}
-              onStartAgain={startAgain}
-            />
-          )}
+            {advisor.result && (
+              <Results
+                advice={advisor.result}
+                headingRef={resultsHeading}
+                onStartAgain={startAgain}
+              />
+            )}
+          </div>
         </div>
       ) : (
         <div className="mx-auto max-w-3xl space-y-8 px-4 pt-6 sm:px-6">

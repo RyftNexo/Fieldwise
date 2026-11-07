@@ -2,6 +2,7 @@ import { endpoints } from '@app/shared';
 import { useMutation } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
 import { call } from '@/api/client';
+import { RULES_STAGE_MIN_MS } from './agentFlow';
 import { isPipelineStage, PIPELINE_STAGES, type Stage } from './pipeline';
 
 /** While C-03 is working we can't see inside it, so the stepper moves on a schedule… */
@@ -33,8 +34,9 @@ export function useAdvisor() {
       try {
         const result = await call(endpoints.advice, { body: { text } });
         for (let index = shown + 1; index < PIPELINE_STAGES.length; index += 1) {
+          const next = PIPELINE_STAGES[index];
           show(index);
-          await wait(MIN_STAGE_MS);
+          await wait(next === 'rules' ? RULES_STAGE_MIN_MS : MIN_STAGE_MS);
         }
         return result;
       } finally {
