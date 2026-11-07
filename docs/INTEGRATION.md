@@ -2,6 +2,36 @@
 
 Owner: **dev3** (merge captain). Deputy: **dev1** (Keith). Nobody else merges into `main`.
 
+## Current integration state (2026-11-07)
+
+- Contract v1 merged in PR #4; `contract-v1` points to `fa7aabb`. D3-01's completion record merged in PR #6.
+- Web contract integration merged in PR #5 (`cdf6f42`): advice and forester leads use C-03/C-06/C-07;
+  mock mode uses shared fixtures. D1-02 and D1-07 still await their owner's final status update.
+- API v1, rules, scheme catalogue and database seeds merged in PRs #9/#10. The walking-skeleton checkpoint
+  is verified at main commit `38acc12`; `cp-1` identifies that application version.
+- **D3-03 / cp-1 verification:** full `npm run verify` passes (222 tests, typecheck, production build and
+  ownership). `npm run smoke` passes all 7 checks, including C-05 and C-07, with no pending-endpoint skips.
+  Clean-checkout verification uses the captain's detached main worktree and dependencies from `npm ci`.
+- Production HTTP integration used a separate scratch SQLite database: reset/seeding produced six schemes;
+  C-03 returned contract-valid responses for Declan, Aoife and Mary; C-04 reproduced the rules and changed
+  matches for an edited profile. Invalid input, missing contact/consent and unknown scheme IDs returned 400.
+  C-06 ignored client-supplied totals and computed its matches; C-07 listed the new lead newest first.
+  The lead survived a server restart against the same database.
+- Browser verification used the production web app with the real HTTP API and `DEMO_MODE=fixtures`:
+  Declan's example → advice results → forester form → saved lead in the forester inbox. The SPA route also
+  loads directly. Recorded OpenAI replies were used; rules and database operations ran normally.
+- **Still unverified:** fresh OpenAI calls, microphone input on the presentation laptop, and a final
+  independent review of scheme facts. The UI's Gemini wording must be reconciled with the OpenAI backend
+  by dev1. This is the walking-skeleton checkpoint, not the full live-AI/voice checkpoint or demo release.
+- API environment variables are documented in `docs/API_CONTRACTS.md`. For offline operation, set
+  `DEMO_MODE=fixtures` in the API environment before startup; this is separate from `npm run dev:mock`, which
+  uses browser-side illustrative fixtures and does not exercise API/database persistence.
+- **D3-04 is blocked on D2-03.** The notes UI is removed, but the API still uses C-01/C-02. Keep the shared
+  notes schemas and fixtures until dev2 removes its notes feature and tests. Remove the contracts afterward,
+  update the API contract change log, and verify all workspaces.
+- D3-02's layer-based map matches the kickoff decision and was confirmed in PR #7: Ilarion authored it,
+  Keith approved it, and Toby merged it. Ownership confirmation is complete.
+
 ## One-time GitHub setup (repo owner)
 
 1. Create the repo (public recommended: branch rules are free on public repos; private needs GitHub Pro/Team).
