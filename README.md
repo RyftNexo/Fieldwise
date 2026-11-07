@@ -7,8 +7,8 @@ start building the moment the brief is announced.
 | ID   | Who      | Agent       | Owns                                                                  |
 | ---- | -------- | ----------- | --------------------------------------------------------------------- |
 | dev1 | Keith    | Claude Code | Web app (`apps/web`), product docs · deputy merge captain             |
-| dev2 | _(name)_ | Claude Code | API + database (`apps/api`)                                           |
-| dev3 | _(name)_ | Codex       | Contracts (`packages/shared`), tooling, CI, tests · **merge captain** |
+| dev2 | Toby     | Claude Code | API + database (`apps/api`)                                           |
+| dev3 | Ilarion  | Codex       | Contracts (`packages/shared`), tooling, CI, tests · **merge captain** |
 
 Rules for every agent: **[AGENTS.md](AGENTS.md)** · Claude Code extras: [.claude/CLAUDE.md](.claude/CLAUDE.md) ·
 ownership: [docs/OWNERSHIP.md](docs/OWNERSHIP.md) · procedures: [docs/TEAM_POLICY.md](docs/TEAM_POLICY.md).
