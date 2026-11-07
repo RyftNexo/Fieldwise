@@ -1,8 +1,10 @@
 import type { AdviceResponse } from '@app/shared';
-import { CircleCheck, Send, Trees } from 'lucide-react';
+import { ArrowRight, Check, CircleCheck, Send, Trees } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
 import { Link } from 'react-router';
-import { cn } from '@/lib/utils';
+import { Button, buttonClasses } from '@/components/ui/Button';
+import { cardClasses } from '@/components/ui/Card';
+import { Field } from '@/components/ui/Field';
 import { isPlausiblePhone } from './contact';
 import { forestryMatches, useCreateLead } from './leads';
 import { placeOf } from './summary';
@@ -29,24 +31,21 @@ export function ForesterCta({ advice }: { advice: AdviceResponse }) {
     return (
       <section
         aria-labelledby="forester-sent-heading"
-        className="rounded-2xl border border-brand-300 bg-brand-50 p-5 sm:p-6"
+        className={cardClasses('tinted', 'p-6 sm:p-8 motion-safe:animate-rise')}
       >
-        <h2
-          id="forester-sent-heading"
-          className="flex items-center gap-2 text-lg font-semibold text-brand-900"
-        >
-          <CircleCheck className="size-5 text-brand-600" aria-hidden />
+        <span className="grid size-12 place-items-center rounded-full bg-brand-700 text-white">
+          <CircleCheck className="size-6" aria-hidden />
+        </span>
+        <h2 id="forester-sent-heading" className="mt-4 text-2xl font-semibold text-brand-900">
           Sent to a registered forester
         </h2>
-        <p className="mt-2 text-stone-700">
+        <p className="mt-2 text-lg text-soil-700">
           A forester covering {area} will ring {createLead.data.name} on {createLead.data.phone} to
           arrange a site visit.
         </p>
-        <Link
-          to="/forester"
-          className="mt-3 inline-flex rounded text-sm font-semibold text-brand-700 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
-        >
+        <Link to="/forester" className={buttonClasses({ variant: 'secondary', className: 'mt-5' })}>
           See it in the forester's inbox (demo)
+          <ArrowRight className="size-4" aria-hidden />
         </Link>
       </section>
     );
@@ -69,127 +68,82 @@ export function ForesterCta({ advice }: { advice: AdviceResponse }) {
   return (
     <section
       aria-labelledby="forester-heading"
-      className="rounded-2xl border border-brand-200 bg-brand-50 p-5 sm:p-6"
+      className={cardClasses('surface', 'grid overflow-hidden md:grid-cols-[0.9fr_1.1fr]')}
     >
-      <div className="flex items-start gap-3">
-        <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-600 text-white">
-          <Trees className="size-5" aria-hidden />
+      <div className="bg-brand-900 p-6 text-cream-100 sm:p-8">
+        <span className="grid size-12 place-items-center rounded-2xl bg-brand-700 text-harvest-300">
+          <Trees className="size-6" aria-hidden />
         </span>
-        <div>
-          <h2 id="forester-heading" className="text-lg font-semibold text-stone-900">
-            Get a registered forester to check your land
-          </h2>
-          <p className="mt-1 text-sm text-pretty text-stone-700">
-            It's free for you. We send your farm details and forestry results to one registered
-            forester covering {area}, and they ring you to walk the site.
-          </p>
-        </div>
+        <h2 id="forester-heading" className="mt-4 text-2xl font-semibold text-cream-50">
+          Get a registered forester to check your land
+        </h2>
+        <ul className="mt-4 space-y-2">
+          {[
+            'Free for you',
+            `One registered forester covering ${area}`,
+            'They ring you to walk the site and make the application',
+          ].map((line) => (
+            <li key={line} className="flex gap-2.5">
+              <Check className="mt-1 size-4 shrink-0 text-harvest-300" aria-hidden />
+              {line}
+            </li>
+          ))}
+        </ul>
       </div>
 
-      <form onSubmit={handleSubmit} noValidate className="mt-5 grid gap-4 sm:grid-cols-2">
-        <TextField
+      <form onSubmit={handleSubmit} noValidate className="grid gap-4 p-6 sm:p-8">
+        <Field
           id="lead-name"
           label="Your name"
-          maxLength={120}
           value={name}
           onChange={setName}
           autoComplete="name"
+          maxLength={120}
           error={showErrors ? nameError : undefined}
         />
-        <TextField
+        <Field
           id="lead-phone"
           label="Phone"
           type="tel"
           value={phone}
           onChange={setPhone}
           autoComplete="tel"
+          hint="The forester rings this number. We don't share it with anyone else."
           error={showErrors ? phoneError : undefined}
         />
-        <div className="sm:col-span-2">
-          <label className="flex items-start gap-3 text-sm text-stone-800">
+        <div>
+          <label className="flex cursor-pointer items-start gap-3 text-[0.95rem] text-soil-800">
             <input
               type="checkbox"
               checked={consent}
               onChange={(event) => setConsent(event.target.checked)}
               aria-invalid={showErrors && consentError ? true : undefined}
               aria-describedby={showErrors && consentError ? 'lead-consent-error' : undefined}
-              className="mt-0.5 size-4 shrink-0 accent-brand-600"
+              className="focus-ring mt-0.5 size-5 shrink-0 cursor-pointer accent-brand-700"
             />
             I agree to share these details and my forestry results with one registered forester.
           </label>
           {showErrors && consentError && (
-            <p id="lead-consent-error" className="mt-1 text-sm text-red-700">
+            <p id="lead-consent-error" className="mt-1 text-sm font-medium text-red-700">
               {consentError}
             </p>
           )}
         </div>
         {createLead.error && (
-          <p role="alert" className="text-sm text-red-700 sm:col-span-2">
+          <p role="alert" className="text-sm font-medium text-red-700">
             {createLead.error.message}
           </p>
         )}
-        <div className="sm:col-span-2">
-          <button
-            type="submit"
-            disabled={createLead.isPending}
-            className="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-5 py-3 font-semibold text-white shadow-sm transition hover:bg-brand-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <Send className="size-4" aria-hidden />
-            {createLead.isPending ? 'Sending…' : 'Send to a forester'}
-          </button>
-        </div>
+        <Button
+          type="submit"
+          size="lg"
+          loading={createLead.isPending}
+          className="justify-self-start"
+        >
+          {!createLead.isPending && <Send className="size-4" aria-hidden />}
+          {createLead.isPending ? 'Sending…' : 'Send to a forester'}
+        </Button>
       </form>
     </section>
-  );
-}
-
-interface TextFieldProps {
-  id: string;
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  error?: string;
-  type?: 'text' | 'tel';
-  autoComplete?: string;
-  maxLength?: number;
-}
-
-function TextField({
-  id,
-  label,
-  value,
-  onChange,
-  error,
-  type = 'text',
-  autoComplete,
-  maxLength,
-}: TextFieldProps) {
-  const errorId = `${id}-error`;
-  return (
-    <div>
-      <label htmlFor={id} className="block text-sm font-medium text-stone-800">
-        {label}
-      </label>
-      <input
-        id={id}
-        type={type}
-        inputMode={type === 'tel' ? 'tel' : undefined}
-        autoComplete={autoComplete}
-        maxLength={maxLength}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={error ? errorId : undefined}
-        className={cn(
-          'mt-1 block w-full rounded-lg border bg-white px-3 py-2.5 text-base text-stone-900 outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15',
-          error ? 'border-red-400' : 'border-stone-300',
-        )}
-      />
-      {error && (
-        <p id={errorId} className="mt-1 text-sm text-red-700">
-          {error}
-        </p>
-      )}
-    </div>
   );
 }

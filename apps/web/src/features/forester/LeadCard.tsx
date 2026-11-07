@@ -1,8 +1,8 @@
 import type { Lead } from '@app/shared';
 import { Mail, Phone } from 'lucide-react';
+import { EligibilityBadge } from '@/components/ui/Badge';
 import { phoneHref } from '@/features/advisor/contact';
 import { formatEuro, formatTimeAgo } from '@/features/advisor/format';
-import { EligibilityBadge } from '@/features/advisor/GrantCard';
 import { placeOf, profileToChips } from '@/features/advisor/summary';
 
 /** One lead: who and where, the farm in chips, the schemes that matched, what it's worth, and how to reach them. */

@@ -64,6 +64,12 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - Paths: apps/web/src/features/advisor/**, apps/web/src/features/forester/**, apps/web/src/components/**
 - Accept: When the results include a forestry scheme, a 'Send to a registered forester' form (name, phone, consent) saves a lead and confirms it; /forester inbox lists leads newest first with place, farm chips, matched schemes with badges, € estimate and contact; validation, loading, empty and error states; preview banner; npm run verify green
 
+### D1-10 · Design overhaul (Organic field)
+- Status: In Progress
+- Depends on: —
+- Paths: apps/web/**
+- Accept: New design system (Lexend + Source Sans 3 bundled, field green / harvest amber / cream tokens, shared UI primitives) applied to header, footer, advisor (hero, landing sections, stepper, results, cards, forester form) and forester inbox; behaviour unchanged; 375/768/1280 checked; AA contrast; reduced motion; npm run verify green
+
 ## Requests to others
 
 <!-- - REQ dev1→dev3 (open): <what> — needed by <task> -->
@@ -89,3 +95,4 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - 13:25 D1-07 → In Progress
 - 13:27 D1-02 → Review
 - 13:27 D1-07 → Review
+- 13:53 D1-10 → In Progress

@@ -1,6 +1,6 @@
 import type { AdviceResponse } from '@app/shared';
 import {
-  CircleCheck,
+  Check,
   LoaderCircle,
   type LucideIcon,
   MessageSquareText,
@@ -8,6 +8,8 @@ import {
   ScanText,
 } from 'lucide-react';
 import { useState } from 'react';
+import { Pill } from '@/components/ui/Badge';
+import { cardClasses } from '@/components/ui/Card';
 import { cn } from '@/lib/utils';
 import { PIPELINE_STAGES, type PipelineStage, type Stage } from './pipeline';
 
@@ -53,7 +55,7 @@ const STATUS_TEXT: Record<StepStatus, string> = {
   done: 'Done: ',
 };
 
-/** Extract → Rules → Explain. Once the answer is in, each step opens to show its raw JSON. */
+/** Extract → Rules → Explain as a progress track. Once the answer is in, each step opens to show its raw JSON. */
 export function PipelineStepper({
   stage,
   steps,
@@ -65,17 +67,17 @@ export function PipelineStepper({
   const openStep = stage === 'done' && steps ? open : null;
 
   return (
-    <section
-      aria-labelledby="pipeline-heading"
-      className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm sm:p-5"
-    >
-      <h2
-        id="pipeline-heading"
-        className="text-sm font-semibold tracking-wide text-stone-500 uppercase"
-      >
-        How we work it out
-      </h2>
-      <ol className="mt-3 grid gap-2 sm:grid-cols-3">
+    <section aria-labelledby="pipeline-heading" className={cardClasses('surface', 'p-5 sm:p-6')}>
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h2 id="pipeline-heading" className="text-lg font-semibold text-brand-900">
+          How we're working it out
+        </h2>
+        {stage === 'done' && steps && (
+          <p className="text-sm text-soil-500">Tap a step to see its data</p>
+        )}
+      </div>
+
+      <ol className="mt-4 grid gap-2 sm:grid-cols-3">
         {PIPELINE_STAGES.map((step) => {
           const info = STEP_INFO[step];
           const status = statusOf(step, stage);
@@ -90,35 +92,49 @@ export function PipelineStepper({
                 aria-controls={canOpen ? PANEL_ID : undefined}
                 onClick={() => setOpen(isOpen ? null : step)}
                 className={cn(
-                  'flex w-full items-start gap-3 rounded-xl border p-3 text-left transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 disabled:cursor-default',
-                  status === 'pending' && 'border-dashed border-stone-200',
-                  status === 'active' && 'border-brand-300 bg-brand-50',
-                  status === 'done' && 'border-stone-200 hover:border-brand-300 hover:bg-brand-50',
-                  isOpen && 'border-brand-500 bg-brand-50 ring-2 ring-brand-500/20',
+                  'focus-ring flex w-full items-start gap-3 rounded-2xl p-3 text-left transition duration-200 disabled:cursor-default',
+                  status === 'active' && 'bg-harvest-50',
+                  canOpen && 'cursor-pointer hover:bg-brand-50',
+                  isOpen && 'bg-brand-50 ring-2 ring-brand-200',
                 )}
               >
-                <StepIcon status={status} Icon={info.Icon} />
+                <span
+                  className={cn(
+                    'grid size-10 shrink-0 place-items-center rounded-full ring-4 transition duration-200',
+                    status === 'done' && 'bg-brand-700 text-white ring-brand-100',
+                    status === 'active' && 'bg-harvest-300 text-harvest-900 ring-harvest-100',
+                    status === 'pending' && 'bg-soil-100 text-soil-400 ring-soil-50',
+                  )}
+                >
+                  {status === 'done' ? (
+                    <Check className="size-5" aria-hidden />
+                  ) : status === 'active' ? (
+                    <LoaderCircle className="size-5 motion-safe:animate-spin" aria-hidden />
+                  ) : (
+                    <info.Icon className="size-5" aria-hidden />
+                  )}
+                </span>
                 <span className="min-w-0">
                   <span
                     className={cn(
                       'flex flex-wrap items-center gap-x-2 gap-y-1 font-semibold',
-                      status === 'pending' ? 'text-stone-400' : 'text-stone-900',
+                      status === 'pending' ? 'text-soil-500' : 'text-soil-900',
                     )}
                   >
                     <span className="sr-only">{STATUS_TEXT[status]}</span>
                     {info.title}
-                    <AiTag ai={info.ai} />
+                    <Pill tone={info.ai ? 'ai' : 'code'}>{info.ai ? 'AI' : 'No AI'}</Pill>
                   </span>
                   <span
                     className={cn(
-                      'mt-0.5 block text-sm',
-                      status === 'pending' ? 'text-stone-400' : 'text-stone-600',
+                      'mt-0.5 block text-sm leading-snug',
+                      status === 'pending' ? 'text-soil-500' : 'text-soil-600',
                     )}
                   >
                     {info.detail}
                   </span>
                   {canOpen && (
-                    <span className="mt-1 block text-xs font-semibold text-brand-700">
+                    <span className="mt-1 block text-sm font-semibold text-brand-700">
                       {isOpen ? 'Hide the data' : 'See the data'}
                     </span>
                   )}
@@ -128,41 +144,15 @@ export function PipelineStepper({
           );
         })}
       </ol>
+
       {openStep && steps && (
         <pre
           id={PANEL_ID}
-          className="mt-3 max-h-80 overflow-auto rounded-xl bg-stone-900 p-4 text-xs leading-relaxed text-stone-100"
+          className="mt-4 max-h-80 overflow-auto rounded-2xl bg-brand-950 p-4 font-mono text-xs leading-relaxed text-brand-100"
         >
           {JSON.stringify(steps[openStep], null, 2)}
         </pre>
       )}
     </section>
-  );
-}
-
-function StepIcon({ status, Icon }: { status: StepStatus; Icon: LucideIcon }) {
-  if (status === 'done') {
-    return <CircleCheck className="mt-0.5 size-5 shrink-0 text-brand-600" aria-hidden />;
-  }
-  if (status === 'active') {
-    return (
-      <LoaderCircle
-        className="mt-0.5 size-5 shrink-0 text-brand-600 motion-safe:animate-spin"
-        aria-hidden
-      />
-    );
-  }
-  return <Icon className="mt-0.5 size-5 shrink-0 text-stone-300" aria-hidden />;
-}
-
-function AiTag({ ai }: { ai: boolean }) {
-  return ai ? (
-    <span className="rounded-full bg-violet-50 px-2 py-0.5 text-[11px] font-semibold text-violet-700">
-      AI
-    </span>
-  ) : (
-    <span className="rounded-full bg-brand-100 px-2 py-0.5 text-[11px] font-semibold text-brand-800">
-      No AI
-    </span>
   );
 }

@@ -18,16 +18,16 @@ export function MicButton({ listening, disabled, onClick }: MicButtonProps) {
       aria-label={label}
       title={label}
       className={cn(
-        'relative inline-flex size-12 shrink-0 items-center justify-center rounded-xl border transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 disabled:cursor-not-allowed disabled:opacity-50',
+        'focus-ring relative inline-flex size-13 shrink-0 cursor-pointer items-center justify-center rounded-control border transition duration-200 disabled:cursor-not-allowed disabled:opacity-50',
         listening
-          ? 'border-red-300 bg-red-50 text-red-700'
-          : 'border-stone-300 bg-white text-stone-700 hover:bg-stone-100',
+          ? 'border-red-200 bg-red-50 text-red-700'
+          : 'border-soil-200 bg-white text-brand-800 shadow-card hover:border-brand-300 hover:bg-brand-50',
       )}
     >
       {listening && (
         <span
           aria-hidden
-          className="absolute inset-0 rounded-xl ring-4 ring-red-400/30 motion-safe:animate-pulse"
+          className="absolute inset-0 rounded-control ring-4 ring-red-400/30 motion-safe:animate-pulse"
         />
       )}
       {listening ? (

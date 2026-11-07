@@ -1,5 +1,7 @@
-import { ArrowRight, LoaderCircle } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { type FormEvent, type KeyboardEvent, useRef, useState } from 'react';
+import { Button } from '@/components/ui/Button';
+import { cardClasses } from '@/components/ui/Card';
 import { MicButton } from './MicButton';
 import { SPEECH_ERROR_MESSAGES } from './speech';
 import { useSpeechInput } from './useSpeechInput';
@@ -64,7 +66,10 @@ export function AskBox({ value, onChange, onSubmit, busy }: AskBoxProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-2xl border border-stone-300 bg-white shadow-sm transition focus-within:border-brand-500 focus-within:ring-4 focus-within:ring-brand-500/15"
+      className={cardClasses(
+        'surface',
+        'rounded-[1.75rem] shadow-raised transition duration-200 focus-within:border-brand-300 focus-within:ring-4 focus-within:ring-brand-200/70',
+      )}
     >
       <label htmlFor="farm-description" className="sr-only">
         Describe your farm
@@ -82,9 +87,9 @@ export function AskBox({ value, onChange, onSubmit, busy }: AskBoxProps) {
         aria-describedby={speech.error ? 'voice-error' : undefined}
         rows={3}
         placeholder="e.g. I have a 40-hectare beef farm in West Cork. 3 hectares by the river are too wet for the cattle…"
-        className="block w-full resize-none rounded-t-2xl bg-transparent px-5 pt-4 pb-2 text-lg leading-relaxed text-stone-900 placeholder:text-stone-400 focus:outline-none"
+        className="block w-full resize-none rounded-t-[1.75rem] bg-transparent px-5 pt-5 pb-2 text-lg leading-relaxed text-soil-900 placeholder:text-soil-400 focus:outline-none sm:px-6 sm:text-xl"
       />
-      <div className="flex items-center gap-3 px-3 pb-3 sm:pl-5">
+      <div className="flex items-center gap-3 px-3 pb-3 sm:pl-6">
         {speech.listening ? (
           <p className="flex items-center gap-2 text-sm font-medium text-red-700">
             <span
@@ -95,9 +100,9 @@ export function AskBox({ value, onChange, onSubmit, busy }: AskBoxProps) {
             <span className="hidden sm:inline">Listening… pause when you're done</span>
           </p>
         ) : reviewing ? (
-          <p className="text-sm font-medium text-brand-800">Check the words, then press Enter</p>
+          <p className="text-sm font-semibold text-brand-700">Check the words, then press Enter</p>
         ) : (
-          <p className="hidden text-xs text-stone-500 sm:block">
+          <p className="hidden text-sm text-soil-500 sm:block">
             Enter to check · Shift + Enter for a new line
           </p>
         )}
@@ -105,30 +110,23 @@ export function AskBox({ value, onChange, onSubmit, busy }: AskBoxProps) {
           {speech.supported && (
             <MicButton listening={speech.listening} disabled={busy} onClick={toggleMic} />
           )}
-          <button
-            type="submit"
-            disabled={!canSubmit}
-            className="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-5 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-brand-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 disabled:cursor-not-allowed disabled:opacity-50"
-          >
+          <Button type="submit" size="lg" disabled={!canSubmit} loading={busy}>
             {busy ? (
-              <>
-                <LoaderCircle className="size-5 motion-safe:animate-spin" aria-hidden />
-                Checking…
-              </>
+              'Checking…'
             ) : (
               <>
                 Check my grants
                 <ArrowRight className="size-5" aria-hidden />
               </>
             )}
-          </button>
+          </Button>
         </div>
       </div>
       {speech.error && (
         <p
           id="voice-error"
           role="alert"
-          className="border-t border-stone-200 px-5 py-3 text-sm text-red-700"
+          className="border-t border-soil-100 px-6 py-3 text-sm font-medium text-red-700"
         >
           {SPEECH_ERROR_MESSAGES[speech.error]}
         </p>
