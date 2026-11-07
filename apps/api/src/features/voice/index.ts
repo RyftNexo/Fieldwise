@@ -13,6 +13,7 @@ import {
 } from './jobs';
 import { placeOutboundCall } from './outbound';
 import { toE164 } from './phone';
+import { checkRing, recordRing, ringAllowlist } from './ringPolicy';
 import { isValidTwilioSignature, webhookUrls } from './signature';
 import { gatherTwiml, hangupTwiml, voiceMaxPolls, waitTwiml } from './twiml';
 
@@ -45,6 +46,18 @@ router.post('/api/voice/ring', async (c) => {
       'That phone number cannot be dialled. Use the country code and drop the leading 0.',
     );
   }
+  const allowed = ringAllowlist(env.TWILIO_RING_TO);
+  if (allowed.length === 0) {
+    throw new AppError('FORBIDDEN', 'The demo call list is empty.');
+  }
+  const decision = checkRing(to, allowed, Date.now());
+  if (decision === 'not-listed') {
+    throw new AppError('FORBIDDEN', 'That number is not on the demo call list.');
+  }
+  if (decision === 'too-soon') {
+    throw new AppError('RATE_LIMITED', 'Wait a moment before ringing again.');
+  }
+  recordRing(Date.now());
   const callSid = await placeOutboundCall(to);
   noteOutboundCall(callSid, to);
   return c.json({ data: { callSid, to } }, 201);
@@ -130,9 +143,6 @@ function denyUnlessTwilio(c: Context, params: Record<string, string>) {
     isValidTwilioSignature({ authToken: token, signature, url, params }),
   );
   if (valid) return undefined;
-  // A trial call through ngrok arrives without X-Twilio-Signature. Only the configured public host may skip it.
-  const host = c.req.header('x-forwarded-host')?.split(',')[0]?.trim();
-  if (!signature && host && host === publicHost()) return undefined;
   return c.text('Twilio signature required', 403);
 }
 
@@ -140,15 +150,6 @@ function denyUnlessTwilio(c: Context, params: Record<string, string>) {
 function voiceUrl(path: string): string {
   const base = env.TWILIO_PUBLIC_BASE?.replace(/\/$/u, '');
   return base ? `${base}${path}` : path;
-}
-
-function publicHost(): string | undefined {
-  if (!env.TWILIO_PUBLIC_BASE) return undefined;
-  try {
-    return new URL(env.TWILIO_PUBLIC_BASE).host;
-  } catch {
-    return undefined;
-  }
 }
 
 async function readForm(c: Context): Promise<Record<string, string>> {

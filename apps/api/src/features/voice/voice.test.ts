@@ -3,6 +3,7 @@ import { createApp } from '../../app';
 import { ensureDatabase } from '../../db/client';
 import { env } from '../../env';
 import { clearVoiceJobs, noteOutboundCall } from './jobs';
+import { clearRingAttempts } from './ringPolicy';
 import { signTwilioWebhook } from './signature';
 import { voiceMaxPolls } from './twiml';
 
@@ -20,6 +21,8 @@ const original = {
   demoMode: env.DEMO_MODE,
   publicBase: env.TWILIO_PUBLIC_BASE,
   openaiKey: env.OPENAI_API_KEY,
+  from: env.TWILIO_FROM_NUMBER,
+  ringTo: env.TWILIO_RING_TO,
 };
 
 afterEach(() => {
@@ -29,6 +32,9 @@ afterEach(() => {
   env.DEMO_MODE = original.demoMode;
   env.TWILIO_PUBLIC_BASE = original.publicBase;
   env.OPENAI_API_KEY = original.openaiKey;
+  env.TWILIO_FROM_NUMBER = original.from;
+  env.TWILIO_RING_TO = original.ringTo;
+  clearRingAttempts();
   vi.unstubAllGlobals();
 });
 
@@ -55,7 +61,7 @@ function signed(path: string, params: Record<string, string>) {
 }
 
 describe('POST /api/voice/incoming', () => {
-  it('accepts an unsigned webhook from the configured public host', async () => {
+  it('rejects an unsigned webhook even when the forwarded host matches', async () => {
     configureLine();
     env.TWILIO_PUBLIC_BASE = 'https://demo.trycloudflare.com';
     const res = await app.request('http://localhost/api/voice/incoming', {
@@ -63,11 +69,11 @@ describe('POST /api/voice/incoming', () => {
       headers: {
         'content-type': 'application/x-www-form-urlencoded',
         'x-forwarded-host': 'demo.trycloudflare.com',
+        'x-forwarded-proto': 'https',
       },
       body: new URLSearchParams({ CallSid: 'CA1' }).toString(),
     });
-    expect(res.status).toBe(200);
-    expect(await res.text()).toContain('<Gather');
+    expect(res.status).toBe(403);
   });
 
   it('rejects a call that Twilio did not sign', async () => {
@@ -110,6 +116,55 @@ describe('POST /api/voice/incoming', () => {
     expect(body).not.toContain('speechModel=');
     expect(body).not.toContain('Polly.');
     expect(body).toContain('hectares');
+  });
+});
+
+describe('POST /api/voice/ring', () => {
+  function twilioFetch() {
+    return vi.fn(async (_url: string | URL | Request, _init?: RequestInit) =>
+      Response.json({ sid: 'CA-outbound' }),
+    );
+  }
+
+  it('does not call Twilio for a number outside the demo list', async () => {
+    configureLine();
+    env.TWILIO_FROM_NUMBER = '+353800000000';
+    env.TWILIO_RING_TO = '+353871234567';
+    const fetchImpl = twilioFetch();
+    vi.stubGlobal('fetch', fetchImpl);
+
+    const res = await app.request('/api/voice/ring', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ to: '+353831111111' }),
+    });
+
+    expect(res.status).toBe(403);
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it('does not call Twilio again inside the gap', async () => {
+    configureLine();
+    env.TWILIO_FROM_NUMBER = '+353800000000';
+    env.TWILIO_RING_TO = '+353871234567';
+    const fetchImpl = twilioFetch();
+    vi.stubGlobal('fetch', fetchImpl);
+    const body = JSON.stringify({ to: '087 123 4567' });
+
+    const first = await app.request('/api/voice/ring', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body,
+    });
+    const second = await app.request('/api/voice/ring', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body,
+    });
+
+    expect(first.status).toBe(201);
+    expect(second.status).toBe(429);
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 });
 

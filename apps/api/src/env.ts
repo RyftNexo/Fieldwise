@@ -26,7 +26,7 @@ const Env = z.object({
   TWILIO_PUBLIC_BASE: z.string().url().optional(),
   /** Twilio number that places the Ring call, in +E.164. Missing until a Voice number is bought. */
   TWILIO_FROM_NUMBER: z.string().min(1).optional(),
-  /** Mobile the Call button dials, in +E.164. Stays in .env, never in source. */
+  /** Allowlist of mobiles Ring may dial, comma-separated E.164. Stays in .env, never in source. */
   TWILIO_RING_TO: z.string().min(1).optional(),
   // New variables: add them here AND in apps/api/.env.example.
   // Secrets: z.string().optional(), then fail with a clear AppError where they're used.
