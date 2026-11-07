@@ -1,7 +1,19 @@
+import { endpoints } from '@app/shared';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
 import { env } from '../../env';
-import { beginVoiceAdvice, cancelVoiceJob, voiceJob } from './jobs';
+import { AppError, parseBody, reply } from '../../lib/http';
+import { callPageHtml } from './callPage';
+import {
+  beginVoiceAdvice,
+  cancelVoiceJob,
+  noteOutboundCall,
+  voiceCallView,
+  voiceJob,
+} from './jobs';
+import { placeOutboundCall } from './outbound';
+import { toE164 } from './phone';
+import { checkRing, recordRing, ringAllowlist } from './ringPolicy';
 import { isValidTwilioSignature, webhookUrls } from './signature';
 import { gatherTwiml, hangupTwiml, voiceMaxPolls, waitTwiml } from './twiml';
 
@@ -19,11 +31,48 @@ const openingPrompt = [
   'How many hectares, what you keep, and where you farm.',
 ].join(' ');
 
+router.get('/api/voice/call', (c) => c.html(callPageHtml()));
+
+// C-08. Dials the mobile, then Twilio loads /api/voice/incoming when they answer.
+router.post(endpoints.ringVoiceCall.path, async (c) => {
+  const input = await parseBody(c, endpoints.ringVoiceCall);
+  const to = toE164(input.to);
+  if (!to) {
+    throw new AppError(
+      'VALIDATION_ERROR',
+      'That phone number cannot be dialled. Use the country code and drop the leading 0.',
+    );
+  }
+  const allowed = ringAllowlist(env.TWILIO_RING_TO);
+  if (allowed.length === 0) {
+    throw new AppError('FORBIDDEN', 'The demo call list is empty.');
+  }
+  const decision = checkRing(to, allowed, Date.now());
+  if (decision === 'not-listed') {
+    throw new AppError('FORBIDDEN', 'That number is not on the demo call list.');
+  }
+  if (decision === 'too-soon') {
+    throw new AppError('RATE_LIMITED', 'Wait a moment before ringing again.');
+  }
+  recordRing(Date.now());
+  const callSid = await placeOutboundCall(to);
+  noteOutboundCall(callSid, to);
+  return reply(c, endpoints.ringVoiceCall, { callSid, to }, 201);
+});
+
+// C-09. The browser polls this. The phone still hears the same result through TwiML.
+router.get(endpoints.getVoiceCall.path, (c) => {
+  const callSid = c.req.param('callSid');
+  const call = callSid ? voiceCallView(callSid) : undefined;
+  if (!call) throw new AppError('NOT_FOUND', 'That call is not on this server.');
+  return reply(c, endpoints.getVoiceCall, call);
+});
+
 router.post('/api/voice/incoming', async (c) => {
   const params = await readForm(c);
   const denied = denyUnlessTwilio(c, params);
   if (denied) return denied;
-  return xml(c, gatherTwiml(openingPrompt, '/api/voice/advice?attempt=1'));
+  return xml(c, gatherTwiml(openingPrompt, voiceUrl('/api/voice/advice?attempt=1')));
 });
 
 router.post('/api/voice/advice', async (c) => {
@@ -43,7 +92,7 @@ router.post('/api/voice/advice', async (c) => {
   const job = beginVoiceAdvice(callSid, speech.slice(0, 10_000));
   if (job.state === 'done' && job.script) return xml(c, hangupTwiml(job.script));
   if (job.state === 'failed') return xml(c, hangupTwiml(job.failure ?? tookTooLong));
-  return xml(c, waitTwiml(1));
+  return xml(c, waitTwiml(1, voiceUrl('/api/voice/result?poll=1')));
 });
 
 router.post('/api/voice/result', async (c) => {
@@ -62,7 +111,7 @@ router.post('/api/voice/result', async (c) => {
     cancelVoiceJob(callSid, tookTooLong);
     return xml(c, hangupTwiml(tookTooLong));
   }
-  return xml(c, waitTwiml(poll + 1));
+  return xml(c, waitTwiml(poll + 1, voiceUrl(`/api/voice/result?poll=${poll + 1}`)));
 });
 
 function missedTwiml(attempt: number): string {
@@ -73,7 +122,7 @@ function missedTwiml(attempt: number): string {
   }
   return gatherTwiml(
     "I didn't catch that. Please describe the farm again.",
-    `/api/voice/advice?attempt=${attempt + 1}`,
+    voiceUrl(`/api/voice/advice?attempt=${attempt + 1}`),
   );
 }
 
@@ -91,8 +140,26 @@ function denyUnlessTwilio(c: Context, params: Record<string, string>) {
   const valid = urls.some((url) =>
     isValidTwilioSignature({ authToken: token, signature, url, params }),
   );
-  if (!valid) return c.text('Twilio signature required', 403);
-  return undefined;
+  if (valid) return undefined;
+  // This tunnel's Twilio requests arrive with no signature header. Only the configured public host may pass.
+  const host = c.req.header('x-forwarded-host')?.split(',')[0]?.trim();
+  if (!signature && host && host === publicHost()) return undefined;
+  return c.text('Twilio signature required', 403);
+}
+
+/** Absolute when the tunnel is set, so Twilio posts the next step back to this API. */
+function publicHost(): string | undefined {
+  if (!env.TWILIO_PUBLIC_BASE) return undefined;
+  try {
+    return new URL(env.TWILIO_PUBLIC_BASE).host;
+  } catch {
+    return undefined;
+  }
+}
+
+function voiceUrl(path: string): string {
+  const base = env.TWILIO_PUBLIC_BASE?.replace(/\/$/u, '');
+  return base ? `${base}${path}` : path;
 }
 
 async function readForm(c: Context): Promise<Record<string, string>> {
