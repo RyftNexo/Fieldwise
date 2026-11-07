@@ -40,6 +40,16 @@ describe('C-04 POST /api/advice/evaluate', () => {
     expect(data.profile).toEqual(farmProfileFixtures.aoife);
   });
 
+  it('computes matches from the profile: Declan gets an NTAS value, Mary does not', async () => {
+    const valueFor = async (profile: unknown) => {
+      const res = await post(endpoints.evaluateAdvice.path, { profile });
+      const { data } = successBody(endpoints.evaluateAdvice.response).parse(await res.json());
+      return data.matches.find((match) => match.schemeId === 'ntas')?.value?.totalEur;
+    };
+    expect(await valueFor(farmProfileFixtures.declan)).toBe(58_388);
+    expect(await valueFor(farmProfileFixtures.mary)).toBeUndefined();
+  });
+
   it('rejects marginal land larger than the farm with VALIDATION_ERROR', async () => {
     const profile = { ...farmProfileFixtures.declan, marginalHectares: 500 };
     const res = await post(endpoints.evaluateAdvice.path, { profile });
