@@ -2,98 +2,68 @@
 
 **Your farm. Your options**
 
-Fieldwise helps Irish farmers explore relevant schemes by phone or in their own words, with transparent rules, supported estimates and official sources.
+Fieldwise helps Irish farmers explore grants and support schemes by describing their farm in their own words. Answer a phone call or type a description, then see which schemes may be relevant, why they match, and what to check next.
 
-Three developers, three AI agents, one app. This repo ships with a **coordination layer** (ownership map, guard
-hooks, CI, task board, contracts) and a **working full-stack skeleton** (React + Hono + SQLite), so the team can
-start building the moment the brief is announced.
+## From a farm description to practical options
 
-| ID   | Who      | Agent       | Owns                                                                  |
-| ---- | -------- | ----------- | --------------------------------------------------------------------- |
-| dev1 | Keith    | Claude Code | Web app (`apps/web`), product docs · deputy merge captain             |
-| dev2 | Toby     | Claude Code | API + database (`apps/api`)                                           |
-| dev3 | Ilarion  | Codex       | Contracts (`packages/shared`), tooling, CI, tests · **merge captain** |
+Finding support should not mean knowing every scheme name or reading every policy document first. Fieldwise starts with the farmer's situation:
 
-Rules for every agent: **[AGENTS.md](AGENTS.md)** · Claude Code extras: [.claude/CLAUDE.md](.claude/CLAUDE.md) ·
-ownership: [docs/OWNERSHIP.md](docs/OWNERSHIP.md) · procedures: [docs/TEAM_POLICY.md](docs/TEAM_POLICY.md).
+> “I have a 40-hectare suckler beef farm in West Cork. About 3 hectares beside the river are too wet for the cattle. What options do I have?”
 
-## Prerequisites
+It turns that description into an understandable starting point for a conversation with an adviser or the Department of Agriculture.
 
-- **Node 22.12+** (22 or 24 LTS) and npm 10+ · **git 2.38+** recommended · a GitHub account with access to the repo
-- dev1/dev2: **Claude Code 2.1.295+** (`claude update`) · dev3: Codex CLI or the Codex app
+## What you can do
 
-## First-time setup
+- **Talk over the phone.** Enter an approved demo mobile number, answer the call and describe your farm. Hear a spoken summary and see the results on screen.
+- **Type or use your microphone.** Switch to the text journey, speak through a supported browser, or try the Declan, Aoife and Mary examples.
+- **Check what was understood.** Review your farm's size, location, activities and land characteristics. Correct a detail to re-run the checks without another AI request.
+- **Explore relevant schemes.** See the reasons behind each match, payment estimates where supported, and conditions that still need checking.
+- **See the evidence.** Follow official source links, inspect the scheme data and view the Understand → Rules → Explain pipeline.
+- **Plan your next steps.** Read a plain-English summary and work through a checklist of suggested actions.
 
-**Keith — creates the repo (once):**
+No farmer account or login is required for the prototype.
 
-```bash
-cd ~/HackatonUCC
-unzip -o ~/Downloads/agent-config.zip     # first machine only: adds .claude/ and .github/ (agent config + CI)
-node scripts/setup-dev.mjs dev1 --init    # git init → npm install → first commit → role, hooks, branch dev1/work
-```
-It then prints the commands to push to a new **empty** GitHub repo. Do the one-time GitHub settings in
-[docs/INTEGRATION.md](docs/INTEGRATION.md): merge commits only, a ruleset on `main`, the `ownership-approved`
-label, and collaborators.
+## How the advice works
 
-**Teammates:**
+**AI understands and explains; code checks the rules and calculates estimates.**
 
-```bash
-git clone https://github.com/<keith>/<repo>.git && cd <repo>
-node scripts/setup-dev.mjs dev2           # or dev3: role, hooks, branch, .env files, npm install, health check
-```
-Check your machine at any time with `npm run doctor`.
+Fieldwise first extracts a structured farm profile from the description. Its rules engine checks that profile against the scheme criteria and performs supported calculations. AI then explains those results in plain English.
 
-**Verify your agent sees the rules (2 minutes):**
+The current prototype includes checks for NTAS, ANC, BISS, ACRES, SCIS and AWNSS. Coverage and verification vary by scheme; an included scheme is not a guarantee of eligibility, availability or payment.
 
-- Claude Code: start `claude` in the repo → `/context` lists `CLAUDE.md`, `.claude/CLAUDE.md` and `AGENTS.md`, and
-  the session starts with the "Team guard" banner. Ask it to edit a file you don't own — it must be blocked.
-- Codex: ask "List the instruction sources you loaded" → `AGENTS.md`; `/skills` shows `task-start`.
+## What to keep in mind
 
-## Daily loop
+Fieldwise is a Corkathon 2026 prototype, not an official eligibility decision or an application submission service.
+
+- Scheme information is a manually maintained snapshot, not a live government feed. Confirm current rates, deadlines and conditions through the linked official sources.
+- The app cannot verify herd numbers, land parcels, entitlements, soil tests or every scheme condition. Results may say “likely” or “check first”, and estimates are not payment guarantees.
+- Speech recognition and AI can misunderstand a description. Review and correct the farm profile before relying on a result.
+- Phone calls require configured Twilio services and an allowlisted destination. Browser microphone support varies.
+
+## Try it locally
+
+Requires **Node.js 22.12+** and npm.
+
+For a quick interface preview without external service credentials:
 
 ```bash
-npm run whoami                  # role, branch, owned paths, open tasks, behind main?
-npm run task:start -- D1-02     # Claude Code: /task-start D1-02 · Codex: $task-start
-npm run dev                     # web http://localhost:5173 → API http://localhost:8787   (dev:mock = no API)
-npm run verify                  # format, lint, typecheck, tests, build, ownership
-npm run handoff -- D1-02        # PR description
-npm run sync                    # bring in main after every checkpoint
+npm ci
+npm run dev:mock
 ```
 
-## Commands
+Open [localhost:5173](http://localhost:5173), switch to **Enter your farm details instead**, and choose an example farmer. This mode uses illustrative mock responses, not verified grant advice, and does not place real phone calls.
 
-| Command                                                                                        | What it does                                                                          |
-| ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `npm run dev` / `dev:mock`                                                                     | Web + API with hot reload / web only with the mock API                                |
-| `npm run demo`                                                                                 | Reset DB → build web → serve everything on one port (http://localhost:8787)           |
-| `npm run db:reset`                                                                             | Recreate and seed the local SQLite DB (after any schema change)                       |
-| `npm run verify`                                                                               | The definition of "passes": Biome, tsc, tests, build, ownership                       |
-| `npm run smoke`                                                                                | Boot the production build and check every simple GET contract (after `npm run build`) |
-| `npm run whoami` · `doctor`                                                                    | Who am I / is my machine set up correctly                                             |
-| `npm run task:start -- <ID>` · `board` · `task -- status <ID> "<S>"` · `task -- new "<title>"` | Task board                                                                            |
-| `npm run guard` · `guard -- path <f>` · `guard -- map`                                         | Ownership checks                                                                      |
-| `npm run sync` · `sync -- --check`                                                             | Merge the latest main safely · preview conflicts                                      |
-| `npm run handoff -- <ID>`                                                                      | Generate the PR handoff block                                                         |
-| `npm run worktree -- <topic>` · `-- --main`                                                    | Extra checkout for a parallel agent · captain's main checkout                         |
-| `npm run format`                                                                               | Auto-fix formatting and lint                                                          |
+To run the full local app, copy `apps/api/.env.example` to `apps/api/.env`, configure the required services there, and run:
 
-## How the guardrails work
+```bash
+npm run dev
+```
 
-- **Ownership map** — `docs/OWNERSHIP.md` assigns every path to one developer; the last matching rule wins.
-- **Edit time** — Claude Code's `PreToolUse` hook blocks edits outside your paths and tells the agent what to do instead.
-- **Commit and push** — git hooks block unowned files, commits on `main`, wrong branch names, `.env` files and secrets.
-- **Pull request** — CI re-checks ownership by branch prefix, plus format, types, tests, build and a smoke test.
-- **Coordination** — per-developer task files (no shared-table conflicts), a contract registry, change requests, checkpoints.
+The web app runs at [localhost:5173](http://localhost:5173) and the API at [localhost:8787](http://localhost:8787). Live descriptions need an `OPENAI_API_KEY`; phone calls also need the Twilio settings documented in the template. For the recorded example descriptions without a live AI request, set `DEMO_MODE=fixtures` and use the typed journey.
 
-## Troubleshooting
+## Further reading
 
-| Problem                                                     | Fix                                                                                                                     |
-| ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `node: not found` from a git hook (GUI git client, VS Code) | Launch the client from a terminal, or install Node system-wide rather than via a shell-only version manager             |
-| Hooks don't run at all                                      | `npm run doctor`; re-run `node scripts/setup-dev.mjs <role>` (sets `core.hooksPath`, executable bits)                   |
-| Claude says "No developer role is configured"               | `node scripts/setup-dev.mjs <role>`                                                                                     |
-| "Commit blocked by the team guard"                          | Read it: someone else's file → request it; wrong branch → `git switch <role>/work`; secret → move it to `.env`          |
-| Install fails on a native package | Use Node 22 or 24 LTS and re-run `npm install` (the DB driver, libsql, ships prebuilt binaries for macOS, Windows and Linux) |
-| Port already in use                                         | Set `PORT` in `apps/api/.env`, and start the web app with `API_URL=http://localhost:<port>`                             |
-| Odd data after a schema change                              | `npm run db:reset`                                                                                                      |
-| `verify` fails on formatting                                | `npm run format`, then verify again                                                                                     |
+- [Demo walkthrough](docs/DEMO.md)
+- [Architecture and data flow](docs/ARCHITECTURE.md)
+- [API contracts and configuration](docs/API_CONTRACTS.md)
+- [Contributor rules](AGENTS.md) and [team workflow](docs/TEAM_POLICY.md)
