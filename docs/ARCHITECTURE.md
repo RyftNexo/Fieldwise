@@ -21,17 +21,17 @@ they likely qualify for, each with a € estimate, the rule that fired, the dead
 
 ## How a question becomes advice
 
-1. **Extract** (Gemini, `apps/api`): free text → a strict JSON `FarmProfile` (Gemini response schema, then validated
+1. **Extract** (OpenAI, `apps/api`): free text → a strict JSON `FarmProfile` (structured response, then validated
    with Zod). Anything the farmer didn't mention goes into `missing`.
 2. **Rules** (pure TypeScript in `apps/api`, no AI): one function per scheme checks the profile against hard-coded
    criteria and computes the €. Conditions we can't verify (peat soil, designated sites) return `likely` or `check`
    with the reason. Each scheme has a table of unit tests.
-3. **Explain** (Gemini): a summary of at most 120 words covering the engine's results only. No new schemes, no new
+3. **Explain** (OpenAI): a summary of at most 120 words covering the engine's results only. No new schemes, no new
    figures.
 4. **Render** (`apps/web`): structured cards, chips and a checklist, never a wall of chat text. Editing a chip re-runs
    step 2 only (C-04).
 
-`DEMO_MODE=fixtures` replays recorded Gemini replies, so the demo also works offline.
+`DEMO_MODE=fixtures` replays recorded AI replies, so the demo also works offline.
 
 ## Contract v1 draft (proposed by dev1; dev3 owns the real one in D3-01)
 

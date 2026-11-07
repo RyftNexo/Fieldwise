@@ -8,11 +8,17 @@ Owner of this file: **dev3**. Changing ownership needs all three developers to a
 | ID       | Who      | Tool        | Role                                             | Owns                                                                                                                                                                                                                              |
 | -------- | -------- | ----------- | ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **dev1** | Keith    | Claude Code | Experience & product lead · deputy merge captain | `apps/web/**`, `.claude/rules/web.md`, `docs/{ARCHITECTURE,TASK_BOARD,DECISIONS,DEMO}.md`, `docs/tasks/dev1.md`                                                                                                                   |
-| **dev2** | _(name)_ | Claude Code | Server lead                                      | `apps/api/**` — routes, business logic, auth, validation, DB schema, seeds, external/LLM calls — `.claude/rules/api.md`, `docs/tasks/dev2.md`                                                                                     |
-| **dev3** | _(name)_ | Codex       | Platform & integration lead · **merge captain**  | **Default owner of everything else**: `packages/shared/**` (contracts), root config, `scripts/`, `.github/`, `.githooks/`, `.claude/` + `.agents/` config, `tests/`, `AGENTS.md`, `CLAUDE.md`, process docs, `docs/tasks/dev3.md` |
+| **dev2** | Toby     | Claude Code | Server lead                                      | `apps/api/**` — routes, business logic, auth, validation, DB schema, seeds, external/LLM calls — `.claude/rules/api.md`, `docs/tasks/dev2.md`                                                                                     |
+| **dev3** | Ilarion  | Codex       | Platform & integration lead · **merge captain**  | **Default owner of everything else**: `packages/shared/**` (contracts), root config, `scripts/`, `.github/`, `.githooks/`, `.claude/` + `.agents/` config, `tests/`, `AGENTS.md`, `CLAUDE.md`, process docs, `docs/tasks/dev3.md` |
 | any      | —        | —           | —                                                | `package-lock.json` (generated), `.scratch/**` (gitignored scratch space)                                                                                                                                                         |
 
 ## The map (enforced)
+
+Kickoff confirmed **layer-based ownership**, as recorded in `docs/TASK_BOARD.md` and decision D-001.
+The existing map below already implements that decision: Keith owns web, Toby owns API/database, and
+Ilarion owns platform, contracts and integration. D3-02 confirms this map; it does not reassign any paths.
+Confirmed in PR #7: Ilarion authored the confirmation, Keith approved it, and Toby merged it.
+The three developers have accepted the existing map; D3-02 is complete.
 
 The guard (`scripts/guard.mjs`) reads the block below. One rule per line: `<pattern> <owner>`.
 Patterns start at the repo root; `**` = anything, `*` = anything except `/`. **The last matching rule wins.**

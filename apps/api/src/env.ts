@@ -15,6 +15,15 @@ const Env = z.object({
   PORT: z.coerce.number().int().positive().default(8787),
   DB_FILE: z.string().min(1).default('./data/app.db'),
   DEMO_MODE: z.enum(['off', 'fixtures']).default('off'),
+  /** Server-side only. Missing is fine until a live OpenAI call is made (or DEMO_MODE=fixtures). */
+  OPENAI_API_KEY: z.string().min(1).optional(),
+  OPENAI_MODEL: z.string().min(1).default('gpt-4.1-mini'),
+  OPENAI_TIMEOUT_MS: z.coerce.number().int().positive().default(20_000),
+  /** Twilio voice webhook. Missing is fine until a call arrives. */
+  TWILIO_ACCOUNT_SID: z.string().min(1).optional(),
+  TWILIO_AUTH_TOKEN: z.string().min(1).optional(),
+  /** Public https origin Twilio calls, with no path. Makes the signature match behind a tunnel. */
+  TWILIO_PUBLIC_BASE: z.string().url().optional(),
   // New variables: add them here AND in apps/api/.env.example.
   // Secrets: z.string().optional(), then fail with a clear AppError where they're used.
 });
