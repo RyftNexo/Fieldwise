@@ -15,7 +15,7 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 
 ### D1-02 · First real screen on the demo path (mock mode)
 
-- Status: Review
+- Status: Done
 - Depends on: D3-01
 - Paths: apps/web/src/features/**
 - Accept: renders from mocks (`npm run dev:mock`), handles loading/empty/error, typed via @app/shared, `npm run verify` green
@@ -35,7 +35,7 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - Accept: Landing page is the advisor: hero input, example prompts, Extract → Rules → Explain stepper with each step's JSON, 'what we understood' chips, grant cards (eligibility, €, reasons, status, link), plain-English summary, next steps, disclaimer; runs on clearly bannered local preview data until C-03 exists; loading, empty and error states; mobile-first; npm run verify green
 
 ### D1-05 · Voice input (mic button, en-IE)
-- Status: Review
+- Status: Done
 - Depends on: —
 - Paths: apps/web/src/features/advisor/**
 - Accept: Mic button next to the input uses the browser's SpeechRecognition (en-IE, interim results fill the box live, auto-submits on a pause); hidden when unsupported; clear error if the mic is blocked; tested on the stage laptop in Chrome
@@ -47,7 +47,7 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - Accept: Editing a chip re-runs the rules via C-04 (no LLM) and the € figures update; 'Show the raw data' drawer lists the scheme criteria and sources from C-05; mocks for C-04/C-05 built from shared fixtures
 
 ### D1-07 · Send to a registered forester + forester inbox
-- Status: Review
+- Status: Done
 - Depends on: D3-01
 - Paths: apps/web/src/features/advisor/**, apps/web/src/features/forester/**, apps/web/src/mocks/handlers.ts
 - Accept: Button on the results saves a lead via C-06 with a confirmation; /forester inbox lists leads (newest first) with profile, matched schemes and € estimate; loading, empty and error states
@@ -89,3 +89,6 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - 13:25 D1-07 → In Progress
 - 13:27 D1-02 → Review
 - 13:27 D1-07 → Review
+- 14:11 D1-02 → Done
+- 14:11 D1-05 → Done
+- 14:11 D1-07 → Done
