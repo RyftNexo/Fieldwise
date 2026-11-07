@@ -54,6 +54,12 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - Paths: apps/**, docs/**, packages/shared/src/advice.test.ts, README.md
 - Accept: Fieldwise and Your farm. Your options appear consistently in product surfaces and documentation; existing routes, contracts, persistence and phone behaviour remain compatible; verify and production smoke pass
 
+### D3-08 · Rewrite README around the Fieldwise product
+- Status: Review
+- Depends on: —
+- Paths: README.md, docs/tasks/dev3.md
+- Accept: README explains farmer journeys, results, transparent rules and prototype limits; includes accurate quick-start and links to technical docs; removes implementation-process narrative
+
 ## Requests to others
 
 <!-- - REQ dev3→dev2 (open): <what> — needed by <task> -->
@@ -85,3 +91,5 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - 16:59 D3-06 → Done
 - 17:38 D3-07 → In Progress
 - 17:42 D3-07 → Review
+- 23:01 D3-08 → In Progress
+- 23:02 D3-08 → Review
