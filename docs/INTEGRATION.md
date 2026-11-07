@@ -6,7 +6,7 @@ Owner: **dev3** (merge captain). Deputy: **dev1** (Keith). Nobody else merges in
 
 - Contract v1 merged in PR #4; `contract-v1` points to `fa7aabb`. D3-01's completion record merged in PR #6.
 - Web contract integration merged in PR #5 (`cdf6f42`): advice and forester leads use C-03/C-06/C-07;
-  mock mode uses shared fixtures. D1-02 and D1-07 still await their owner's final status update.
+  mock mode uses shared fixtures. D1-02 and D1-07 are marked Done by their owner.
 - API v1, rules, scheme catalogue and database seeds merged in PRs #9/#10. The walking-skeleton checkpoint
   is verified at main commit `38acc12`; `cp-1` identifies that application version.
 - **D3-03 / cp-1 verification:** full `npm run verify` passes (222 tests, typecheck, production build and
@@ -20,14 +20,17 @@ Owner: **dev3** (merge captain). Deputy: **dev1** (Keith). Nobody else merges in
 - Browser verification used the production web app with the real HTTP API and `DEMO_MODE=fixtures`:
   Declan's example → advice results → forester form → saved lead in the forester inbox. The SPA route also
   loads directly. Recorded OpenAI replies were used; rules and database operations ran normally.
-- **Still unverified:** fresh OpenAI calls, microphone input on the presentation laptop, and a final
+- **Still unverified by dev3:** fresh OpenAI calls, a complete real phone-to-homepage result, and a final
   independent review of scheme facts. Provider wording was reconciled in PR #14. This is the walking-skeleton checkpoint, not the full live-AI/voice checkpoint or demo release.
 - API environment variables are documented in `docs/API_CONTRACTS.md`. For offline operation, set
   `DEMO_MODE=fixtures` in the API environment before startup; this is separate from `npm run dev:mock`, which
   uses browser-side illustrative fixtures and does not exercise API/database persistence.
 - Notes API removed in PR #13; shared notes contracts are now retired (D3-04).
 - PR #14 adds profile editing and source data, fixes provider wording and records microphone testing.
-- Twilio implementation merged in PR #13; real dial-in still needs number/tunnel testing.
+- Twilio outbound API merged in PR #17; C-08/C-09 contracts merged in PR #18; homepage call UI merged in PR #19.
+- D3-05 is complete. API status documentation now reflects implementation, while end-to-end live validation remains pending.
+- **Open finding owned by dev2:** merged PR #17 accepts unsigned Twilio webhooks when x-forwarded-host matches configuration. That header is not authentication. Require signatures and correct proxy configuration; the standalone API page still bypasses the shared browser client.
+- Keith reports the demo-laptop microphone test complete. D1-08 polish/slides, final projector checks, final build rehearsal, backup video and demo-v1 remain release work. No cp-2 or demo-v1 claim is made by this audit.
 - D3-02's layer-based map matches the kickoff decision and was confirmed in PR #7: Ilarion authored it,
   Keith approved it, and Toby merged it. Ownership confirmation is complete.
 
