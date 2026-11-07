@@ -4,7 +4,9 @@ Owner: **dev1**. The demo path is the product: build it first, protect it always
 
 ## The demo path (under 2 minutes)
 
-1. The judge sees one big input, the tagline, a mic button and three example prompts (Declan, Aoife, Mary).
+1. The homepage opens on the phone call ("Your mobile number" → Call me, D-022). Until the phone line is live, click
+   "Type your farm details instead" (or open `/?mode=type`): the judge sees one big input, the tagline, a mic button
+   and three example prompts (Declan, Aoife, Mary).
 2. We speak (or type) Declan's situation; the words fill the box live.
 3. The **pipeline stepper** lights up Extract → Rules → Explain. Click a step to see its JSON.
 4. **"What we understood"** chips: 40 ha · suckler beef · West Cork · 3 ha too wet · next to a river. Editing one
@@ -51,11 +53,12 @@ npm run demo             # reset DB → build web → serve everything on http:/
 ## Fallback ladder
 
 1. **Live, local:** `demo-v1` on Keith's laptop, seeded data, real OpenAI responses.
-2. **Voice fails or the Wi-Fi drops:** click Declan's example prompt instead of speaking.
-3. **Degraded:** OpenAI fails or is slow → restart with `DEMO_MODE=fixtures` in `apps/api/.env`.
-4. **Last good build:** `git checkout cp-N && npm run demo`.
-5. **Video:** the backup recording from code freeze (on the laptop, a phone and YouTube).
-6. **Slides:** screenshots of every demo-path step.
+2. **The phone call fails:** "Type it instead" on the call card (or open `/?mode=type`), then click Declan's example.
+3. **Voice fails or the Wi-Fi drops:** click Declan's example prompt instead of speaking.
+4. **Degraded:** OpenAI fails or is slow → restart with `DEMO_MODE=fixtures` in `apps/api/.env`.
+5. **Last good build:** `git checkout cp-N && npm run demo`.
+6. **Video:** the backup recording from code freeze (on the laptop, a phone and YouTube).
+7. **Slides:** screenshots of every demo-path step.
 
 ## Pre-demo checklist
 

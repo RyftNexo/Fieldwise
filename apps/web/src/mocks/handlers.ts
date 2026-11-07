@@ -14,6 +14,8 @@ import {
   voiceCallFixtures,
 } from '@app/shared';
 import type { z } from 'zod';
+// client.ts imports this file too. ApiError is only used inside handlers, at call time, so the cycle is safe.
+import { ApiError } from '@/api/client';
 
 /**
  * Mock API for `npm run dev:mock`: one handler per contract ID, built from the shared fixtures.
@@ -73,8 +75,18 @@ const fixtureMatches: GrantMatch[] = Object.values(adviceFixtures).flatMap(
 let leads: Lead[] = [...leadFixtures];
 
 // Each mock phone call moves one step per poll, like a real call: ringing, the farmer talks, then the advice.
+// The other screens show in mock mode too: a number ending in 9 rings and then fails, a number that isn't an Irish
+// mobile is refused (the real API refuses numbers missing from its demo allowlist), and an unknown call is a 404.
 const VOICE_STEPS: VoiceCallState[] = ['ringing', 'ringing', 'pending', 'done'];
-const voicePolls = new Map<string, number>();
+const FAILED_STEPS: VoiceCallState[] = ['ringing', 'ringing', 'failed'];
+const voiceCalls = new Map<string, { to: string; steps: VoiceCallState[]; polls: number }>();
+
+/** 087 123 4567, +353 87 123 4567 or 00353 (0)87 123 4567: what the mock agrees to ring. */
+function isIrishMobile(to: string): boolean {
+  let digits = to.replace(/\D/g, '').replace(/^00/, '');
+  if (digits.startsWith('353')) digits = digits.slice(3);
+  return /^0?8\d{8}$/.test(digits);
+}
 
 export const mockHandlers: Record<string, AnyMockHandler> = Object.fromEntries([
   mock(endpoints.health)(() => ({
@@ -119,16 +131,31 @@ export const mockHandlers: Record<string, AnyMockHandler> = Object.fromEntries([
 
   // No phone rings in mock mode: every call gets a fresh id and replays the shared voice fixtures.
   mock(endpoints.ringVoiceCall)(({ body }) => {
+    if (!isIrishMobile(body.to)) {
+      throw new ApiError(
+        'FORBIDDEN',
+        'We can only ring Irish mobile numbers on the demo list.',
+        403,
+      );
+    }
     const callSid = `CA${crypto.randomUUID().replaceAll('-', '')}`;
-    voicePolls.set(callSid, 0);
+    const steps = body.to.replace(/\D/g, '').endsWith('9') ? FAILED_STEPS : VOICE_STEPS;
+    voiceCalls.set(callSid, { to: body.to, steps, polls: 0 });
     return { ...ringVoiceResponseFixture, callSid, to: body.to };
   }),
 
   mock(endpoints.getVoiceCall)(({ params }) => {
     const callSid = String(params.callSid);
-    const polls = voicePolls.get(callSid) ?? VOICE_STEPS.length - 1;
-    voicePolls.set(callSid, polls + 1);
-    const state = VOICE_STEPS[Math.min(polls, VOICE_STEPS.length - 1)] ?? 'done';
-    return { ...voiceCallFixtures[state], callSid };
+    const voiceCall = voiceCalls.get(callSid);
+    if (!voiceCall) {
+      throw new ApiError(
+        'NOT_FOUND',
+        "We can't find that call any more. Start again to place a new one.",
+        404,
+      );
+    }
+    const state = voiceCall.steps[Math.min(voiceCall.polls, voiceCall.steps.length - 1)] ?? 'done';
+    voiceCall.polls += 1;
+    return { ...voiceCallFixtures[state], callSid, to: voiceCall.to };
   }),
 ]);

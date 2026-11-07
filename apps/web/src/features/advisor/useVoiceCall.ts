@@ -1,12 +1,13 @@
-import { endpoints, type VoiceCall } from '@app/shared';
+import { endpoints } from '@app/shared';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { call } from '@/api/client';
+import { callView, nextPoll, shouldRetry } from './voiceCall';
 
-const POLL_MS = 2000;
-
-export function isFinished(state?: VoiceCall['state']): boolean {
-  return state === 'done' || state === 'failed';
+interface PlacedCall {
+  callSid: string;
+  /** The number as the farmer typed it, to show back to them. */
+  dialled: string;
 }
 
 /**
@@ -15,33 +16,57 @@ export function isFinished(state?: VoiceCall['state']): boolean {
  * Placing a call is never retried automatically: a retry would ring the farmer's phone twice.
  */
 export function useVoiceCall() {
-  const [callSid, setCallSid] = useState<string | null>(null);
+  const [placed, setPlaced] = useState<PlacedCall | null>(null);
+  // Each ring gets a number, so a slow reply to a ring the farmer has abandoned can't bring that call back.
+  const latestRing = useRef(0);
 
   const ring = useMutation({
     mutationFn: (to: string) => call(endpoints.ringVoiceCall, { body: { to } }),
-    onSuccess: (placed) => setCallSid(placed.callSid),
   });
 
+  const callSid = placed?.callSid ?? null;
   const status = useQuery({
     queryKey: [endpoints.getVoiceCall.id, callSid],
-    queryFn: () => call(endpoints.getVoiceCall, { params: { callSid: callSid ?? '' } }),
+    queryFn: ({ signal }) =>
+      call(endpoints.getVoiceCall, { params: { callSid: callSid ?? '' }, signal }),
     enabled: callSid !== null,
-    refetchInterval: (query) =>
-      query.state.error || isFinished(query.state.data?.state) ? false : POLL_MS,
-    retry: 2,
+    refetchInterval: (query) => nextPoll(query.state.data?.state, query.state.error !== null),
+    retry: shouldRetry,
   });
 
   const current = callSid ? status.data : undefined;
-  const error = ring.error ?? (callSid ? status.error : null);
+  const checkError = callSid ? status.error : null;
+  const view = callView(callSid, current, checkError);
 
   return {
-    ring(to: string) {
-      setCallSid(null);
-      ring.mutate(to);
-    },
+    view,
+    callSid,
     call: current,
-    error,
-    /** True from "Ring me" until the call is done, has failed or can't be checked. */
-    active: ring.isPending || (callSid !== null && !error && !isFinished(current?.state)),
+    dialled: placed?.dialled,
+    advice: view === 'done' ? current?.advice : undefined,
+    placing: ring.isPending,
+    ringError: ring.error,
+    checkError,
+    /** From "Call me" until the call is done, has failed or can't be checked. */
+    inProgress: ring.isPending || view === 'ringing' || view === 'pending',
+    /** The last call stays on screen until the new one is placed, so a refused number doesn't wipe the results. */
+    ring(to: string) {
+      latestRing.current += 1;
+      const thisRing = latestRing.current;
+      ring.mutate(to, {
+        onSuccess: (result) => {
+          if (latestRing.current === thisRing) setPlaced({ callSid: result.callSid, dialled: to });
+        },
+      });
+    },
+    /** Stops following the call. There is no hang-up endpoint, so the phone call itself carries on. */
+    reset() {
+      latestRing.current += 1;
+      ring.reset();
+      setPlaced(null);
+    },
+    checkAgain() {
+      void status.refetch();
+    },
   };
 }
