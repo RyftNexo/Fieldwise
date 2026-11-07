@@ -1,0 +1,67 @@
+[
+  {
+    "id": "declan",
+    "text": "I have a 40-hectare suckler beef farm in West Cork. About 3 hectares beside the river are too wet for the cattle. What grants could I get for that land?",
+    "keywords": ["declan", "west cork", "suckler"],
+    "source": "llm",
+    "profile": {
+      "hectares": 40,
+      "enterprise": "suckler",
+      "region": "West Cork",
+      "marginalHectares": 3,
+      "nearWatercourse": true,
+      "peatSoil": null,
+      "designatedSite": null,
+      "missing": [
+        "your age",
+        "your gender",
+        "peat soil status",
+        "designated site status",
+        "whether you are an active farmer"
+      ]
+    },
+    "summary": "You could get up to €58,388 from the Native Tree Area Scheme by planting native trees on 2 hectares of your farm, but ask a registered forester to check your land first. You are likely eligible for Basic Income Support for Sustainability, which pays yearly on your 40 hectares if you have a herd number, so remember to claim it every year. Check if your land qualifies for Areas of Natural Constraint by looking up your townlands on gov.ie, then apply with your BISS claim. For the Agri-Climate Rural Environment Scheme, ask an ACRES adviser or Teagasc if you can join, as it depends on your actions and current openings.",
+    "model": "gpt-4.1-mini"
+  },
+  {
+    "id": "aoife",
+    "text": "I'm 29 and I took over the home farm last year: 60 hectares of dairy in Tipperary. I'd like to put solar panels on the milking parlour roof.",
+    "keywords": ["aoife", "tipperary", "dairy", "solar"],
+    "source": "llm",
+    "profile": {
+      "hectares": 60,
+      "enterprise": "dairy",
+      "county": "Tipperary",
+      "age": 29,
+      "peatSoil": null,
+      "designatedSite": null,
+      "plannedInvestment": "solar",
+      "missing": [
+        "gender",
+        "marginal hectares",
+        "near watercourse",
+        "peat soil status",
+        "whether farm is designated site"
+      ]
+    },
+    "summary": "You are likely eligible for the Basic Income Support for Sustainability (BISS), which pays on each eligible hectare you farm, so claim it every year. Check if your land in Tipperary qualifies for the Areas of Natural Constraint (ANC) scheme by looking up your townlands on gov.ie, then tick ANC on your BISS application if eligible. The Agri-Climate Rural Environment Scheme (ACRES) may be available, but you need to ask an approved adviser or Teagasc if you can join now. If you plan a solar investment, check the Solar Capital Investment Scheme (SCIS) rules and application details before applying.",
+    "model": "gpt-4.1-mini"
+  },
+  {
+    "id": "mary",
+    "text": "I farm 35 hectares of sheep in Kerry with my husband, and I am planning to build a new slatted shed next year.",
+    "keywords": ["mary", "kerry", "sheep", "slatted"],
+    "source": "llm",
+    "profile": {
+      "hectares": 35,
+      "enterprise": "sheep",
+      "county": "Kerry",
+      "peatSoil": null,
+      "designatedSite": null,
+      "plannedInvestment": "shed",
+      "missing": ["your age", "your gender", "marginal hectares", "near watercourse", "peat soil"]
+    },
+    "summary": "You are likely eligible for the Basic Income Support for Sustainability (BISS), which pays on each eligible hectare you farm, so claim it every year. Check if your land in Kerry qualifies for Areas of Natural Constraint (ANC) by looking up your townlands on the government list, then tick ANC on your BISS application if eligible. Ask an approved adviser or Teagasc if you can join the Agri-Climate Rural Environment Scheme (ACRES) now, as new applicants may or may not be accepted. For the Animal Welfare and Nutrient Storage Scheme (AWNSS), confirm current rules and application dates before applying for shed investment support.",
+    "model": "gpt-4.1-mini"
+  }
+]
