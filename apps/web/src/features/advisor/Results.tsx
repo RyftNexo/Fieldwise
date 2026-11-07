@@ -1,11 +1,14 @@
-import type { AdviceResponse } from '@app/shared';
+import { type AdviceResponse, endpoints, type FarmProfile } from '@app/shared';
+import { useMutation } from '@tanstack/react-query';
 import { Info, RotateCcw, Sparkles } from 'lucide-react';
-import type { Ref } from 'react';
+import { type Ref, useEffect, useState } from 'react';
+import { call } from '@/api/client';
 import { ForesterCta } from './ForesterCta';
 import { formatEuro } from './format';
 import { GrantCard } from './GrantCard';
 import { forestryMatches } from './leads';
 import { ProfileChips } from './ProfileChips';
+import { RawDataDrawer } from './RawDataDrawer';
 import { summariseMatches } from './summary';
 
 interface ResultsProps {
@@ -16,10 +19,26 @@ interface ResultsProps {
 }
 
 export function Results({ advice, headingRef, onStartAgain }: ResultsProps) {
-  const headline = summariseMatches(advice.matches);
+  const [currentAdvice, setCurrentAdvice] = useState(advice);
+  useEffect(() => setCurrentAdvice(advice), [advice]);
+  const evaluation = useMutation({
+    mutationFn: (profile: FarmProfile) => call(endpoints.evaluateAdvice, { body: { profile } }),
+  });
+  const headline = summariseMatches(currentAdvice.matches);
+
+  async function updateProfile(profile: FarmProfile): Promise<FarmProfile> {
+    const updated = await evaluation.mutateAsync(profile);
+    setCurrentAdvice(updated);
+    return updated.profile;
+  }
+
   return (
     <div className="space-y-8">
-      <ProfileChips profile={advice.profile} />
+      <ProfileChips
+        profile={currentAdvice.profile}
+        onSave={updateProfile}
+        saving={evaluation.isPending}
+      />
 
       <section
         aria-labelledby="results-heading"
@@ -46,22 +65,24 @@ export function Results({ advice, headingRef, onStartAgain }: ResultsProps) {
             we could put a figure on
           </p>
         )}
-        <p className="mt-5 text-lg leading-relaxed text-pretty text-brand-50">{advice.summary}</p>
+        <p className="mt-5 text-lg leading-relaxed text-pretty text-brand-50">
+          {currentAdvice.summary}
+        </p>
         <p className="mt-4 flex items-center gap-1.5 text-xs text-brand-200">
           <Sparkles className="size-3.5" aria-hidden />
-          Written by Gemini, using only the results below.
+          Written by AI, using only the rules-engine results below.
         </p>
       </section>
 
-      {advice.matches.length === 0 ? (
-        <NoMatches missing={advice.profile.missing} />
+      {currentAdvice.matches.length === 0 ? (
+        <NoMatches missing={currentAdvice.profile.missing} />
       ) : (
         <section aria-labelledby="grants-heading">
           <h2 id="grants-heading" className="sr-only">
             The schemes
           </h2>
           <ul className="grid gap-4 sm:grid-cols-2">
-            {advice.matches.map((match) => (
+            {currentAdvice.matches.map((match) => (
               <li key={match.schemeId} className="flex">
                 <GrantCard match={match} />
               </li>
@@ -70,13 +91,15 @@ export function Results({ advice, headingRef, onStartAgain }: ResultsProps) {
         </section>
       )}
 
-      {advice.nextSteps.length > 0 && <NextSteps steps={advice.nextSteps} />}
+      <RawDataDrawer />
 
-      {forestryMatches(advice.matches).length > 0 && <ForesterCta advice={advice} />}
+      {currentAdvice.nextSteps.length > 0 && <NextSteps steps={currentAdvice.nextSteps} />}
 
-      {advice.disclaimers.length > 0 && (
+      {forestryMatches(currentAdvice.matches).length > 0 && <ForesterCta advice={currentAdvice} />}
+
+      {currentAdvice.disclaimers.length > 0 && (
         <ul className="space-y-1.5 text-sm text-stone-500">
-          {advice.disclaimers.map((item) => (
+          {currentAdvice.disclaimers.map((item) => (
             <li key={item} className="flex gap-2">
               <Info className="mt-0.5 size-4 shrink-0" aria-hidden />
               {item}

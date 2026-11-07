@@ -7,7 +7,7 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 
 ### D1-01 · Run the kickoff and record the decisions
 
-- Status: In Progress
+- Status: Review
 - Depends on: —
 - Paths: docs/TASK_BOARD.md, docs/DECISIONS.md, docs/ARCHITECTURE.md, docs/DEMO.md
 - Accept: kickoff checklist in TASK_BOARD.md complete; one demo path written in DEMO.md; decisions logged; app name set in apps/web/src/app/config.ts
@@ -39,9 +39,10 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - Depends on: —
 - Paths: apps/web/src/features/advisor/**
 - Accept: Mic button next to the input uses the browser's SpeechRecognition (en-IE, interim results fill the box live, auto-submits on a pause); hidden when unsupported; clear error if the mic is blocked; tested on the stage laptop in Chrome
+- Notes: microphone input confirmed on the demo laptop in Chrome
 
 ### D1-06 · Editable profile chips and raw-data drawer
-- Status: Not Started
+- Status: Review
 - Depends on: D3-01
 - Paths: apps/web/src/features/advisor/**, apps/web/src/mocks/handlers.ts
 - Accept: Editing a chip re-runs the rules via C-04 (no LLM) and the € figures update; 'Show the raw data' drawer lists the scheme criteria and sources from C-05; mocks for C-04/C-05 built from shared fixtures
@@ -67,7 +68,7 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 ## Requests to others
 
 <!-- - REQ dev1→dev3 (open): <what> — needed by <task> -->
-- REQ dev1→dev3 (open): contract v1 — C-03 `POST /api/advice`, C-04 `POST /api/advice/evaluate`, C-05 `GET /api/schemes`, C-06 `POST /api/leads`, C-07 `GET /api/leads`, with fixtures for Declan, Aoife and Mary; proposed shapes in docs/ARCHITECTURE.md § Contract v1 draft — needed by D1-02, D1-06, D1-07
+- REQ dev1→dev3 (closed): contract v1 — C-03 `POST /api/advice`, C-04 `POST /api/advice/evaluate`, C-05 `GET /api/schemes`, C-06 `POST /api/leads`, C-07 `GET /api/leads`, with fixtures for Declan, Aoife and Mary; proposed shapes in docs/ARCHITECTURE.md § Contract v1 draft — delivered in D3-01
 - REQ dev1→dev2 (open): extraction (C-03) must accept acres as well as hectares and convert them (1 acre ≈ 0.405 ha), since Irish farmers usually talk in acres; and tolerate speech-recognition slips (Chrome heard "40-hectare" as "40 acre", "three" as "tree", "too" as "two"). When a number or unit is unclear, put it in `missing` rather than guessing — needed by D1-05, D1-06
 
 ## Log
@@ -92,3 +93,7 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - 14:11 D1-02 → Done
 - 14:11 D1-05 → Done
 - 14:11 D1-07 → Done
+- 14:35 D1-06 → In Progress
+- 14:35 D1-05 microphone input confirmed on the demo laptop in Chrome
+- 14:44 D1-06 → Review
+- 14:44 D1-01 → Review

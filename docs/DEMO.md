@@ -37,7 +37,7 @@ it. Next: map-based field selection and alerts when a new scheme opens."
 
 - Demo data: the shared fixtures (Declan, Aoife, Mary) plus the seeded schemes (`npm run db:reset`, dev2).
 - Demo login: none. The forester inbox is open in the demo.
-- External APIs: the Gemini key lives in `apps/api/.env` on the demo laptop only. `DEMO_MODE=fixtures` is the fallback.
+- External APIs: `OPENAI_API_KEY` lives in `apps/api/.env` on the demo laptop only. `DEMO_MODE=fixtures` is the fallback.
 - Voice input uses Chrome's speech recognition, which needs internet. Offline, use the example prompts.
 
 ## Run it
@@ -50,9 +50,9 @@ npm run demo             # reset DB → build web → serve everything on http:/
 
 ## Fallback ladder
 
-1. **Live, local:** `demo-v1` on Keith's laptop, seeded data, real Gemini.
+1. **Live, local:** `demo-v1` on Keith's laptop, seeded data, real OpenAI responses.
 2. **Voice fails or the Wi-Fi drops:** click Declan's example prompt instead of speaking.
-3. **Degraded:** Gemini fails or is slow → restart with `DEMO_MODE=fixtures` in `apps/api/.env`.
+3. **Degraded:** OpenAI fails or is slow → restart with `DEMO_MODE=fixtures` in `apps/api/.env`.
 4. **Last good build:** `git checkout cp-N && npm run demo`.
 5. **Video:** the backup recording from code freeze (on the laptop, a phone and YouTube).
 6. **Slides:** screenshots of every demo-path step.
@@ -62,7 +62,7 @@ npm run demo             # reset DB → build web → serve everything on http:/
 - [ ] Feature freeze → `demo-v1` tagged; backup video recorded in fixtures mode
 - [ ] Video uploaded to YouTube and the link sent to the dev post (by 18:00)
 - [ ] Fresh-clone rehearsal ×2 (time it), full rehearsal ×3
-- [ ] Mic tested on the stage laptop in Chrome
+- [x] Mic tested on the demo laptop in Chrome
 - [ ] Laptop: charged, notifications off, browser zoom ~125%, tabs closed, works with Wi-Fi off
 - [ ] Slides final (one real forester quote); screenshots included; presenter and backup presenter agreed
 - [ ] Room confirmed: Dora Allman, 4th floor, the Hub
