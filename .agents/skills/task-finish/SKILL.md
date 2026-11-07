@@ -3,6 +3,9 @@ name: task-finish
 description: Finish a task in this repo (IDs like D3-01) — verify, self-review, write the handoff, update status and commit. Use when you believe the implementation is complete.
 ---
 
+Final-stage policy: AGENTS.md overrides older exclusive-owner wording below. All project paths are shared. Keep your own task IDs/branch; check and coordinate overlaps before editing. Cross-area fixes and conflict resolution are allowed after understanding affected work, with relevant tests and review; never discard others’ edits or bypass guards.
+
+
 Finish the task ID the user gave you (definition of done: `AGENTS.md` §7).
 
 1. `npm run verify`. Fix failures in your own files only; a failure in someone else's area → stop and report it.
