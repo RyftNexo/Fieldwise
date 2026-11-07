@@ -7,7 +7,7 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 
 ### D2-01 · Implement the contract v1 endpoints
 
-- Status: Not Started
+- Status: In Progress
 - Depends on: D3-01
 - Paths: apps/api/src/features/**
 - Accept: every v1 endpoint validates input with its contract schema, replies via `reply()`, has a test that parses the response; `npm run verify` green
@@ -27,8 +27,27 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - Paths: apps/api/src/features/notes/**
 - Accept: folder deleted after dev1 removed the UI; API tests and smoke test still pass
 
+### D2-04 · Verified scheme facts for NTAS, ANC, BISS, ACRES
+- Status: Not Started
+- Depends on: —
+- Paths: apps/api/src/features/schemes/**
+- Accept: each scheme has rates, caps, deadline, official gov.ie url and source verified from gov.ie, checkedAt set; anything unverified stays null and says so
+
+### D2-05 · Rules engine: one pure function per scheme, plus C-04 wired to it
+- Status: Not Started
+- Depends on: —
+- Paths: apps/api/src/features/advice/**
+- Accept: NTAS, ANC, BISS, ACRES checked against a FarmProfile with euro maths and plain-English reasons; table tests per scheme; C-04 returns computed matches; unverifiable conditions return likely/check
+
+### D2-06 · Gemini extract and explain behind C-03, with recorded fixtures
+- Status: Not Started
+- Depends on: —
+- Paths: apps/api/src/features/advice/**, apps/api/src/services/**
+- Accept: C-03 extracts a FarmProfile via Gemini, runs rules, explains in at most 120 words; DEMO_MODE=fixtures replays recordings for Declan, Aoife and Mary; timeout and UPSTREAM_ERROR handled; key stays server-side
+
 ## Requests to others
 
 <!-- - REQ dev2→dev3 (open): <what> — needed by <task> -->
 
 ## Log
+- 13:23 D2-01 → In Progress
