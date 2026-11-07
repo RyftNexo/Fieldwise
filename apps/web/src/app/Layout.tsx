@@ -1,10 +1,7 @@
 import { Sprout } from 'lucide-react';
-import { Link, NavLink, Outlet } from 'react-router';
-import { ApiStatus } from '@/components/ApiStatus';
+import { Link, Outlet } from 'react-router';
 import { HillsArt } from '@/components/ui/HillsArt';
-import { cn } from '@/lib/utils';
 import { APP_NAME } from './config';
-import { navItems } from './features';
 
 export function Layout() {
   return (
@@ -16,46 +13,35 @@ export function Layout() {
         Skip to content
       </a>
 
-      <header className="sticky top-0 z-20 border-b border-soil-100/80 bg-cream-50/85 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4 sm:gap-6 sm:px-6">
+      <header className="sticky top-0 z-20 border-b border-soil-100 bg-white/95 backdrop-blur">
+        <div className="mx-auto flex h-[4.5rem] max-w-[91rem] items-center px-5 sm:px-8 md:h-[6.75rem] md:px-20">
           <Link
             to="/"
-            className="focus-ring flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-2.5 rounded-control"
+            className="focus-ring rounded-lg font-display text-[2rem] font-bold tracking-[-0.04em] text-brand-950"
           >
-            <span className="grid size-9 place-items-center rounded-xl bg-brand-700 text-cream-50 shadow-card">
-              <Sprout className="size-5" aria-hidden />
-            </span>
-            <span className="sr-only font-display text-lg font-semibold tracking-tight text-brand-900 sm:not-sr-only">
-              {APP_NAME}
-            </span>
+            {APP_NAME}
           </Link>
 
-          <nav
-            aria-label="Main"
-            className="flex min-w-0 items-center gap-1 rounded-full bg-white/80 p-1 ring-1 ring-soil-100"
-          >
-            {navItems.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.to === '/'}
-                className={({ isActive }) =>
-                  cn(
-                    'focus-ring inline-flex min-h-11 items-center whitespace-nowrap rounded-full px-3.5 text-[0.95rem] font-semibold transition duration-200',
-                    isActive
-                      ? 'bg-brand-700 text-white shadow-card'
-                      : 'text-soil-600 hover:text-brand-900',
-                  )
-                }
-              >
-                {item.label}
-              </NavLink>
-            ))}
+          <nav aria-label="Main" className="ml-auto flex items-center gap-4 sm:gap-8 md:gap-14">
+            <a
+              href="#how-it-works"
+              className="focus-ring hidden rounded-lg px-1 py-2 text-lg text-soil-800 transition hover:text-brand-800 sm:block"
+            >
+              How it works
+            </a>
+            <a
+              href="#about"
+              className="focus-ring hidden rounded-lg px-1 py-2 text-lg text-soil-800 transition hover:text-brand-800 md:block"
+            >
+              About
+            </a>
+            <a
+              href="#grant-checker"
+              className="focus-ring inline-flex min-h-12 items-center rounded-full bg-gradient-to-br from-brand-800 to-brand-700 px-5 text-base font-semibold text-white shadow-card transition hover:-translate-y-0.5 hover:shadow-raised sm:px-7 sm:text-lg"
+            >
+              Check grants
+            </a>
           </nav>
-
-          <div className="ml-auto shrink-0">
-            <ApiStatus />
-          </div>
         </div>
       </header>
 
