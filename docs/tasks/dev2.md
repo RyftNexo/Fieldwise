@@ -34,7 +34,7 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - Accept: each scheme has rates, caps, deadline, official gov.ie url and source verified from gov.ie, checkedAt set; anything unverified stays null and says so
 
 ### D2-05 · Rules engine: one pure function per scheme, plus C-04 wired to it
-- Status: Not Started
+- Status: Review
 - Depends on: —
 - Paths: apps/api/src/features/advice/**
 - Accept: NTAS, ANC, BISS, ACRES checked against a FarmProfile with euro maths and plain-English reasons; table tests per scheme; C-04 returns computed matches; unverifiable conditions return likely/check
@@ -53,3 +53,5 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - 13:23 D2-01 → In Progress
 - 13:27 D2-04 → In Progress
 - 13:28 D2-04 → Review
+- 13:29 D2-05 → In Progress
+- 13:32 D2-05 → Review
