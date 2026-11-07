@@ -1,7 +1,12 @@
 import type { FarmProfile } from '@app/shared';
 
+/** Grant estimates are whole euros. A fractional hectare would otherwise produce cents. */
+export function roundEur(amount: number): number {
+  return Math.round(amount);
+}
+
 export function formatEur(amount: number): string {
-  return `€${amount.toLocaleString('en-IE', { maximumFractionDigits: 2 })}`;
+  return `€${roundEur(amount).toLocaleString('en-IE')}`;
 }
 
 export function formatHa(hectares: number): string {

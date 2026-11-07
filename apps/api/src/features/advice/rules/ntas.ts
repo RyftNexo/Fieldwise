@@ -1,7 +1,7 @@
 // Native Tree Area Scheme. Facts: schemes/facts.ts (S.I. 484/2023, gov.ie, Teagasc).
 import type { FarmProfile, GrantMatch } from '@app/shared';
 import { checkedAt, ntasFacts, officialUrls } from '../../schemes/facts';
-import { dateOnly, formatEur, formatHa } from './format';
+import { dateOnly, formatEur, formatHa, roundEur } from './format';
 
 /** Hectares we can suggest planting. NTA2 is a strip beside water; NTA1 is a small native wood on farmed land. */
 export function plantableHectares(profile: FarmProfile) {
@@ -18,8 +18,10 @@ export function evaluateNtas(profile: FarmProfile): GrantMatch | null {
   const { nta1Ha, nta2Ha, totalHa } = plantableHectares(profile);
   if (totalHa < ntasFacts.minHaPerArea) return null;
 
-  const oneOffEur = totalHa * ntasFacts.grantPerHaEur;
-  const annualEur = nta1Ha * ntasFacts.nta1PremiumPerHaEur + nta2Ha * ntasFacts.nta2PremiumPerHaEur;
+  const oneOffEur = roundEur(totalHa * ntasFacts.grantPerHaEur);
+  const annualEur = roundEur(
+    nta1Ha * ntasFacts.nta1PremiumPerHaEur + nta2Ha * ntasFacts.nta2PremiumPerHaEur,
+  );
   const totalEur = oneOffEur + annualEur * ntasFacts.premiumYears;
 
   const reasons: string[] = [];

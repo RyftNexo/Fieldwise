@@ -11,6 +11,8 @@ export interface LlmRequest {
   /** JSON Schema (OpenAI strict mode); when set the reply is JSON that matches it. */
   responseSchema?: { name: string; schema: Record<string, unknown> };
   temperature?: number;
+  /** Cancels this call. The per-request timeout still applies. */
+  signal?: AbortSignal;
 }
 
 interface LlmDeps {
@@ -27,6 +29,12 @@ interface ChatCompletion {
 
 const unavailable = 'The advice service did not respond. Please try again in a moment.';
 
+/** The caller's cancel signal, plus the usual timeout, whichever fires first. */
+function llmSignal(caller?: AbortSignal): AbortSignal {
+  const timeout = AbortSignal.timeout(env.OPENAI_TIMEOUT_MS);
+  return caller ? AbortSignal.any([caller, timeout]) : timeout;
+}
+
 /** Calls OpenAI and returns the model's text. Throws AppError('UPSTREAM_ERROR' | 'RATE_LIMITED'). */
 export async function callLlm(request: LlmRequest, deps: LlmDeps = {}): Promise<string> {
   if (!env.OPENAI_API_KEY) {
@@ -42,7 +50,7 @@ export async function callLlm(request: LlmRequest, deps: LlmDeps = {}): Promise<
         'content-type': 'application/json',
         authorization: `Bearer ${env.OPENAI_API_KEY}`,
       },
-      signal: AbortSignal.timeout(env.OPENAI_TIMEOUT_MS),
+      signal: llmSignal(request.signal),
       body: JSON.stringify({
         model: env.OPENAI_MODEL,
         temperature: request.temperature ?? 0,

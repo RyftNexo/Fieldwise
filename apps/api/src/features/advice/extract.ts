@@ -117,7 +117,7 @@ export function parseExtractedProfile(jsonText: string): FarmProfile {
   return parsed.data;
 }
 
-export async function extractProfile(text: string): Promise<FarmProfile> {
-  const jsonText = await callLlm({ systemInstruction, userText: text, responseSchema });
+export async function extractProfile(text: string, signal?: AbortSignal): Promise<FarmProfile> {
+  const jsonText = await callLlm({ systemInstruction, userText: text, responseSchema, signal });
   return parseExtractedProfile(jsonText);
 }
