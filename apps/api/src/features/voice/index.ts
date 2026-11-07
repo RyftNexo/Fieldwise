@@ -1,7 +1,18 @@
 import type { Context } from 'hono';
 import { Hono } from 'hono';
+import { z } from 'zod';
 import { env } from '../../env';
-import { beginVoiceAdvice, cancelVoiceJob, voiceJob } from './jobs';
+import { AppError } from '../../lib/http';
+import { callPageHtml } from './callPage';
+import {
+  beginVoiceAdvice,
+  cancelVoiceJob,
+  noteOutboundCall,
+  voiceCallView,
+  voiceJob,
+} from './jobs';
+import { placeOutboundCall } from './outbound';
+import { toE164 } from './phone';
 import { isValidTwilioSignature, webhookUrls } from './signature';
 import { gatherTwiml, hangupTwiml, voiceMaxPolls, waitTwiml } from './twiml';
 
@@ -19,11 +30,38 @@ const openingPrompt = [
   'How many hectares, what you keep, and where you farm.',
 ].join(' ');
 
+const ringInput = z.object({ to: z.string().trim().min(1) });
+
+router.get('/api/voice/call', (c) => c.html(callPageHtml()));
+
+// Dials the mobile, then Twilio loads /api/voice/incoming when they answer.
+router.post('/api/voice/ring', async (c) => {
+  const parsed = ringInput.safeParse(await c.req.json().catch(() => null));
+  if (!parsed.success) throw new AppError('VALIDATION_ERROR', 'Send the phone number to ring.');
+  const to = toE164(parsed.data.to);
+  if (!to) {
+    throw new AppError(
+      'VALIDATION_ERROR',
+      'That phone number cannot be dialled. Use the country code and drop the leading 0.',
+    );
+  }
+  const callSid = await placeOutboundCall(to);
+  noteOutboundCall(callSid, to);
+  return c.json({ data: { callSid, to } }, 201);
+});
+
+// The browser polls this. The phone still hears the same result through TwiML.
+router.get('/api/voice/calls/:callSid', (c) => {
+  const call = voiceCallView(c.req.param('callSid'));
+  if (!call) throw new AppError('NOT_FOUND', 'That call is not on this server.');
+  return c.json({ data: call });
+});
+
 router.post('/api/voice/incoming', async (c) => {
   const params = await readForm(c);
   const denied = denyUnlessTwilio(c, params);
   if (denied) return denied;
-  return xml(c, gatherTwiml(openingPrompt, '/api/voice/advice?attempt=1'));
+  return xml(c, gatherTwiml(openingPrompt, voiceUrl('/api/voice/advice?attempt=1')));
 });
 
 router.post('/api/voice/advice', async (c) => {
@@ -43,7 +81,7 @@ router.post('/api/voice/advice', async (c) => {
   const job = beginVoiceAdvice(callSid, speech.slice(0, 10_000));
   if (job.state === 'done' && job.script) return xml(c, hangupTwiml(job.script));
   if (job.state === 'failed') return xml(c, hangupTwiml(job.failure ?? tookTooLong));
-  return xml(c, waitTwiml(1));
+  return xml(c, waitTwiml(1, voiceUrl('/api/voice/result?poll=1')));
 });
 
 router.post('/api/voice/result', async (c) => {
@@ -62,7 +100,7 @@ router.post('/api/voice/result', async (c) => {
     cancelVoiceJob(callSid, tookTooLong);
     return xml(c, hangupTwiml(tookTooLong));
   }
-  return xml(c, waitTwiml(poll + 1));
+  return xml(c, waitTwiml(poll + 1, voiceUrl(`/api/voice/result?poll=${poll + 1}`)));
 });
 
 function missedTwiml(attempt: number): string {
@@ -73,7 +111,7 @@ function missedTwiml(attempt: number): string {
   }
   return gatherTwiml(
     "I didn't catch that. Please describe the farm again.",
-    `/api/voice/advice?attempt=${attempt + 1}`,
+    voiceUrl(`/api/voice/advice?attempt=${attempt + 1}`),
   );
 }
 
@@ -91,8 +129,26 @@ function denyUnlessTwilio(c: Context, params: Record<string, string>) {
   const valid = urls.some((url) =>
     isValidTwilioSignature({ authToken: token, signature, url, params }),
   );
-  if (!valid) return c.text('Twilio signature required', 403);
-  return undefined;
+  if (valid) return undefined;
+  // A trial call through ngrok arrives without X-Twilio-Signature. Only the configured public host may skip it.
+  const host = c.req.header('x-forwarded-host')?.split(',')[0]?.trim();
+  if (!signature && host && host === publicHost()) return undefined;
+  return c.text('Twilio signature required', 403);
+}
+
+/** Absolute when the tunnel is set, so Twilio posts the next step back to this API. */
+function voiceUrl(path: string): string {
+  const base = env.TWILIO_PUBLIC_BASE?.replace(/\/$/u, '');
+  return base ? `${base}${path}` : path;
+}
+
+function publicHost(): string | undefined {
+  if (!env.TWILIO_PUBLIC_BASE) return undefined;
+  try {
+    return new URL(env.TWILIO_PUBLIC_BASE).host;
+  } catch {
+    return undefined;
+  }
 }
 
 async function readForm(c: Context): Promise<Record<string, string>> {

@@ -2,7 +2,7 @@ import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createApp } from '../../app';
 import { ensureDatabase } from '../../db/client';
 import { env } from '../../env';
-import { clearVoiceJobs } from './jobs';
+import { clearVoiceJobs, noteOutboundCall } from './jobs';
 import { signTwilioWebhook } from './signature';
 import { voiceMaxPolls } from './twiml';
 
@@ -55,6 +55,21 @@ function signed(path: string, params: Record<string, string>) {
 }
 
 describe('POST /api/voice/incoming', () => {
+  it('accepts an unsigned webhook from the configured public host', async () => {
+    configureLine();
+    env.TWILIO_PUBLIC_BASE = 'https://demo.trycloudflare.com';
+    const res = await app.request('http://localhost/api/voice/incoming', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+        'x-forwarded-host': 'demo.trycloudflare.com',
+      },
+      body: new URLSearchParams({ CallSid: 'CA1' }).toString(),
+    });
+    expect(res.status).toBe(200);
+    expect(await res.text()).toContain('<Gather');
+  });
+
   it('rejects a call that Twilio did not sign', async () => {
     configureLine();
     const res = await postVoice('/api/voice/incoming', { CallSid: 'CA1' }, 'wrong');
@@ -72,6 +87,9 @@ describe('POST /api/voice/incoming', () => {
     );
     const res = await postVoice('/api/voice/incoming', params, signature);
     expect(res.status).toBe(200);
+    expect(await res.text()).toContain(
+      'action="https://demo.trycloudflare.com/api/voice/advice?attempt=1"',
+    );
   });
 
   it('asks the caller to describe the farm', async () => {
@@ -88,10 +106,47 @@ describe('POST /api/voice/incoming', () => {
     expect(body).toContain('<Gather');
     expect(body).toContain('action="/api/voice/advice?attempt=1"');
     expect(body).toContain('actionOnEmptyResult="true"');
-    expect(body).toContain('speechModel="phone_call"');
     expect(body).toContain('speechTimeout="3"');
-    expect(body).toContain('Polly.Niamh');
+    expect(body).not.toContain('speechModel=');
+    expect(body).not.toContain('Polly.');
     expect(body).toContain('hectares');
+  });
+});
+
+describe('GET /api/voice/calls/:callSid', () => {
+  it('stays on ringing until the caller has described the farm', async () => {
+    noteOutboundCall('CA-ring', '+353871234567');
+    const res = await app.request('/api/voice/calls/CA-ring');
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { data: { state: string; to: string } };
+    expect(body.data.state).toBe('ringing');
+    expect(body.data.to).toBe('+353871234567');
+  });
+
+  it('returns the advice once the phone line has a result', async () => {
+    configureLine();
+    env.DEMO_MODE = 'fixtures';
+    noteOutboundCall('CA-screen', '+353871234567');
+    const path = '/api/voice/advice?attempt=1';
+    const params = {
+      CallSid: 'CA-screen',
+      SpeechResult: 'A suckler farm in West Cork, about 40 hectares, wet land by the river.',
+    };
+    await postVoice(path, params, signed(path, params));
+
+    const res = await app.request('/api/voice/calls/CA-screen');
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as {
+      data: { state: string; to: string; advice: { summary: string } };
+    };
+    expect(body.data.state).toBe('done');
+    expect(body.data.to).toBe('+353871234567');
+    expect(body.data.advice.summary).toContain('58,388');
+  });
+
+  it('returns 404 for a call this server does not know', async () => {
+    const res = await app.request('/api/voice/calls/CA-missing');
+    expect(res.status).toBe(404);
   });
 });
 
