@@ -33,8 +33,8 @@ export function ApiStatus() {
             ? 'bg-soil-300'
             : ok
               ? API_MODE === 'mock'
-                ? 'bg-amber-400'
-                : 'bg-emerald-500'
+                ? 'bg-harvest-400'
+                : 'bg-brand-500'
               : 'bg-red-500',
         )}
       />

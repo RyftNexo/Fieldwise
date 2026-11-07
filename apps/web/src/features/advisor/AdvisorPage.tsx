@@ -105,7 +105,7 @@ function Hero() {
       </p>
       <h1 className="mt-6 text-4xl leading-[1.1] font-bold tracking-tight text-brand-900 sm:text-6xl">
         Find the farm grants you're{' '}
-        <span className="underline decoration-harvest-300 decoration-[0.14em] underline-offset-[0.18em]">
+        <span className="underline decoration-harvest-300 decoration-[0.14em] underline-offset-[0.18em] [text-decoration-skip-ink:none]">
           missing
         </span>
       </h1>

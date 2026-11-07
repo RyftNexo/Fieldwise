@@ -1,8 +1,11 @@
 import { endpoints } from '@app/shared';
 import { useQuery } from '@tanstack/react-query';
-import { Database, ExternalLink, LoaderCircle, RotateCcw } from 'lucide-react';
+import { ChevronDown, Database, ExternalLink, Leaf, LoaderCircle, RotateCcw } from 'lucide-react';
 import { useState } from 'react';
 import { call } from '@/api/client';
+import { Button } from '@/components/ui/Button';
+import { cardClasses } from '@/components/ui/Card';
+import { cn } from '@/lib/utils';
 
 const DRAWER_ID = 'scheme-raw-data';
 
@@ -17,25 +20,40 @@ export function RawDataDrawer() {
   });
 
   return (
-    <section className="rounded-2xl border border-stone-200 bg-white shadow-sm">
+    <section className={cardClasses('surface', 'overflow-hidden')}>
       <button
         type="button"
         aria-expanded={open}
         aria-controls={DRAWER_ID}
         onClick={() => setOpen((current) => !current)}
-        className="flex w-full items-center justify-between gap-4 rounded-2xl px-5 py-4 text-left font-semibold text-stone-900 transition hover:bg-stone-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
+        className="focus-ring flex min-h-16 w-full cursor-pointer items-center justify-between gap-4 rounded-card px-5 py-4 text-left transition duration-200 hover:bg-cream-50 sm:px-6"
       >
-        <span className="flex items-center gap-2">
-          <Database className="size-5 text-brand-700" aria-hidden />
-          {open ? 'Hide the raw data' : 'Show the raw data'}
+        <span className="flex items-center gap-3">
+          <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700">
+            <Database className="size-5" aria-hidden />
+          </span>
+          <span>
+            <span className="block font-display font-semibold text-brand-900">
+              {open ? 'Hide the raw data' : 'Show the raw data'}
+            </span>
+            <span className="block text-sm text-soil-600">
+              The scheme criteria and official sources behind these results
+            </span>
+          </span>
         </span>
-        <span className="text-sm font-normal text-stone-500">Criteria and official sources</span>
+        <ChevronDown
+          className={cn(
+            'size-5 shrink-0 text-soil-500 transition duration-200',
+            open && 'rotate-180',
+          )}
+          aria-hidden
+        />
       </button>
 
       {open && (
-        <div id={DRAWER_ID} className="border-t border-stone-200 px-5 py-5">
+        <div id={DRAWER_ID} className="border-t border-soil-100 px-5 py-5 sm:px-6">
           {schemes.isPending && (
-            <p className="flex items-center gap-2 text-sm text-stone-600">
+            <p className="flex items-center gap-2 text-soil-600">
               <LoaderCircle className="size-4 motion-safe:animate-spin" aria-hidden />
               Loading scheme data…
             </p>
@@ -44,65 +62,65 @@ export function RawDataDrawer() {
           {schemes.isError && (
             <div
               role="alert"
-              className="rounded-xl border border-red-200 bg-red-50 p-4 text-red-900"
+              className="rounded-2xl border border-red-200 bg-red-50 p-4 text-red-900"
             >
               <p className="font-semibold">We couldn't load the scheme data.</p>
               <p className="mt-1 text-sm">{schemes.error.message}</p>
-              <button
-                type="button"
-                onClick={() => schemes.refetch()}
-                className="mt-3 inline-flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-semibold ring-1 ring-red-200 hover:bg-red-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700"
-              >
+              <Button variant="secondary" className="mt-3" onClick={() => schemes.refetch()}>
                 <RotateCcw className="size-4" aria-hidden />
                 Try again
-              </button>
+              </Button>
             </div>
           )}
 
           {schemes.data?.length === 0 && (
-            <p className="text-sm text-stone-600">No scheme records are available yet.</p>
+            <p className="text-soil-600">No scheme records are available yet.</p>
           )}
 
           {schemes.data && schemes.data.length > 0 && (
             <ul className="space-y-4">
               {schemes.data.map((scheme) => (
-                <li key={scheme.id} className="rounded-xl bg-stone-50 p-4">
+                <li key={scheme.id} className={cardClasses('cream', 'rounded-2xl p-4 sm:p-5')}>
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div>
-                      <p className="text-xs font-semibold tracking-wide text-stone-500 uppercase">
+                      <p className="text-xs font-bold tracking-wider text-brand-600 uppercase">
                         {scheme.shortName}
                       </p>
-                      <h3 className="font-semibold text-stone-900">{scheme.name}</h3>
+                      <h3 className="mt-0.5 text-lg font-semibold text-brand-900">{scheme.name}</h3>
                     </div>
-                    <span className="rounded-full bg-white px-2.5 py-1 text-xs text-stone-600 ring-1 ring-stone-200">
+                    <span
+                      className={cn(
+                        'rounded-full px-2.5 py-1 text-xs font-semibold',
+                        scheme.checkedAt
+                          ? 'bg-brand-100 text-brand-900'
+                          : 'bg-harvest-100 text-harvest-900',
+                      )}
+                    >
                       {scheme.checkedAt
                         ? `Checked ${new Date(scheme.checkedAt).toLocaleDateString('en-IE')}`
                         : 'Not independently verified'}
                     </span>
                   </div>
-                  <h4 className="mt-3 text-sm font-semibold text-stone-800">Criteria</h4>
-                  <ul className="mt-1 space-y-1 text-sm text-stone-700">
+                  <h4 className="mt-4 font-sans text-sm font-bold text-soil-800">Criteria</h4>
+                  <ul className="mt-1.5 space-y-1.5 text-[0.95rem] text-soil-700">
                     {scheme.criteria.map((criterion) => (
-                      <li key={criterion} className="flex gap-2">
-                        <span
-                          aria-hidden
-                          className="mt-2 size-1.5 shrink-0 rounded-full bg-brand-500"
-                        />
+                      <li key={criterion} className="flex gap-2.5">
+                        <Leaf className="mt-1 size-4 shrink-0 text-brand-500" aria-hidden />
                         {criterion}
                       </li>
                     ))}
                   </ul>
-                  <p className="mt-3 text-sm text-stone-600">
-                    <span className="font-semibold text-stone-800">Source:</span> {scheme.source}
+                  <p className="mt-3 text-sm text-soil-600">
+                    <span className="font-semibold text-soil-800">Source:</span> {scheme.source}
                   </p>
                   <a
                     href={scheme.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="mt-2 inline-flex items-center gap-1 rounded text-sm font-semibold text-brand-700 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
+                    className="focus-ring mt-1 inline-flex min-h-11 items-center gap-1.5 rounded-control font-semibold text-brand-700 underline-offset-4 hover:underline"
                   >
                     Open the official source
-                    <ExternalLink className="size-3.5" aria-hidden />
+                    <ExternalLink className="size-4" aria-hidden />
                     <span className="sr-only">(opens in a new tab)</span>
                   </a>
                 </li>

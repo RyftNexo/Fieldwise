@@ -19,7 +19,7 @@ import { SectionHeading } from '@/components/ui/SectionHeading';
 const STEPS: { title: string; body: string; Icon: LucideIcon; ai: boolean }[] = [
   {
     title: 'Understand',
-    body: 'Gemini turns what you said into farm details: hectares, what you farm, where, and the land you can’t use.',
+    body: 'The AI turns what you said into farm details: hectares, what you farm, where, and the land you can’t use.',
     Icon: ScanText,
     ai: true,
   },
@@ -31,7 +31,7 @@ const STEPS: { title: string; body: string; Icon: LucideIcon; ai: boolean }[] = 
   },
   {
     title: 'Explain',
-    body: 'Gemini writes a short summary of those results only. It can’t add a scheme or change a number.',
+    body: 'The AI writes a short summary of those results only. It can’t add a scheme or change a number.',
     Icon: MessageSquareText,
     ai: true,
   },

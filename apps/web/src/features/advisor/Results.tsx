@@ -128,10 +128,7 @@ export function Results({ advice, headingRef, onStartAgain }: ResultsProps) {
 
 function NextSteps({ steps }: { steps: string[] }) {
   return (
-    <section
-      aria-labelledby="next-steps-heading"
-      className={cardClasses('surface', 'p-5 sm:p-6')}
-    >
+    <section aria-labelledby="next-steps-heading" className={cardClasses('surface', 'p-5 sm:p-6')}>
       <h2 id="next-steps-heading" className="text-xl font-semibold text-brand-900">
         Your next steps
       </h2>

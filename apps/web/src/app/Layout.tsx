@@ -18,7 +18,10 @@ export function Layout() {
 
       <header className="sticky top-0 z-20 border-b border-soil-100/80 bg-cream-50/85 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4 sm:gap-6 sm:px-6">
-          <Link to="/" className="focus-ring flex shrink-0 items-center gap-2.5 rounded-control">
+          <Link
+            to="/"
+            className="focus-ring flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-2.5 rounded-control"
+          >
             <span className="grid size-9 place-items-center rounded-xl bg-brand-700 text-cream-50 shadow-card">
               <Sprout className="size-5" aria-hidden />
             </span>
@@ -38,7 +41,7 @@ export function Layout() {
                 end={item.to === '/'}
                 className={({ isActive }) =>
                   cn(
-                    'focus-ring whitespace-nowrap rounded-full px-3.5 py-1.5 text-[0.95rem] font-semibold transition duration-200',
+                    'focus-ring inline-flex min-h-11 items-center whitespace-nowrap rounded-full px-3.5 text-[0.95rem] font-semibold transition duration-200',
                     isActive
                       ? 'bg-brand-700 text-white shadow-card'
                       : 'text-soil-600 hover:text-brand-900',
