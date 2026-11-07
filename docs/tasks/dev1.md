@@ -71,6 +71,12 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - Paths: apps/web/**
 - Accept: New design system (Lexend + Source Sans 3 bundled, field green / harvest amber / cream tokens, shared UI primitives) applied to header, footer, advisor (hero, landing sections, stepper, results, cards, forester form) and forester inbox; behaviour unchanged; 375/768/1280 checked; AA contrast; reduced motion; npm run verify green
 
+### D1-12 · Phone call on the homepage via C-08/C-09
+- Status: Review
+- Depends on: —
+- Paths: apps/web/src/features/advisor/**, apps/web/src/mocks/handlers.ts, apps/web/src/api/client.test.ts
+- Accept: Homepage offers 'we'll ring you': a validated mobile field rings via call(endpoints.ringVoiceCall), polls call(endpoints.getVoiceCall) every 2 s until done or failed, shows live status (ringing, checking, failure message from the API) and then the same Results screen with the call transcript; typed/voice path unchanged; mocks for C-08/C-09 from the shared voice fixtures; npm run verify green
+
 ## Requests to others
 
 <!-- - REQ dev1→dev3 (open): <what> — needed by <task> -->
@@ -108,3 +114,5 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - 15:08 D1-10 → Review
 - 15:08 D1-06 → Done
 - 15:09 D1-01 → Done
+- 16:15 D1-12 → In Progress
+- 16:22 D1-12 → Review
