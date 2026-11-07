@@ -94,26 +94,36 @@ export function Landing() {
       <section
         id="about"
         aria-labelledby="trust-heading"
-        className="scroll-mt-[4.5rem] bg-cream-50 py-16 sm:py-20 md:scroll-mt-[6.75rem]"
+        className="min-h-[calc(100svh-4.5rem)] scroll-mt-[4.5rem] border-t border-soil-100 bg-white py-20 sm:py-24 md:min-h-[calc(100svh-6.75rem)] md:scroll-mt-[6.75rem] md:py-28"
       >
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <p className="text-base font-bold tracking-[0.1em] text-brand-600 uppercase">
-            Why you can trust it
-          </p>
-          <h2
-            id="trust-heading"
-            className="mt-4 text-4xl leading-tight font-bold tracking-tight text-brand-950 sm:text-5xl"
-          >
-            A guide you can check, not a black box
-          </h2>
-          <ul className="mt-10 grid gap-x-10 gap-y-8 md:grid-cols-3">
+        <div className="mx-auto max-w-[91rem] px-5 sm:px-8 md:px-20">
+          <header className="md:pl-5">
+            <p className="text-base font-bold tracking-[0.1em] text-brand-600 uppercase sm:text-lg">
+              Why you can trust it
+            </p>
+            <h2
+              id="trust-heading"
+              className="mt-5 max-w-[56rem] text-[clamp(2.6rem,4.15vw,3.65rem)] leading-[1.08] font-bold tracking-[-0.04em] text-[#171d1b]"
+            >
+              A guide you can check, not a black box
+            </h2>
+          </header>
+
+          <ul className="mt-16 grid gap-7 md:mt-20 md:grid-cols-3">
             {PROMISES.map((promise) => (
-              <li key={promise.title}>
-                <span className="grid size-11 place-items-center rounded-full bg-harvest-100 text-harvest-800">
-                  <promise.Icon className="size-5" aria-hidden />
+              <li
+                key={promise.title}
+                className="min-h-[20rem] rounded-[1.5rem] border border-soil-200 bg-white p-8 shadow-[0_1px_2px_rgb(0_0_0/0.02)] sm:px-9 sm:py-8"
+              >
+                <span className="grid size-[4.65rem] place-items-center rounded-[1.5rem] bg-brand-50 text-brand-700">
+                  <promise.Icon className="size-8" strokeWidth={2.1} aria-hidden />
                 </span>
-                <h3 className="mt-4 text-lg font-semibold text-brand-900">{promise.title}</h3>
-                <p className="mt-1.5 text-soil-600">{promise.body}</p>
+                <h3 className="mt-7 text-[1.7rem] leading-tight font-semibold tracking-[-0.025em] text-[#171d1b]">
+                  {promise.title}
+                </h3>
+                <p className="mt-5 text-lg leading-[1.65] text-soil-700 sm:text-[1.3rem]">
+                  {promise.body}
+                </p>
               </li>
             ))}
           </ul>

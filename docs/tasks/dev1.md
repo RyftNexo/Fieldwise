@@ -96,6 +96,12 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - Paths: apps/web/**
 - Accept: Desktop homepage matches the two supplied references for header, navigation, hero typography and spacing, segmented Irish phone entry, primary CTA, alternate text link and How it works cards; existing phone-call and typed-advice behaviour remains functional; responsive mobile layout remains usable and accessible; npm run verify passes
 
+### D1-16 · Restyle the About section to match the homepage
+- Status: Review
+- Depends on: —
+- Paths: apps/web/src/features/advisor/Landing.tsx
+- Accept: About section uses the same typography, spacing, green accents, icon tiles, rounded cards and responsive layout as the redesigned hero and How it works section; existing copy and anchor navigation remain; desktop and mobile browser checks plus npm run verify pass
+
 ## Requests to others
 
 <!-- - REQ dev1→dev3 (open): <what> — needed by <task> -->
@@ -146,3 +152,5 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - 17:17 D1-13 → Done
 - 17:17 D1-14 → Done
 - 17:24 D1-15 → Review
+- 17:28 D1-16 → In Progress
+- 17:30 D1-16 → Review
