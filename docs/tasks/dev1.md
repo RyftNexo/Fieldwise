@@ -23,8 +23,8 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 
 ### D1-03 · Remove the example notes UI once a real feature exists
 
-- Status: Not Started
-- Depends on: D1-02
+- Status: Review
+- Depends on: D1-04
 - Paths: apps/web/src/features/notes/**, apps/web/src/mocks/handlers.ts
 - Accept: notes folder and its mock handlers deleted; app still builds. Order: web (this) → api (D2-03) → contracts (D3-04)
 
@@ -80,3 +80,5 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - 12:56 D1-09 → Review
 - 12:58 D1-04 → Done
 - 12:58 D1-09 → Done
+- 13:08 D1-03 → In Progress
+- 13:10 D1-03 → Review

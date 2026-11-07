@@ -17,7 +17,7 @@ export function Layout() {
             <span className="grid size-8 place-items-center rounded-lg bg-brand-600 text-white">
               <Sprout className="size-5" aria-hidden />
             </span>
-            {APP_NAME}
+            <span className="sr-only sm:not-sr-only">{APP_NAME}</span>
           </Link>
           <nav
             aria-label="Main"

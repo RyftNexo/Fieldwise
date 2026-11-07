@@ -9,8 +9,8 @@ import { mockHandlers } from '@/mocks/handlers';
 
 /**
  * The ONLY way the web app talks to the API. Never call fetch('/api/...') directly.
- *   const notes = await call(endpoints.listNotes);
- *   const note  = await call(endpoints.createNote, { body: { title: 'Hi' } });
+ *   const status = await call(endpoints.health);
+ *   const thing  = await call(endpoints.<name>, { body: { … } });
  * Mock mode (`npm run dev:mock` or VITE_API_MODE=mock) answers from src/mocks/handlers.ts.
  */
 export const API_MODE: 'mock' | 'live' =

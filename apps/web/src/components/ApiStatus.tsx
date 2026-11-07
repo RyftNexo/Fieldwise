@@ -24,7 +24,7 @@ export function ApiStatus() {
   return (
     <span
       title={health.error?.message ?? `db: ${health.data?.db ?? '…'}`}
-      className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs font-medium text-neutral-600"
+      className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-2 py-1.5 text-xs font-medium text-neutral-600 sm:px-3 sm:py-1"
     >
       <span
         className={cn(
@@ -38,7 +38,7 @@ export function ApiStatus() {
               : 'bg-red-500',
         )}
       />
-      {label}
+      <span className="sr-only sm:not-sr-only">{label}</span>
     </span>
   );
 }
