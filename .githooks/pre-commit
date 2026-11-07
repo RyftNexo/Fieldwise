@@ -1,0 +1,8 @@
+#!/bin/sh
+# Team guard (docs/OWNERSHIP.md): branch rules, file ownership, secrets.
+# Agents must never bypass this hook (no --no-verify). Owner: dev3.
+command -v node >/dev/null 2>&1 || {
+  echo "pre-commit: 'node' is not on PATH, so the team guard can't run. See README > Troubleshooting." >&2
+  exit 1
+}
+exec node "$(git rev-parse --show-toplevel)/scripts/guard.mjs" pre-commit

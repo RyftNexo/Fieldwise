@@ -1,0 +1,48 @@
+{
+  "name": "ucc-hackathon",
+  "private": true,
+  "type": "module",
+  "description": "UCC hackathon team repo: governance layer + full-stack skeleton for three parallel AI-assisted developers.",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "setup": "node scripts/setup-dev.mjs",
+    "doctor": "node scripts/setup-dev.mjs --check",
+    "whoami": "node scripts/guard.mjs banner",
+    "guard": "node scripts/guard.mjs",
+    "task": "node scripts/task.mjs",
+    "task:start": "node scripts/task.mjs start",
+    "board": "node scripts/task.mjs board",
+    "sync": "node scripts/sync.mjs",
+    "handoff": "node scripts/handoff.mjs",
+    "worktree": "node scripts/worktree.mjs",
+    "dev": "concurrently -k -n api,web -c blue,magenta \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:api": "npm run dev -w @app/api",
+    "dev:web": "npm run dev -w @app/web",
+    "dev:mock": "npm run dev:mock -w @app/web",
+    "db:reset": "npm run db:reset -w @app/api",
+    "build": "npm run build -w @app/web",
+    "start": "npm run start -w @app/api",
+    "demo": "npm run db:reset && npm run build && npm run start",
+    "format": "biome check --write .",
+    "lint": "biome lint .",
+    "check": "biome check .",
+    "typecheck": "npm run typecheck --workspaces --if-present && tsc --noEmit -p tests",
+    "test": "npm run test:scripts && npm run test --workspaces --if-present",
+    "test:scripts": "node --test \"scripts/tests/*.test.mjs\"",
+    "smoke": "tsx tests/smoke/smoke.ts",
+    "verify": "node scripts/verify.mjs"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.6.6",
+    "@types/node": "^26.6.6",
+    "concurrently": "^10.0.6",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}

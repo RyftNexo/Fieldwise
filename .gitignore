@@ -1,0 +1,33 @@
+# dependencies & build output
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+*.log
+
+# secrets & local env — only the .env.example templates are committed
+.env
+.env.*
+!.env.example
+
+# local databases (recreated by `npm run db:reset`)
+apps/api/data/
+*.db
+*.db-*
+*.sqlite
+
+# agent & tool local state
+.claude/settings.local.json
+.claude/worktrees/
+CLAUDE.local.md
+.scratch/
+.codex-log/
+
+# test artefacts
+playwright-report/
+test-results/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
