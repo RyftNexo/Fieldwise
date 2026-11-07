@@ -69,6 +69,7 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 
 <!-- - REQ dev1→dev3 (open): <what> — needed by <task> -->
 - REQ dev1→dev3 (closed): contract v1 — C-03 `POST /api/advice`, C-04 `POST /api/advice/evaluate`, C-05 `GET /api/schemes`, C-06 `POST /api/leads`, C-07 `GET /api/leads`, with fixtures for Declan, Aoife and Mary; proposed shapes in docs/ARCHITECTURE.md § Contract v1 draft — delivered in D3-01
+- REQ dev1→dev3 (open): remove the resolved Gemini reconciliation note from `docs/INTEGRATION.md`; the web UI and dev1 product docs now use OpenAI or neutral AI wording — needed before cp-2
 - REQ dev1→dev2 (open): extraction (C-03) must accept acres as well as hectares and convert them (1 acre ≈ 0.405 ha), since Irish farmers usually talk in acres; and tolerate speech-recognition slips (Chrome heard "40-hectare" as "40 acre", "three" as "tree", "too" as "two"). When a number or unit is unclear, put it in `missing` rather than guessing — needed by D1-05, D1-06
 
 ## Log
