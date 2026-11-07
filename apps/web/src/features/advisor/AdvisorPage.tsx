@@ -1,10 +1,9 @@
-import { Keyboard, Phone, RotateCcw, Sprout } from 'lucide-react';
+import { RotateCcw } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { APP_TAGLINE } from '@/app/config';
 import { Button } from '@/components/ui/Button';
 import { cardClasses } from '@/components/ui/Card';
-import { HillsArt } from '@/components/ui/HillsArt';
 import { cn } from '@/lib/utils';
 import { AgentFlowGraph } from './AgentFlowGraph';
 import { AskBox } from './AskBox';
@@ -95,20 +94,22 @@ export function AdvisorPage() {
   return (
     <div>
       <section
+        id="grant-checker"
         aria-label="Describe your farm"
         className={cn(
-          'relative overflow-hidden',
-          isIdle ? 'pt-12 pb-20 sm:pt-20 sm:pb-28' : 'pt-6 pb-2 sm:pt-10',
+          'scroll-mt-[4.5rem] bg-white md:scroll-mt-[6.75rem]',
+          isIdle
+            ? 'min-h-[calc(100svh-4.5rem)] px-4 pt-12 pb-20 sm:px-6 md:min-h-[calc(100svh-6.75rem)] md:pt-[6.65rem] md:pb-24'
+            : 'px-4 pt-6 pb-2 sm:px-6 sm:pt-10',
         )}
       >
-        {isIdle && (
-          <HillsArt className="pointer-events-none absolute inset-x-0 bottom-0 h-44 w-full text-brand-600" />
-        )}
-        <div className="relative mx-auto max-w-3xl px-4 sm:px-6">
+        <div className={cn('mx-auto', isIdle ? 'max-w-[65rem]' : 'max-w-3xl')}>
           {isIdle ? <Hero /> : <h1 className="sr-only">{HERO_TITLE}</h1>}
-          <div className={isIdle ? 'mt-10 motion-safe:animate-rise' : undefined}>
+          <div className={isIdle ? 'mt-12 motion-safe:animate-rise md:mt-[6.75rem]' : undefined}>
             {typing ? (
-              <AskBox value={text} onChange={setText} onSubmit={ask} busy={advisor.isRunning} />
+              <div className="mx-auto max-w-3xl">
+                <AskBox value={text} onChange={setText} onSubmit={ask} busy={advisor.isRunning} />
+              </div>
             ) : (
               <CallBox
                 value={phone}
@@ -122,15 +123,14 @@ export function AdvisorPage() {
             )}
           </div>
           {isIdle && (
-            <div className="mt-4 flex justify-center">
-              <Button variant="ghost" onClick={() => setTyping(!typing)}>
-                {typing ? (
-                  <Phone className="size-4" aria-hidden />
-                ) : (
-                  <Keyboard className="size-4" aria-hidden />
-                )}
-                {typing ? 'Get a phone call instead' : 'Type your farm details instead'}
-              </Button>
+            <div className="mt-7 flex justify-center sm:mt-10">
+              <button
+                type="button"
+                onClick={() => setTyping(!typing)}
+                className="focus-ring rounded-lg px-2 py-1 text-base text-soil-800 underline decoration-1 underline-offset-4 transition hover:text-brand-800 sm:text-lg"
+              >
+                {typing ? 'Get a phone call instead' : 'Enter your farm details instead'}
+              </button>
             </div>
           )}
           {isIdle && typing && <ExamplePrompts onPick={(prompt) => ask(prompt.text)} />}
@@ -196,17 +196,11 @@ export function AdvisorPage() {
 function Hero() {
   return (
     <header className="text-center">
-      <p className="inline-flex items-center gap-2 rounded-full bg-white/85 px-3.5 py-1.5 text-sm font-semibold text-brand-800 shadow-card ring-1 ring-brand-100">
-        <Sprout className="size-4 text-brand-600" aria-hidden />
-        For farmers in Ireland · free · no login
-      </p>
-      <h1 className="mt-6 text-4xl leading-[1.1] font-bold tracking-tight text-brand-900 sm:text-6xl">
-        Find the farm grants you're{' '}
-        <span className="underline decoration-harvest-300 decoration-[0.14em] underline-offset-[0.18em] [text-decoration-skip-ink:none]">
-          missing
-        </span>
+      <h1 className="text-[clamp(3.1rem,5.4vw,4.75rem)] leading-[1.04] font-bold tracking-[-0.045em] text-[#171d1b]">
+        <span className="block">Find the farm grants</span>
+        <span className="block">you’re missing</span>
       </h1>
-      <p className="mx-auto mt-5 max-w-2xl text-lg text-pretty text-soil-600 sm:text-xl">
+      <p className="mx-auto mt-8 max-w-[54rem] text-lg leading-relaxed text-pretty text-soil-700 sm:text-[1.75rem] sm:leading-[1.45]">
         {APP_TAGLINE}
       </p>
     </header>

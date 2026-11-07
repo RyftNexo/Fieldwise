@@ -90,6 +90,12 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - Paths: apps/web/**, package-lock.json
 - Accept: Replace the three-card pipeline stepper with an accessible @xyflow/react graph showing farmer words, Understand AI, farm profile, every scheme dataset checked by the rules engine, Explain AI and the final report; active work pulses and edges illuminate, rule datasets light sequentially, visited nodes stay solid, done opens the existing Results report, raw JSON inspection remains available, mobile fallback is usable, npm run verify passes
 
+### D1-15 · Match the supplied GrantGuide homepage design
+- Status: Review
+- Depends on: —
+- Paths: apps/web/**
+- Accept: Desktop homepage matches the two supplied references for header, navigation, hero typography and spacing, segmented Irish phone entry, primary CTA, alternate text link and How it works cards; existing phone-call and typed-advice behaviour remains functional; responsive mobile layout remains usable and accessible; npm run verify passes
+
 ## Requests to others
 
 <!-- - REQ dev1→dev3 (open): <what> — needed by <task> -->
@@ -135,3 +141,5 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - 16:56 D1-13 → Review
 - 17:00 D1-14 → In Progress
 - 17:07 D1-14 → Review
+- 17:11 D1-15 → In Progress
+- 17:24 D1-15 → Review

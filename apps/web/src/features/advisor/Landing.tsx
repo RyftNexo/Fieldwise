@@ -7,28 +7,22 @@ import {
   ScanText,
   ShieldCheck,
 } from 'lucide-react';
-import { Pill } from '@/components/ui/Badge';
-import { cardClasses } from '@/components/ui/Card';
-import { SectionHeading } from '@/components/ui/SectionHeading';
 
-const STEPS: { title: string; body: string; Icon: LucideIcon; ai: boolean }[] = [
+const STEPS: { title: string; body: string; Icon: LucideIcon }[] = [
   {
     title: 'Understand',
-    body: 'The AI turns what you said into farm details: hectares, what you farm, where, and the land you can’t use.',
+    body: 'The AI reads your farm details — hectares, what you farm, where, and the land you can’t use.',
     Icon: ScanText,
-    ai: true,
   },
   {
     title: 'Check the rules',
-    body: 'Plain code checks those details against each scheme’s criteria and does the euro maths. The AI isn’t involved.',
+    body: 'The code checks those details against each scheme’s criteria and does the maths. The AI isn’t involved.',
     Icon: Scale,
-    ai: false,
   },
   {
     title: 'Explain',
-    body: 'The AI writes a short summary of those results only. It can’t add a scheme or change a number.',
+    body: 'The AI writes a short summary of the results only. It can’t add a scheme or change a number.',
     Icon: MessageSquareText,
-    ai: true,
   },
 ];
 
@@ -54,41 +48,64 @@ const PROMISES: { title: string; body: string; Icon: LucideIcon }[] = [
 export function Landing() {
   return (
     <>
-      <section aria-labelledby="how-heading" className="bg-cream-100 py-16 sm:py-20">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <SectionHeading
-            id="how-heading"
-            eyebrow="How it works"
-            title="Code decides. AI only talks."
-            lead="Three steps, and only the middle one decides anything. You can open each step's data after a check."
-          />
-          <ol className="mt-10 grid gap-4 md:grid-cols-3">
+      <section
+        id="how-it-works"
+        aria-labelledby="how-heading"
+        className="min-h-[calc(100svh-4.5rem)] scroll-mt-[4.5rem] bg-white py-20 sm:py-24 md:min-h-[calc(100svh-6.75rem)] md:scroll-mt-[6.75rem] md:py-28"
+      >
+        <div className="mx-auto max-w-[91rem] px-5 sm:px-8 md:px-20">
+          <div className="md:pl-5">
+            <p className="text-base font-bold tracking-[0.1em] text-brand-600 uppercase sm:text-lg">
+              How it works
+            </p>
+            <h2
+              id="how-heading"
+              className="mt-5 text-[clamp(2.6rem,4.15vw,3.65rem)] leading-[1.08] font-bold tracking-[-0.04em] text-[#171d1b]"
+            >
+              Code decides. AI only talks.
+            </h2>
+            <p className="mt-6 max-w-[48rem] text-xl leading-relaxed text-soil-700 sm:text-[1.65rem]">
+              Three simple steps. Only the middle one decides anything.
+              <span className="block">You can open each step’s details after a check.</span>
+            </p>
+          </div>
+
+          <ol className="mt-20 grid gap-7 md:grid-cols-3">
             {STEPS.map((step, index) => (
-              <li key={step.title} className={cardClasses('surface', 'p-6')}>
-                <div className="flex items-center justify-between">
-                  <span className="grid size-12 place-items-center rounded-2xl bg-brand-50 text-brand-700">
-                    <step.Icon className="size-6" aria-hidden />
-                  </span>
-                  <Pill tone={step.ai ? 'ai' : 'code'}>{step.ai ? 'AI' : 'No AI'}</Pill>
-                </div>
-                <h3 className="mt-5 text-xl font-semibold text-brand-900">
-                  <span className="text-soil-400">{index + 1}. </span>
-                  {step.title}
+              <li
+                key={step.title}
+                className="min-h-[21.5rem] rounded-[1.5rem] border border-soil-200 bg-white p-8 shadow-[0_1px_2px_rgb(0_0_0/0.02)] sm:px-9 sm:py-8"
+              >
+                <span className="grid size-[4.65rem] place-items-center rounded-[1.5rem] bg-brand-50 text-brand-700">
+                  <step.Icon className="size-8" strokeWidth={2.1} aria-hidden />
+                </span>
+                <h3 className="mt-7 text-[1.7rem] leading-tight font-semibold tracking-[-0.025em] text-[#171d1b]">
+                  {index + 1}. {step.title}
                 </h3>
-                <p className="mt-2 text-soil-600">{step.body}</p>
+                <p className="mt-5 text-lg leading-[1.65] text-soil-700 sm:text-[1.3rem]">
+                  {step.body}
+                </p>
               </li>
             ))}
           </ol>
         </div>
       </section>
 
-      <section aria-labelledby="trust-heading" className="py-16 sm:py-20">
+      <section
+        id="about"
+        aria-labelledby="trust-heading"
+        className="scroll-mt-[4.5rem] bg-cream-50 py-16 sm:py-20 md:scroll-mt-[6.75rem]"
+      >
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <SectionHeading
+          <p className="text-base font-bold tracking-[0.1em] text-brand-600 uppercase">
+            Why you can trust it
+          </p>
+          <h2
             id="trust-heading"
-            eyebrow="Why you can trust it"
-            title="A guide you can check, not a black box"
-          />
+            className="mt-4 text-4xl leading-tight font-bold tracking-tight text-brand-950 sm:text-5xl"
+          >
+            A guide you can check, not a black box
+          </h2>
           <ul className="mt-10 grid gap-x-10 gap-y-8 md:grid-cols-3">
             {PROMISES.map((promise) => (
               <li key={promise.title}>

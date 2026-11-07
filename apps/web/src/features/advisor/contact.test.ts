@@ -1,16 +1,22 @@
 import { describe, expect, it } from 'vitest';
-import { isPlausiblePhone } from './contact';
+import { irishLocalDigits, isCompleteIrishMobile, toIrishE164 } from './contact';
 
-describe('isPlausiblePhone', () => {
-  it('accepts Irish numbers written the usual ways', () => {
-    expect(isPlausiblePhone('087 123 4567')).toBe(true);
-    expect(isPlausiblePhone('+353 87 123 4567')).toBe(true);
-    expect(isPlausiblePhone('(021) 456-7890')).toBe(true);
+describe('Irish mobile number helpers', () => {
+  it('extracts the nine local digits from common formats', () => {
+    expect(irishLocalDigits('087 123 4567')).toBe('871234567');
+    expect(irishLocalDigits('+353 87 123 4567')).toBe('871234567');
+    expect(irishLocalDigits('871234567')).toBe('871234567');
   });
 
-  it('rejects too few digits or words', () => {
-    expect(isPlausiblePhone('')).toBe(false);
-    expect(isPlausiblePhone('123')).toBe(false);
-    expect(isPlausiblePhone('ring me')).toBe(false);
+  it('accepts only complete Irish mobile numbers', () => {
+    expect(isCompleteIrishMobile('087 123 4567')).toBe(true);
+    expect(isCompleteIrishMobile('+353 87 123 4567')).toBe(true);
+    expect(isCompleteIrishMobile('87123')).toBe(false);
+    expect(isCompleteIrishMobile('021 456 7890')).toBe(false);
+  });
+
+  it('normalises a local number for the call API', () => {
+    expect(toIrishE164('087 123 4567')).toBe('+353871234567');
+    expect(toIrishE164('')).toBe('');
   });
 });

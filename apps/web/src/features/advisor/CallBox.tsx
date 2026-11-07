@@ -1,32 +1,37 @@
-import { PhoneCall, Smartphone } from 'lucide-react';
-import { type FormEvent, type Ref, useState } from 'react';
+import { ArrowRight } from 'lucide-react';
+import {
+  type ClipboardEvent,
+  type FormEvent,
+  type KeyboardEvent,
+  type Ref,
+  useRef,
+  useState,
+} from 'react';
 import { Button } from '@/components/ui/Button';
-import { cardClasses } from '@/components/ui/Card';
 import { cn } from '@/lib/utils';
-import { isPlausiblePhone } from './contact';
+import { irishLocalDigits, isCompleteIrishMobile, toIrishE164 } from './contact';
 
 interface CallBoxProps {
   value: string;
   onChange: (value: string) => void;
-  /** Rings this number. It goes to the API as typed; the API normalises it. */
   onCall: (to: string) => void;
-  /** The ring request is on its way to the API. */
   placing: boolean;
-  /** A call is ringing or being checked: the number is locked and the button disabled. */
   inProgress: boolean;
-  /** Why the API wouldn't ring the number (its error.message). */
   error?: string;
   inputRef?: Ref<HTMLInputElement>;
 }
 
-const FIELD_ID = 'call-phone';
+const DIGIT_COUNT = 9;
+const DIGIT_IDS = Array.from({ length: DIGIT_COUNT }, (_, index) => `phone-digit-${index + 1}`);
 const HINT_ID = 'call-phone-hint';
 const ERROR_ID = 'call-phone-error';
 
-/**
- * The main control on the homepage. The farmer types a mobile and we ring it; they describe the farm on the call
- * and the result comes back to this page. The number is checked loosely here and properly by the API.
- */
+function setRef(ref: Ref<HTMLInputElement> | undefined, node: HTMLInputElement | null) {
+  if (typeof ref === 'function') ref(node);
+  else if (ref) ref.current = node;
+}
+
+/** A nine-cell Irish mobile field matching the homepage design while preserving the existing call flow. */
 export function CallBox({
   value,
   onChange,
@@ -37,61 +42,128 @@ export function CallBox({
   inputRef,
 }: CallBoxProps) {
   const [showErrors, setShowErrors] = useState(false);
-  const formatError = isPlausiblePhone(value)
+  const fields = useRef<Array<HTMLInputElement | null>>([]);
+  const digits = irishLocalDigits(value);
+  const formatError = isCompleteIrishMobile(value)
     ? undefined
-    : 'Enter your mobile number, starting 08 or +353.';
+    : 'Enter all 9 digits of your Irish mobile number, beginning with 8.';
   const shownError = (showErrors ? formatError : undefined) ?? error;
+
+  function commit(nextDigits: string) {
+    onChange(toIrishE164(nextDigits));
+    if (showErrors) setShowErrors(false);
+  }
+
+  function enterDigits(index: number, input: string) {
+    const incoming = irishLocalDigits(input);
+    if (!incoming) return;
+    const next = digits.split('');
+    incoming.split('').forEach((digit, offset) => {
+      if (index + offset < DIGIT_COUNT) next[index + offset] = digit;
+    });
+    const joined = next.filter(Boolean).join('').slice(0, DIGIT_COUNT);
+    commit(joined);
+    fields.current[Math.min(index + incoming.length, DIGIT_COUNT - 1)]?.focus();
+  }
+
+  function handleKeyDown(index: number, event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key === 'ArrowLeft' && index > 0) {
+      event.preventDefault();
+      fields.current[index - 1]?.focus();
+    }
+    if (event.key === 'ArrowRight' && index < DIGIT_COUNT - 1) {
+      event.preventDefault();
+      fields.current[index + 1]?.focus();
+    }
+    if (event.key === 'Backspace') {
+      event.preventDefault();
+      const next = digits.split('');
+      const removeAt = next[index] ? index : Math.max(index - 1, 0);
+      next.splice(removeAt, 1);
+      commit(next.join(''));
+      fields.current[removeAt]?.focus();
+    }
+  }
+
+  function handlePaste(index: number, event: ClipboardEvent<HTMLInputElement>) {
+    event.preventDefault();
+    enterDigits(index, event.clipboardData.getData('text'));
+  }
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
     if (inProgress) return;
     setShowErrors(true);
     if (formatError) return;
-    onCall(value.trim());
+    onCall(toIrishE164(value));
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      noValidate
-      className={cardClasses('surface', 'rounded-[1.75rem] p-4 shadow-raised sm:p-5')}
-    >
-      <label
-        htmlFor={FIELD_ID}
-        className="block px-1 font-display text-lg font-semibold text-brand-900"
+    <form onSubmit={handleSubmit} noValidate>
+      <fieldset
+        disabled={inProgress}
+        aria-describedby={shownError ? `${HINT_ID} ${ERROR_ID}` : HINT_ID}
+        className={cn(
+          'flex min-w-0 flex-col gap-5 rounded-[1.75rem] border bg-white p-4 transition sm:p-8 lg:flex-row lg:items-center lg:gap-9 lg:px-8',
+          shownError ? 'border-red-400' : 'border-soil-200',
+        )}
       >
-        Your mobile number
-      </label>
-      <div className="mt-2 flex flex-col gap-3 sm:flex-row">
-        <div className="relative min-w-0 flex-1">
-          <Smartphone
-            aria-hidden
-            className="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-brand-700"
-          />
-          <input
-            ref={inputRef}
-            id={FIELD_ID}
-            type="tel"
-            inputMode="tel"
-            autoComplete="tel"
-            value={value}
-            onChange={(event) => onChange(event.target.value)}
-            readOnly={inProgress}
-            placeholder="08X XXX XXXX"
-            aria-invalid={shownError ? true : undefined}
-            aria-describedby={shownError ? `${HINT_ID} ${ERROR_ID}` : HINT_ID}
-            className={cn(
-              'block min-h-13 w-full rounded-control border bg-white pr-4 pl-12 text-lg text-soil-900 tabular-nums outline-none transition duration-200 placeholder:text-soil-400 read-only:bg-cream-50 read-only:text-soil-600 focus:border-brand-500 focus:ring-4 focus:ring-brand-200 sm:text-xl',
-              shownError ? 'border-red-400' : 'border-soil-200',
-            )}
-          />
+        <legend className="sr-only">Your Irish mobile number</legend>
+        <label className="flex min-h-14 shrink-0 items-center gap-3 border-soil-200 px-1 text-xl font-semibold text-soil-900 lg:min-h-[4.75rem] lg:w-[13.5rem] lg:border-r lg:pr-8">
+          <span className="sr-only">Country code</span>
+          <select
+            aria-label="Country code"
+            className="focus-ring w-full cursor-pointer appearance-auto rounded-lg bg-white px-1 py-3 text-xl font-semibold outline-none disabled:cursor-not-allowed"
+            defaultValue="IE"
+          >
+            <option value="IE">IE (+353)</option>
+          </select>
+        </label>
+
+        <div className="grid min-w-0 flex-1 grid-cols-9 gap-1.5 sm:gap-3.5">
+          {DIGIT_IDS.map((id, index) => (
+            <input
+              key={id}
+              id={id}
+              ref={(node) => {
+                fields.current[index] = node;
+                if (index === 0) setRef(inputRef, node);
+              }}
+              type="tel"
+              inputMode="numeric"
+              autoComplete={index === 0 ? 'tel-national' : 'off'}
+              value={digits[index] ?? ''}
+              onChange={(event) => enterDigits(index, event.currentTarget.value)}
+              onKeyDown={(event) => handleKeyDown(index, event)}
+              onPaste={(event) => handlePaste(index, event)}
+              readOnly={inProgress}
+              maxLength={DIGIT_COUNT}
+              aria-label={`Phone number digit ${index + 1} of ${DIGIT_COUNT}`}
+              aria-invalid={shownError ? true : undefined}
+              className="focus-ring h-14 min-w-0 rounded-xl border border-soil-200 bg-white text-center text-xl font-medium text-soil-900 tabular-nums outline-none transition placeholder:text-soil-400 read-only:bg-soil-50 focus:border-brand-600 sm:h-[5.25rem] sm:rounded-2xl sm:text-2xl"
+              placeholder="–"
+            />
+          ))}
         </div>
+      </fieldset>
+
+      <p id={HINT_ID} className="sr-only">
+        Enter the nine digits after plus three five three. We will ring you to hear your farm
+        details.
+      </p>
+      {shownError && (
+        <p id={ERROR_ID} role="alert" className="mt-3 text-center text-sm font-medium text-red-700">
+          {shownError}
+        </p>
+      )}
+
+      <div className="mx-auto mt-8 max-w-[35rem] sm:mt-16">
         <Button
           type="submit"
           size="lg"
           loading={placing}
           disabled={inProgress}
-          className="w-full sm:w-auto"
+          className="min-h-[5.25rem] w-full rounded-[1.35rem] bg-gradient-to-br from-brand-800 to-brand-700 text-xl shadow-raised hover:from-brand-900 hover:to-brand-800 sm:text-2xl"
         >
           {placing ? (
             'Calling…'
@@ -99,20 +171,12 @@ export function CallBox({
             'On the call…'
           ) : (
             <>
-              Call me
-              <PhoneCall className="size-5" aria-hidden />
+              Get started
+              <ArrowRight className="size-7" aria-hidden />
             </>
           )}
         </Button>
       </div>
-      <p id={HINT_ID} className="mt-3 px-1 text-sm text-soil-600">
-        We'll ring you now. Describe your farm on the call, and your grants show up on this page.
-      </p>
-      {shownError && (
-        <p id={ERROR_ID} role="alert" className="mt-2 px-1 text-sm font-medium text-red-700">
-          {shownError}
-        </p>
-      )}
     </form>
   );
 }
