@@ -49,6 +49,11 @@ Add new variables to `apps/<app>/.env.example` **and** this table (API: also `sr
 | C-00 | GET    | `/api/health` | no   | —                 | `HealthStatus`  | live    | Liveness + DB check              |
 | C-01 | GET    | `/api/notes`  | no   | —                 | `Note[]`        | EXAMPLE | Remove after real features exist |
 | C-02 | POST   | `/api/notes`  | no   | `CreateNoteInput` | `Note` (201)    | EXAMPLE | Remove after real features exist |
+| C-03 | POST | `/api/advice` | no | `AdviceInput` (`{ text }`) | `AdviceResponse` | live | Extract → deterministic rules → explain |
+| C-04 | POST | `/api/advice/evaluate` | no | `EvaluateAdviceInput` (`{ profile }`) | `AdviceResponse` | live | Rules only; no LLM calls |
+| C-05 | GET | `/api/schemes` | no | — | `Scheme[]` | live | Criteria, sources and verification timestamp |
+| C-06 | POST | `/api/leads` | no | `CreateLeadInput` | `Lead` (201) | live | Explicit consent and contact method required |
+| C-07 | GET | `/api/leads` | no | — | `Lead[]` | live | Newest first; local demo only |
 
 Statuses: _proposed_ (agreed, not in code) → _live_ (in the registry; mocks may exist) → _implemented_ (API done)
 → _removed_. Use `C-03` onwards for new endpoints.
@@ -62,8 +67,38 @@ Statuses: _proposed_ (agreed, not in code) → _live_ (in the registry; mocks ma
 4. **dev1:** `mock(endpoints.x)(…)` in `apps/web/src/mocks/handlers.ts`, then `call(endpoints.x, …)` from the UI.
    Works in mock mode before the API exists.
 
+## GrantGuide v1 details (C-03–C-07)
+
+- Registry keys: `advice`, `evaluateAdvice`, `listSchemes`, `createLead`, `listLeads`. These are registered
+  contracts; API implementation belongs to dev2. Keep the example notes endpoints until D3-04's prerequisites pass.
+- The shapes follow the kickoff draft in `docs/ARCHITECTURE.md`. Public schemas and inferred types are exported
+  from `@app/shared`. `AdviceInput.text` is trimmed, nonempty and at most 10,000 characters.
+- `FarmProfile.hectares` must be positive; `marginalHectares` is nonnegative and cannot exceed it. Unmentioned
+  optional fields stay absent. `peatSoil` and `designatedSite` also accept explicit `null` for unknown facts.
+  `missing` is always an array; it must not be replaced by invented profile values.
+- `AdviceResponse.summary` is at most 120 whitespace-separated words. `matches` can be empty. Each pipeline
+  stage is a required JSON value; C-04 may return `null` for skipped extraction/explanation stages, with a
+  deterministic summary. `mode` is `live` or `fixtures`.
+- Monetary values are finite, nonnegative euro amounts. `GrantValue.totalEur` comes with a plain-language
+  `basis`; the API computes it. `Scheme.grantRate` is a fraction in [0, 1], not a percentage in [0, 100].
+  Deadlines are ISO calendar dates; timestamps are UTC ISO datetimes. Scheme URLs must use HTTPS.
+- `Scheme.checkedAt` is a UTC timestamp or `null` when criteria/rates have not been verified. Contract fixtures
+  use `null`, `status: unknown` and `eligible: check`, and omit payment estimates. Their metadata is not a
+  verified scheme catalogue. Dev2 must replace it with sourced, checked rules before presenting real advice.
+- C-06 requires `consent: true`, a nonblank name, at least one scheme ID, and a valid email or phone number
+  (7–15 digits, optional leading +, spaces/parentheses/dots/hyphens). Missing contact details or consent return
+  `VALIDATION_ERROR`. Dev2 must validate scheme IDs against its catalogue and recompute matches and totals from
+  the submitted profile; client-supplied totals/matches are not part of the request schema.
+- C-07 exposes contact details without auth only for the agreed local demo. Do not use real contact data in
+  fixtures. Authentication/access policy must be agreed before any public hosting. `estimatedTotalEur: 0` in
+  the demo lead is an empty sum of estimates, not a verified payment figure.
+- Shared examples: `farmProfileFixtures` and `adviceFixtures` keyed by `declan`, `aoife`, `mary`;
+  `schemeFixtures`, `createLeadFixture`, and `leadFixtures`. Rules/extraction/explanation outputs are explicitly
+  labelled fixture data; these examples do not implement any of the API's business logic.
+
 ## Change log
 
 | Time  | IDs              | Change                                   | Breaking? | By    |
 | ----- | ---------------- | ---------------------------------------- | --------- | ----- |
 | setup | C-00, C-01, C-02 | Initial skeleton: health + example notes | —         | setup |
+| 2026-11-07 | C-03–C-07 | GrantGuide v1 schemas, registry and three persona fixtures; consent/contact validation, nullable verification timestamp | no (additive) | dev3 |
