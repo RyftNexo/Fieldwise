@@ -13,7 +13,12 @@ const router = createBrowserRouter([
     element: <Layout />,
     children: [
       ...featureRoutes,
-      { path: '*', element: <p className="text-neutral-500">Page not found.</p> },
+      {
+        path: '*',
+        element: (
+          <p className="mx-auto max-w-6xl px-4 py-16 text-soil-600 sm:px-6">Page not found.</p>
+        ),
+      },
     ],
   },
 ]);

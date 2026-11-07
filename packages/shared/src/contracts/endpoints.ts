@@ -2,8 +2,8 @@ import { AdviceInput, AdviceResponse, EvaluateAdviceInput } from './advice';
 import { defineEndpoint } from './endpoint';
 import { HealthStatus } from './health';
 import { CreateLeadInput, Lead, LeadList } from './leads';
-import { CreateNoteInput, Note, NoteList } from './notes';
 import { SchemeList } from './schemes';
+import { RingVoiceInput, RingVoiceResponse, VoiceCall } from './voice';
 
 /**
  * The endpoint registry — the single list of everything web and API agree on.
@@ -11,6 +11,23 @@ import { SchemeList } from './schemes';
  * IDs never change or get reused; additive changes are cheap, breaking changes need all three devs.
  */
 export const endpoints = {
+  ringVoiceCall: defineEndpoint({
+    id: 'C-08',
+    method: 'POST',
+    path: '/api/voice/ring',
+    auth: false,
+    summary: 'Ring an allowlisted demo mobile (HTTP 201); rate limited by the API',
+    request: RingVoiceInput,
+    response: RingVoiceResponse,
+  }),
+  getVoiceCall: defineEndpoint({
+    id: 'C-09',
+    method: 'GET',
+    path: '/api/voice/calls/:callSid',
+    auth: false,
+    summary: 'Poll an in-memory voice call; unknown call returns NOT_FOUND',
+    response: VoiceCall,
+  }),
   advice: defineEndpoint({
     id: 'C-03',
     method: 'POST',
@@ -61,25 +78,6 @@ export const endpoints = {
     auth: false,
     summary: 'Liveness and database check',
     response: HealthStatus,
-  }),
-
-  // ── EXAMPLE (remove when real resources exist) ─────────────────────────────
-  listNotes: defineEndpoint({
-    id: 'C-01',
-    method: 'GET',
-    path: '/api/notes',
-    auth: false,
-    summary: 'EXAMPLE: list notes, newest first',
-    response: NoteList,
-  }),
-  createNote: defineEndpoint({
-    id: 'C-02',
-    method: 'POST',
-    path: '/api/notes',
-    auth: false,
-    summary: 'EXAMPLE: create a note',
-    request: CreateNoteInput,
-    response: Note,
   }),
 } as const;
 

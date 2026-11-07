@@ -21,7 +21,9 @@ describe('GrantGuide contract v1', () => {
   it('registers the five agreed endpoint methods and paths', () => {
     expect(
       Object.values(endpoints)
-        .filter((endpoint) => Number(endpoint.id.slice(2)) >= 3)
+        .filter(
+          (endpoint) => Number(endpoint.id.slice(2)) >= 3 && Number(endpoint.id.slice(2)) <= 7,
+        )
         .map(({ id, method, path }) => [id, method, path]),
     ).toEqual([
       ['C-03', 'POST', '/api/advice'],
