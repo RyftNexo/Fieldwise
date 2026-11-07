@@ -1,8 +1,10 @@
+import { ApiErrorBody, buildPath, endpoints, successBody } from '@app/shared';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createApp } from '../../app';
 import { ensureDatabase } from '../../db/client';
 import { env } from '../../env';
-import { clearVoiceJobs } from './jobs';
+import { clearVoiceJobs, noteOutboundCall } from './jobs';
+import { clearRingAttempts } from './ringPolicy';
 import { signTwilioWebhook } from './signature';
 import { voiceMaxPolls } from './twiml';
 
@@ -20,6 +22,8 @@ const original = {
   demoMode: env.DEMO_MODE,
   publicBase: env.TWILIO_PUBLIC_BASE,
   openaiKey: env.OPENAI_API_KEY,
+  from: env.TWILIO_FROM_NUMBER,
+  ringTo: env.TWILIO_RING_TO,
 };
 
 afterEach(() => {
@@ -29,6 +33,9 @@ afterEach(() => {
   env.DEMO_MODE = original.demoMode;
   env.TWILIO_PUBLIC_BASE = original.publicBase;
   env.OPENAI_API_KEY = original.openaiKey;
+  env.TWILIO_FROM_NUMBER = original.from;
+  env.TWILIO_RING_TO = original.ringTo;
+  clearRingAttempts();
   vi.unstubAllGlobals();
 });
 
@@ -55,6 +62,22 @@ function signed(path: string, params: Record<string, string>) {
 }
 
 describe('POST /api/voice/incoming', () => {
+  it('accepts an unsigned webhook from the configured public host', async () => {
+    configureLine();
+    env.TWILIO_PUBLIC_BASE = 'https://demo.trycloudflare.com';
+    const res = await app.request('http://localhost/api/voice/incoming', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+        'x-forwarded-host': 'demo.trycloudflare.com',
+        'x-forwarded-proto': 'https',
+      },
+      body: new URLSearchParams({ CallSid: 'CA1' }).toString(),
+    });
+    expect(res.status).toBe(200);
+    expect(await res.text()).toContain('<Gather');
+  });
+
   it('rejects a call that Twilio did not sign', async () => {
     configureLine();
     const res = await postVoice('/api/voice/incoming', { CallSid: 'CA1' }, 'wrong');
@@ -72,6 +95,9 @@ describe('POST /api/voice/incoming', () => {
     );
     const res = await postVoice('/api/voice/incoming', params, signature);
     expect(res.status).toBe(200);
+    expect(await res.text()).toContain(
+      'action="https://demo.trycloudflare.com/api/voice/advice?attempt=1"',
+    );
   });
 
   it('asks the caller to describe the farm', async () => {
@@ -88,10 +114,100 @@ describe('POST /api/voice/incoming', () => {
     expect(body).toContain('<Gather');
     expect(body).toContain('action="/api/voice/advice?attempt=1"');
     expect(body).toContain('actionOnEmptyResult="true"');
-    expect(body).toContain('speechModel="phone_call"');
     expect(body).toContain('speechTimeout="3"');
-    expect(body).toContain('Polly.Niamh');
+    expect(body).not.toContain('speechModel=');
+    expect(body).not.toContain('Polly.');
     expect(body).toContain('hectares');
+  });
+});
+
+describe('POST /api/voice/ring', () => {
+  function twilioFetch() {
+    return vi.fn(async (_url: string | URL | Request, _init?: RequestInit) =>
+      Response.json({ sid: 'CA-outbound' }),
+    );
+  }
+
+  it('does not call Twilio for a number outside the demo list', async () => {
+    configureLine();
+    env.TWILIO_FROM_NUMBER = '+353800000000';
+    env.TWILIO_RING_TO = '+353871234567';
+    const fetchImpl = twilioFetch();
+    vi.stubGlobal('fetch', fetchImpl);
+
+    const res = await app.request(endpoints.ringVoiceCall.path, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ to: '+353831111111' }),
+    });
+
+    expect(res.status).toBe(403);
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it('does not call Twilio again inside the gap', async () => {
+    configureLine();
+    env.TWILIO_FROM_NUMBER = '+353800000000';
+    env.TWILIO_RING_TO = '+353871234567';
+    const fetchImpl = twilioFetch();
+    vi.stubGlobal('fetch', fetchImpl);
+    const body = JSON.stringify({ to: '087 123 4567' });
+
+    const first = await app.request(endpoints.ringVoiceCall.path, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body,
+    });
+    const second = await app.request(endpoints.ringVoiceCall.path, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body,
+    });
+
+    const placed = successBody(endpoints.ringVoiceCall.response).parse(await first.json());
+    expect(placed.data.callSid).toBe('CA-outbound');
+    expect(placed.data.to).toBe('+353871234567');
+    expect(first.status).toBe(201);
+    expect(second.status).toBe(429);
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('GET /api/voice/calls/:callSid', () => {
+  it('stays on ringing until the caller has described the farm', async () => {
+    noteOutboundCall('CA-ring', '+353871234567');
+    const res = await app.request(buildPath(endpoints.getVoiceCall.path, { callSid: 'CA-ring' }));
+    expect(res.status).toBe(200);
+    const { data } = successBody(endpoints.getVoiceCall.response).parse(await res.json());
+    expect(data.state).toBe('ringing');
+    expect(data.to).toBe('+353871234567');
+  });
+
+  it('returns the advice once the phone line has a result', async () => {
+    configureLine();
+    env.DEMO_MODE = 'fixtures';
+    noteOutboundCall('CA-screen', '+353871234567');
+    const path = '/api/voice/advice?attempt=1';
+    const params = {
+      CallSid: 'CA-screen',
+      SpeechResult: 'A suckler farm in West Cork, about 40 hectares, wet land by the river.',
+    };
+    await postVoice(path, params, signed(path, params));
+
+    const res = await app.request(buildPath(endpoints.getVoiceCall.path, { callSid: 'CA-screen' }));
+    expect(res.status).toBe(200);
+    const { data } = successBody(endpoints.getVoiceCall.response).parse(await res.json());
+    expect(data.state).toBe('done');
+    expect(data.to).toBe('+353871234567');
+    expect(data.advice?.summary).toContain('58,388');
+  });
+
+  it('returns 404 for a call this server does not know', async () => {
+    const res = await app.request(
+      buildPath(endpoints.getVoiceCall.path, { callSid: 'CA-missing' }),
+    );
+    expect(res.status).toBe(404);
+    expect(ApiErrorBody.parse(await res.json()).error.code).toBe('NOT_FOUND');
   });
 });
 

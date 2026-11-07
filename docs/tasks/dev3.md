@@ -37,7 +37,7 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - Notes: web and API consumers removed in PRs #2/#13; shared contracts now retired.
 
 ### D3-05 · Register outbound voice JSON contracts
-- Status: Review
+- Status: Done
 - Depends on: —
 - Paths: packages/shared/**, docs/API_CONTRACTS.md
 - Accept: C-08 ring and C-09 call polling schemas, fixtures and tests match dev2 request; documentation updated; verify passes; contract PR merged before API integration
@@ -47,10 +47,12 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 <!-- - REQ dev3→dev2 (open): <what> — needed by <task> -->
 - REQ dev3→dev2 (closed): C-03–C-07 and server-side scheme/total validation merged in PRs #9/#10 and passed integration checks — needed by D3-03.
 - REQ dev3→dev1 (closed): shared model and mock integration merged in PR #5 — needed by D1-02, D1-07.
-- REQ dev3→dev1 (open): confirm kickoff completion, reconcile D1-02/D1-03/D1-07 statuses with merged PRs, and update TASK_BOARD's contract-v1 milestone/dependency rows — needed by D3-02, D3-03.
-- REQ dev3→dev2 (open): remove the notes API and its tests after the merged web removal; mark D2-03 complete only when verified — needed by D3-04.
-- REQ dev3→dev1 (open): replace stale Gemini labels in the UI and reconcile product/demo docs with the merged OpenAI backend; verify microphone input on the presentation laptop — needed before the live-AI/voice checkpoint.
+- REQ dev3→dev1 (closed): confirm kickoff completion, reconcile D1-02/D1-03/D1-07 statuses with merged PRs, and update TASK_BOARD's contract-v1 milestone/dependency rows — needed by D3-02, D3-03.
+- REQ dev3→dev2 (closed): remove the notes API and its tests after the merged web removal; mark D2-03 complete only when verified — needed by D3-04.
+- REQ dev3→dev1 (closed): replace stale Gemini labels in the UI and reconcile product/demo docs with the merged OpenAI backend; verify microphone input on the presentation laptop — needed before the live-AI/voice checkpoint.
 - REQ dev3→dev2 (closed): documented OPENAI_API_KEY, OPENAI_MODEL and OPENAI_TIMEOUT_MS in API_CONTRACTS from the existing API env schema — needed by D2-06.
+
+- REQ dev3→dev2 (open): restore mandatory Twilio signature validation; the forwarded-host bypass remains in merged PR #17. Remove or migrate the standalone direct-fetch call page and refresh D2-07 handoff; verify a real allowlisted call end to end before cp-2.
 
 ## Log
 - 13:11 D3-01 → In Progress
@@ -66,3 +68,4 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - 15:07 D3-04 → Done
 - 15:59 D3-05 → In Progress
 - 16:00 D3-05 → Review
+- 16:37 D3-05 → Done
