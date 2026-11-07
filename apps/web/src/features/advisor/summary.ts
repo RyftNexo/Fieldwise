@@ -1,5 +1,5 @@
+import type { Enterprise, FarmProfile, GrantMatch, Investment } from '@app/shared';
 import { formatHectares } from './format';
-import type { Enterprise, FarmProfile, GrantMatch, Investment } from './types';
 
 export interface Headline {
   schemeCount: number;

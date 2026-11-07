@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { endpoints } from '@app/shared';
+import { adviceFixtures, createLeadFixture, endpoints, schemeFixtures } from '@app/shared';
 import { describe, expect, it } from 'vitest';
 import { mockHandlers } from '@/mocks/handlers';
 
@@ -39,5 +39,32 @@ describe('mock handlers', () => {
     const empty = { params: {}, query: {}, body: undefined };
     const health = await mockHandlers[endpoints.health.id]?.(empty);
     expect(() => endpoints.health.response.parse(health)).not.toThrow();
+
+    const advice = await mockHandlers[endpoints.advice.id]?.({
+      ...empty,
+      body: { text: 'I want solar panels on the parlour roof' },
+    });
+    expect(endpoints.advice.response.parse(advice)).toEqual(adviceFixtures.aoife);
+
+    const evaluated = await mockHandlers[endpoints.evaluateAdvice.id]?.({
+      ...empty,
+      body: { profile: adviceFixtures.declan.profile },
+    });
+    expect(endpoints.evaluateAdvice.response.parse(evaluated).profile).toEqual(
+      adviceFixtures.declan.profile,
+    );
+
+    const schemes = await mockHandlers[endpoints.listSchemes.id]?.(empty);
+    expect(endpoints.listSchemes.response.parse(schemes)).toHaveLength(schemeFixtures.length);
+
+    const lead = endpoints.createLead.response.parse(
+      await mockHandlers[endpoints.createLead.id]?.({ ...empty, body: createLeadFixture }),
+    );
+    expect(lead.matches.map((match) => match.schemeId)).toEqual(['ntas']);
+
+    const leads = endpoints.listLeads.response.parse(
+      await mockHandlers[endpoints.listLeads.id]?.(empty),
+    );
+    expect(leads[0]?.id).toBe(lead.id);
   });
 });

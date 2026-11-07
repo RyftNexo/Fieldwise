@@ -1,3 +1,4 @@
+import type { AdviceResponse } from '@app/shared';
 import { Info, RotateCcw, Sparkles } from 'lucide-react';
 import type { Ref } from 'react';
 import { ForesterCta } from './ForesterCta';
@@ -6,7 +7,6 @@ import { GrantCard } from './GrantCard';
 import { forestryMatches } from './leads';
 import { ProfileChips } from './ProfileChips';
 import { summariseMatches } from './summary';
-import type { AdviceResponse } from './types';
 
 interface ResultsProps {
   advice: AdviceResponse;

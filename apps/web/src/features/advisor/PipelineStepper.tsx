@@ -1,3 +1,4 @@
+import type { AdviceResponse } from '@app/shared';
 import {
   CircleCheck,
   LoaderCircle,
@@ -9,7 +10,6 @@ import {
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { PIPELINE_STAGES, type PipelineStage, type Stage } from './pipeline';
-import type { AdviceResponse } from './types';
 
 const STEP_INFO: Record<
   PipelineStage,

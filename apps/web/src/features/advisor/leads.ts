@@ -1,28 +1,27 @@
+import { type CreateLeadInput, endpoints, type GrantMatch } from '@app/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createPreviewLead, listPreviewLeads } from './previewLeads';
-import type { CreateLeadInput, GrantMatch } from './types';
+import { call } from '@/api/client';
 
-/** Pre-contract cache key. D1-07 switches it to the leads endpoint's contract ID. */
-const LEADS_KEY = ['preview', 'leads'];
-
-/** Schemes a registered forester can help with. The IDs follow the contract draft; recheck them in D1-07. */
+/** Schemes a registered forester can help with. `ntas` is the id in the shared fixtures; check dev2's seed. */
 const FORESTRY_SCHEME_IDS = new Set(['ntas']);
 
 export function forestryMatches(matches: GrantMatch[]): GrantMatch[] {
   return matches.filter((match) => FORESTRY_SCHEME_IDS.has(match.schemeId));
 }
 
-/** The forester's inbox, newest first. */
+/** The forester's inbox, newest first (C-07). */
 export function useLeads() {
-  return useQuery({ queryKey: LEADS_KEY, queryFn: listPreviewLeads });
+  return useQuery({
+    queryKey: [endpoints.listLeads.id],
+    queryFn: () => call(endpoints.listLeads),
+  });
 }
 
-/** Sends a farmer's result to a forester and refreshes the inbox. */
+/** Sends a farmer's result to a forester (C-06) and refreshes the inbox. The server works out matches and totals. */
 export function useCreateLead() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ input, matches }: { input: CreateLeadInput; matches: GrantMatch[] }) =>
-      createPreviewLead(input, matches),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: LEADS_KEY }),
+    mutationFn: (input: CreateLeadInput) => call(endpoints.createLead, { body: input }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [endpoints.listLeads.id] }),
   });
 }
