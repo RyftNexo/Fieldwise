@@ -4,13 +4,14 @@ import {
   joinTranscript,
   type SpeechError,
   type SpeechRecognitionLike,
+  tidyTranscript,
   toSpeechError,
 } from './speech';
 
 interface SpeechInputOptions {
   /** Called with the box's full text while the farmer talks, so the words appear live. */
   onText: (text: string) => void;
-  /** Called once with the final text when they pause (or tap stop). */
+  /** Called once with the final text when they pause (or tap stop), so the farmer can check it. */
   onDone: (text: string) => void;
   lang?: string;
   /** How long a pause ends the dictation. */
@@ -57,7 +58,7 @@ export function useSpeechInput({
       const fullText = () => [prefix, transcript].filter(Boolean).join(' ');
 
       recognition.onresult = (event) => {
-        transcript = joinTranscript(event.results);
+        transcript = tidyTranscript(joinTranscript(event.results));
         handlers.current.onText(fullText());
         clearTimeout(pauseTimer);
         pauseTimer = setTimeout(() => recognition.stop(), pauseMs);

@@ -35,7 +35,7 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - Accept: Landing page is the advisor: hero input, example prompts, Extract → Rules → Explain stepper with each step's JSON, 'what we understood' chips, grant cards (eligibility, €, reasons, status, link), plain-English summary, next steps, disclaimer; runs on clearly bannered local preview data until C-03 exists; loading, empty and error states; mobile-first; npm run verify green
 
 ### D1-05 · Voice input (mic button, en-IE)
-- Status: In Progress
+- Status: Review
 - Depends on: —
 - Paths: apps/web/src/features/advisor/**
 - Accept: Mic button next to the input uses the browser's SpeechRecognition (en-IE, interim results fill the box live, auto-submits on a pause); hidden when unsupported; clear error if the mic is blocked; tested on the stage laptop in Chrome
@@ -68,6 +68,7 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 
 <!-- - REQ dev1→dev3 (open): <what> — needed by <task> -->
 - REQ dev1→dev3 (open): contract v1 — C-03 `POST /api/advice`, C-04 `POST /api/advice/evaluate`, C-05 `GET /api/schemes`, C-06 `POST /api/leads`, C-07 `GET /api/leads`, with fixtures for Declan, Aoife and Mary; proposed shapes in docs/ARCHITECTURE.md § Contract v1 draft — needed by D1-02, D1-06, D1-07
+- REQ dev1→dev2 (open): extraction (C-03) must accept acres as well as hectares and convert them (1 acre ≈ 0.405 ha), since Irish farmers usually talk in acres; and tolerate speech-recognition slips (Chrome heard "40-hectare" as "40 acre", "three" as "tree", "too" as "two"). When a number or unit is unclear, put it in `missing` rather than guessing — needed by D1-05, D1-06
 
 ## Log
 
@@ -82,3 +83,4 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - 12:58 D1-09 → Done
 - 13:08 D1-03 → In Progress
 - 13:10 D1-03 → Review
+- 13:22 D1-05 → Review
