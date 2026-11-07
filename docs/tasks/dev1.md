@@ -72,20 +72,20 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - Accept: New design system (Lexend + Source Sans 3 bundled, field green / harvest amber / cream tokens, shared UI primitives) applied to header, footer and advisor (hero, landing sections, stepper, results and cards); behaviour otherwise unchanged; 375/768/1280 checked; AA contrast; reduced motion; npm run verify green
 
 ### D1-12 · Phone call on the homepage via C-08/C-09
-- Status: Review
+- Status: Done
 - Depends on: —
 - Paths: apps/web/src/features/advisor/**, apps/web/src/mocks/handlers.ts, apps/web/src/api/client.test.ts, docs/DECISIONS.md, docs/DEMO.md
 - Accept: The phone call is the homepage's main action (D-022): a labelled mobile field and a Call button ring via call(endpoints.ringVoiceCall) and show the API's error.message on failure; call(endpoints.getVoiceCall) is polled every 2 s until done or failed (a 404 or repeated network error stops it); a status card shows ringing, checking the schemes with the transcript, the API's failure reason or a lost call, always with Start again; the advice renders with Results on the same screen; the Call button is disabled while a call is in progress; the old text box (typing, mic, example farmers) is one click away and at /?mode=type, unchanged; mocks for C-08/C-09 from the shared voice fixtures, including a refused number, a failed call and an unknown call; npm run verify green
 - Notes: live calls need dev2's API routes (PR #17). Until they merge, the API answers "No route for POST /api/voice/ring" and the page shows that under the field. There is no hang-up endpoint, so Start again only stops following the call.
 
 ### D1-13 · Remove the forester experience from the website
-- Status: Review
+- Status: Done
 - Depends on: —
 - Paths: apps/web/src/features/advisor/**, apps/web/src/features/forester/**, apps/web/src/mocks/handlers.ts, apps/web/src/api/client.test.ts, docs/ARCHITECTURE.md, docs/DECISIONS.md, docs/DEMO.md, docs/TASK_BOARD.md
 - Accept: No forester CTA, landing pitch, navigation item or inbox route remains in the website; dead web lead code and mocks are removed; farmer-facing copy and demo docs no longer promote the forester flow; API and shared contracts remain unchanged; npm run verify passes
 
 ### D1-14 · Animated React Flow advice pipeline
-- Status: Review
+- Status: Done
 - Depends on: —
 - Paths: apps/web/**, package-lock.json
 - Accept: Replace the three-card pipeline stepper with an accessible @xyflow/react graph showing farmer words, Understand AI, farm profile, every scheme dataset checked by the rules engine, Explain AI and the final report; active work pulses and edges illuminate, rule datasets light sequentially, visited nodes stay solid, done opens the existing Results report, raw JSON inspection remains available, mobile fallback is usable, npm run verify passes
@@ -142,4 +142,7 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - 17:00 D1-14 → In Progress
 - 17:07 D1-14 → Review
 - 17:11 D1-15 → In Progress
+- 17:17 D1-12 → Done
+- 17:17 D1-13 → Done
+- 17:17 D1-14 → Done
 - 17:24 D1-15 → Review
