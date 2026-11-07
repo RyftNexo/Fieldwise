@@ -1,5 +1,6 @@
-// C-03: Extract (Gemini) → Rules (code) → Explain (Gemini). The steps are injectable so tests never call Gemini.
+// C-03: Extract (LLM) → Rules (code) → Explain (LLM). The steps are injectable so tests never call the model.
 import type { AdviceResponse, FarmProfile, GrantMatch } from '@app/shared';
+import { env } from '../../env';
 import { type ExplainResult, explainMatches } from './explain';
 import { extractProfile } from './extract';
 import { buildRulesAdvice } from './rulesAdvice';
@@ -9,12 +10,12 @@ export interface PipelineSteps {
   explain: (profile: FarmProfile, matches: GrantMatch[]) => Promise<ExplainResult>;
 }
 
-const geminiSteps: PipelineSteps = { extract: extractProfile, explain: explainMatches };
+const llmSteps: PipelineSteps = { extract: extractProfile, explain: explainMatches };
 
 /** Farmer's words → full advice. Extract failures throw (the farmer must retry); explain failures degrade quietly. */
 export async function adviseFromText(
   text: string,
-  steps: PipelineSteps = geminiSteps,
+  steps: PipelineSteps = llmSteps,
 ): Promise<AdviceResponse> {
   const profile = await steps.extract(text);
   const advice = buildRulesAdvice(profile);
@@ -24,10 +25,11 @@ export async function adviseFromText(
     ...advice,
     summary: explained.summary,
     steps: {
-      extract: { method: 'gemini', profile },
+      extract: { method: 'llm', model: env.OPENAI_MODEL, profile },
       rules: advice.steps.rules,
       explain: {
         method: explained.method,
+        ...(explained.method === 'llm' && { model: env.OPENAI_MODEL }),
         ...(explained.fallbackReason && { fallbackReason: explained.fallbackReason }),
       },
     },

@@ -21,20 +21,21 @@ const post = (path: string, body: unknown) =>
 
 const declanText = loadRecordings()[0]?.text ?? '';
 const originalDemoMode = env.DEMO_MODE;
-const originalKey = env.GEMINI_API_KEY;
+const originalKey = env.OPENAI_API_KEY;
 
 afterEach(() => {
   env.DEMO_MODE = originalDemoMode;
-  env.GEMINI_API_KEY = originalKey;
+  env.OPENAI_API_KEY = originalKey;
   vi.unstubAllGlobals();
 });
 
-/** A fake Gemini: the first call extracts a profile (JSON), the second writes the summary. */
-function stubGemini(extraction: unknown, summary: string) {
+/** A fake model: the first call extracts a profile (JSON), the second writes the summary. */
+function stubLlm(extraction: unknown, summary: string) {
   const reply = (text: string) =>
-    new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text }] } }] }), {
-      status: 200,
-    });
+    new Response(
+      JSON.stringify({ choices: [{ message: { content: text }, finish_reason: 'stop' }] }),
+      { status: 200 },
+    );
   const fetchStub = vi
     .fn()
     .mockResolvedValueOnce(reply(JSON.stringify(extraction)))
@@ -43,14 +44,14 @@ function stubGemini(extraction: unknown, summary: string) {
   return fetchStub;
 }
 
-describe('C-03 POST /api/advice (live, Gemini stubbed)', () => {
+describe('C-03 POST /api/advice (live, model stubbed)', () => {
   beforeEach(() => {
     env.DEMO_MODE = 'off';
-    env.GEMINI_API_KEY = 'test-key-not-real';
+    env.OPENAI_API_KEY = 'test-key-not-real';
   });
 
   it('extracts, runs the rules and explains, returning contract-valid advice', async () => {
-    stubGemini(
+    stubLlm(
       {
         hectares: 40,
         enterprise: 'suckler',
@@ -68,8 +69,8 @@ describe('C-03 POST /api/advice (live, Gemini stubbed)', () => {
     expect(data.summary).toContain('€58,388');
   });
 
-  it('keeps the rules’ summary when Gemini invents a figure', async () => {
-    stubGemini(
+  it('keeps the rules’ summary when the model invents a figure', async () => {
+    stubLlm(
       {
         hectares: 40,
         enterprise: 'suckler',
@@ -85,15 +86,15 @@ describe('C-03 POST /api/advice (live, Gemini stubbed)', () => {
     expect(data.steps.explain).toMatchObject({ method: 'template' });
   });
 
-  it('answers 502 UPSTREAM_ERROR when Gemini is unreachable', async () => {
+  it('answers 502 UPSTREAM_ERROR when the model is unreachable', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('fetch failed')));
     const res = await post(endpoints.advice.path, { text: declanText });
     expect(res.status).toBe(502);
     expect(ApiErrorBody.parse(await res.json()).error.code).toBe('UPSTREAM_ERROR');
   });
 
-  it('answers UPSTREAM_ERROR when no key is configured, without calling Gemini', async () => {
-    delete env.GEMINI_API_KEY;
+  it('answers UPSTREAM_ERROR when no key is configured, without calling the model', async () => {
+    delete env.OPENAI_API_KEY;
     const fetchStub = vi.fn();
     vi.stubGlobal('fetch', fetchStub);
     const res = await post(endpoints.advice.path, { text: declanText });
@@ -102,7 +103,7 @@ describe('C-03 POST /api/advice (live, Gemini stubbed)', () => {
   });
 
   it('asks for the farm size when the text has none', async () => {
-    stubGemini({ hectares: 0, enterprise: 'other', missing: ['farm size'] }, 'unused');
+    stubLlm({ hectares: 0, enterprise: 'other', missing: ['farm size'] }, 'unused');
     const res = await post(endpoints.advice.path, { text: 'I want a grant' });
     expect(res.status).toBe(400);
     expect(ApiErrorBody.parse(await res.json()).error.code).toBe('VALIDATION_ERROR');
@@ -115,7 +116,7 @@ describe('C-03 POST /api/advice (DEMO_MODE=fixtures)', () => {
   });
 
   it.each(loadRecordings().map((recording) => [recording.id, recording.text] as const))(
-    'replays the %s recording without calling Gemini',
+    'replays the %s recording without calling the model',
     async (_id, text) => {
       const fetchStub = vi.fn();
       vi.stubGlobal('fetch', fetchStub);

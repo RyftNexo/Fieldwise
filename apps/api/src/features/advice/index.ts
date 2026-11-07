@@ -8,7 +8,7 @@ import { buildRulesAdvice } from './rulesAdvice';
 
 export const router = new Hono();
 
-// C-03: the farmer's words → advice. Live: Gemini extract → rules → Gemini explain.
+// C-03: the farmer's words → advice. Live: LLM extract → rules → LLM explain.
 // DEMO_MODE=fixtures: replay the recorded examples instead (offline demo safety net).
 router.post(endpoints.advice.path, async (c) => {
   const { text } = await parseBody(c, endpoints.advice);

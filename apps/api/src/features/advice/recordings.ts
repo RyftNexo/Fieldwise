@@ -1,4 +1,4 @@
-// DEMO_MODE=fixtures: replay recorded Gemini replies so the demo works offline. Only the three example
+// DEMO_MODE=fixtures: replay recorded model replies so the demo works offline. Only the three example
 // farmers are recorded. The rules still run live on the recorded profile, so figures are always current.
 import { readFileSync } from 'node:fs';
 import { type AdviceResponse, FarmProfile } from '@app/shared';
@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { AppError } from '../../lib/http';
 import { buildRulesAdvice } from './rulesAdvice';
 
-export const recordingsFile = new URL('./geminiRecordings.json', import.meta.url);
+export const recordingsFile = new URL('./llmRecordings.json', import.meta.url);
 
 const Recording = z.object({
   id: z.string().min(1),
@@ -14,8 +14,10 @@ const Recording = z.object({
   text: z.string().min(1),
   /** Lower-case words that identify this farmer when the text was edited or spoken slightly differently. */
   keywords: z.array(z.string().min(1)).min(1),
-  /** 'handWritten' until `recordGeminiFixtures.ts` replaces it with a real Gemini reply. */
-  source: z.enum(['handWritten', 'gemini']),
+  /** 'handWritten' until `recordLlmFixtures.ts` replaces it with a real model reply. */
+  source: z.enum(['handWritten', 'llm']),
+  /** Which model wrote the recording (absent for handWritten ones). */
+  model: z.string().min(1).optional(),
   profile: FarmProfile,
   summary: z.string().min(1),
 });

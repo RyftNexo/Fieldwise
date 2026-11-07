@@ -1,11 +1,12 @@
 import { AdviceResponse, farmProfileFixtures } from '@app/shared';
 import { describe, expect, it, vi } from 'vitest';
+import { env } from '../../env';
 import { AppError } from '../../lib/http';
 import { adviseFromText, type PipelineSteps } from './pipeline';
 
 const steps = (overrides: Partial<PipelineSteps> = {}): PipelineSteps => ({
   extract: vi.fn(async () => farmProfileFixtures.declan),
-  explain: vi.fn(async () => ({ summary: 'Gemini wrote this.', method: 'gemini' as const })),
+  explain: vi.fn(async () => ({ summary: 'The model wrote this.', method: 'llm' as const })),
   ...overrides,
 });
 
@@ -13,21 +14,21 @@ describe('adviseFromText', () => {
   it('runs extract → rules → explain and returns advice that matches the contract', async () => {
     const advice = await adviseFromText('my farm', steps());
     expect(() => AdviceResponse.parse(advice)).not.toThrow();
-    expect(advice.summary).toBe('Gemini wrote this.');
+    expect(advice.summary).toBe('The model wrote this.');
     expect(advice.mode).toBe('live');
     expect(advice.matches[0]?.schemeId).toBe('ntas');
   });
 
   it('computes the matches in code from the extracted profile, not from the model', async () => {
-    const explain = vi.fn(async () => ({ summary: 'Fine.', method: 'gemini' as const }));
+    const explain = vi.fn(async () => ({ summary: 'Fine.', method: 'llm' as const }));
     const advice = await adviseFromText('my farm', steps({ explain }));
     expect(explain).toHaveBeenCalledWith(farmProfileFixtures.declan, advice.matches);
   });
 
   it('reports which method wrote each step, for the stepper', async () => {
     const advice = await adviseFromText('my farm', steps());
-    expect(advice.steps.extract).toMatchObject({ method: 'gemini' });
-    expect(advice.steps.explain).toEqual({ method: 'gemini' });
+    expect(advice.steps.extract).toMatchObject({ method: 'llm', model: env.OPENAI_MODEL });
+    expect(advice.steps.explain).toEqual({ method: 'llm', model: env.OPENAI_MODEL });
   });
 
   it('records why the template summary was used', async () => {

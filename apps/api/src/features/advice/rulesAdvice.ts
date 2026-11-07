@@ -1,5 +1,5 @@
 // Turns a FarmProfile into a full AdviceResponse using only the rules engine (no AI): this is what C-04 returns,
-// and what C-03 will return once Gemini replaces the "extract" and "explain" steps.
+// and the base C-03 builds on: it adds the LLM's "extract" and "explain" steps around the same rules.
 import type { AdviceResponse, FarmProfile, GrantMatch } from '@app/shared';
 import { checkedAt } from '../schemes/facts';
 import { evaluateProfile, totalEstimatedEur } from './rules';

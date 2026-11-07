@@ -14,7 +14,7 @@ describe('recordings', () => {
   it.each(recordings.map((recording) => [recording.id, recording] as const))(
     '%s: the recorded summary still agrees with today’s rules and is under 120 words',
     (_id, recording) => {
-      // Fails when rates or rules change after recording: re-record with recordGeminiFixtures.ts.
+      // Fails when rates or rules change after recording: re-record with recordLlmFixtures.ts.
       expect(summaryProblem(recording.summary, evaluateProfile(recording.profile))).toBeNull();
       expect(wordCount(recording.summary)).toBeLessThanOrEqual(120);
     },
