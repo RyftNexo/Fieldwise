@@ -70,6 +70,7 @@ export interface ExplainResult {
 export async function explainMatches(
   profile: FarmProfile,
   matches: GrantMatch[],
+  signal?: AbortSignal,
 ): Promise<ExplainResult> {
   const template = buildRulesSummary(matches);
   try {
@@ -96,6 +97,7 @@ export async function explainMatches(
       systemInstruction,
       userText: JSON.stringify(data),
       temperature: 0.2,
+      signal,
     });
     // One paragraph, whatever the model's line breaks: the web app renders the summary as a single block.
     const summary = reply.replace(/\s+/gu, ' ').trim();

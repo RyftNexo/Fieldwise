@@ -1,19 +1,19 @@
 import type { Context } from 'hono';
 import { Hono } from 'hono';
 import { env } from '../../env';
-import { adviseFromText } from '../advice/pipeline';
-import { replayRecording } from '../advice/recordings';
-import { scriptFromAdvice, spokenFailure } from './script';
+import { beginVoiceAdvice, cancelVoiceJob, voiceJob } from './jobs';
 import { isValidTwilioSignature, webhookUrls } from './signature';
-import { gatherTwiml, hangupTwiml } from './twiml';
+import { gatherTwiml, hangupTwiml, voiceMaxPolls, waitTwiml } from './twiml';
 
 /**
  * Inbound phone line. Twilio posts form data here and expects TwiML, not the JSON API.
  * One description from the caller, then the same advice pipeline as POST /api/advice.
+ * The model runs off the webhook: each response goes back before Twilio's 15 second limit.
  */
 export const router = new Hono();
 
 const maxAttempts = 2;
+const tookTooLong = 'This is taking too long. Please call again in a moment.';
 const openingPrompt = [
   'Grant Guide. Tell me about your farm in your own words.',
   'How many hectares, what you keep, and where you farm.',
@@ -32,18 +32,37 @@ router.post('/api/voice/advice', async (c) => {
   if (denied) return denied;
 
   const speech = params.SpeechResult?.trim() ?? '';
-  const attempt = attemptOf(c);
+  const attempt = attemptOf(c, 'attempt');
   if (speech.length < 3) return xml(c, missedTwiml(attempt));
 
-  try {
-    const text = speech.slice(0, 10_000);
-    const advice =
-      env.DEMO_MODE === 'fixtures' ? replayRecording(text) : await adviseFromText(text);
-    return xml(c, hangupTwiml(scriptFromAdvice(advice)));
-  } catch (error) {
-    console.error('voice advice failed');
-    return xml(c, hangupTwiml(spokenFailure(error)));
+  const callSid = params.CallSid?.trim() ?? '';
+  if (!callSid) {
+    return xml(c, hangupTwiml('We could not keep track of this call. Please call again.'));
   }
+
+  const job = beginVoiceAdvice(callSid, speech.slice(0, 10_000));
+  if (job.state === 'done' && job.script) return xml(c, hangupTwiml(job.script));
+  if (job.state === 'failed') return xml(c, hangupTwiml(job.failure ?? tookTooLong));
+  return xml(c, waitTwiml(1));
+});
+
+router.post('/api/voice/result', async (c) => {
+  const params = await readForm(c);
+  const denied = denyUnlessTwilio(c, params);
+  if (denied) return denied;
+
+  const callSid = params.CallSid?.trim() ?? '';
+  const job = callSid ? voiceJob(callSid) : undefined;
+  if (!job) return xml(c, hangupTwiml('I lost the thread of that call. Please call again.'));
+  if (job.state === 'done' && job.script) return xml(c, hangupTwiml(job.script));
+  if (job.state === 'failed') return xml(c, hangupTwiml(job.failure ?? tookTooLong));
+
+  const poll = attemptOf(c, 'poll');
+  if (poll >= voiceMaxPolls) {
+    cancelVoiceJob(callSid, tookTooLong);
+    return xml(c, hangupTwiml(tookTooLong));
+  }
+  return xml(c, waitTwiml(poll + 1));
 });
 
 function missedTwiml(attempt: number): string {
@@ -85,8 +104,8 @@ async function readForm(c: Context): Promise<Record<string, string>> {
   return params;
 }
 
-function attemptOf(c: Context): number {
-  const attempt = Number(c.req.query('attempt'));
+function attemptOf(c: Context, name: string): number {
+  const attempt = Number(c.req.query(name));
   return Number.isInteger(attempt) && attempt > 0 ? attempt : 1;
 }
 

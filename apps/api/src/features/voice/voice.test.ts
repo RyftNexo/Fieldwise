@@ -1,8 +1,10 @@
-import { afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createApp } from '../../app';
 import { ensureDatabase } from '../../db/client';
 import { env } from '../../env';
+import { clearVoiceJobs } from './jobs';
 import { signTwilioWebhook } from './signature';
+import { voiceMaxPolls } from './twiml';
 
 let app: Awaited<ReturnType<typeof createApp>>;
 
@@ -17,13 +19,17 @@ const original = {
   token: env.TWILIO_AUTH_TOKEN,
   demoMode: env.DEMO_MODE,
   publicBase: env.TWILIO_PUBLIC_BASE,
+  openaiKey: env.OPENAI_API_KEY,
 };
 
 afterEach(() => {
+  clearVoiceJobs();
   env.TWILIO_ACCOUNT_SID = original.sid;
   env.TWILIO_AUTH_TOKEN = original.token;
   env.DEMO_MODE = original.demoMode;
   env.TWILIO_PUBLIC_BASE = original.publicBase;
+  env.OPENAI_API_KEY = original.openaiKey;
+  vi.unstubAllGlobals();
 });
 
 function configureLine() {
@@ -81,6 +87,9 @@ describe('POST /api/voice/incoming', () => {
     const body = await res.text();
     expect(body).toContain('<Gather');
     expect(body).toContain('action="/api/voice/advice?attempt=1"');
+    expect(body).toContain('actionOnEmptyResult="true"');
+    expect(body).toContain('speechModel="phone_call"');
+    expect(body).toContain('speechTimeout="3"');
     expect(body).toContain('Polly.Niamh');
     expect(body).toContain('hectares');
   });
@@ -109,8 +118,21 @@ describe('POST /api/voice/advice', () => {
     const params = { CallSid: 'CA1', SpeechResult: '' };
     const res = await postVoice(path, params, signed(path, params));
     const body = await res.text();
+    expect(body).toContain('<Gather');
+    expect(body).toContain('actionOnEmptyResult="true"');
     expect(body).toContain('I didn&apos;t catch that');
     expect(body).toContain('attempt=2');
+  });
+
+  it('hangs up when the caller is still silent on the last attempt', async () => {
+    configureLine();
+    const path = '/api/voice/advice?attempt=2';
+    const params = { CallSid: 'CA1', SpeechResult: '' };
+    const res = await postVoice(path, params, signed(path, params));
+    const body = await res.text();
+    expect(body).toContain('<Hangup/>');
+    expect(body).toContain('couldn&apos;t hear you');
+    expect(body).not.toContain('<Gather');
   });
 
   it('speaks a phone-friendly line when fixtures mode does not know the farm', async () => {
@@ -123,4 +145,110 @@ describe('POST /api/voice/advice', () => {
     expect(body).toContain('West Cork suckler farm');
     expect(body).toContain('<Hangup/>');
   });
+
+  it('returns before a slow model finishes, then speaks once the result is ready', async () => {
+    configureLine();
+    env.DEMO_MODE = 'off';
+    env.OPENAI_API_KEY = 'test-key-not-real';
+    const releases: Array<(response: Response) => void> = [];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((_url: string, init?: RequestInit) => {
+        return new Promise<Response>((resolve, reject) => {
+          const abort = () => reject(new DOMException('The operation was aborted', 'AbortError'));
+          if (init?.signal?.aborted) {
+            abort();
+            return;
+          }
+          init?.signal?.addEventListener('abort', abort, { once: true });
+          releases.push(resolve);
+        });
+      }),
+    );
+
+    const path = '/api/voice/advice?attempt=1';
+    const params = {
+      CallSid: 'CA-slow',
+      SpeechResult:
+        '40 hectares of suckler beef in West Cork, with 3 hectares wet beside the river.',
+    };
+    const started = Date.now();
+    const res = await postVoice(path, params, signed(path, params));
+    expect(Date.now() - started).toBeLessThan(1_000);
+    const waiting = await res.text();
+    expect(waiting).toContain('<Pause length="4"/>');
+    expect(waiting).toContain('/api/voice/result?poll=1');
+    expect(waiting).not.toContain('<Hangup/>');
+    expect(releases).toHaveLength(1);
+
+    const again = await postVoice(path, params, signed(path, params));
+    expect(await again.text()).toContain('/api/voice/result?poll=1');
+    expect(releases).toHaveLength(1);
+
+    releases[0]?.(completion(extractedProfile));
+    await vi.waitFor(() => expect(releases).toHaveLength(2));
+    releases[1]?.(completion('You could get up to €58,388 once a forester checks the wet land.'));
+
+    const resultPath = '/api/voice/result?poll=1';
+    const resultParams = { CallSid: 'CA-slow' };
+    await vi.waitFor(async () => {
+      const done = await postVoice(resultPath, resultParams, signed(resultPath, resultParams));
+      const spoken = await done.text();
+      expect(spoken).toContain('<Hangup/>');
+      expect(spoken).toContain('58,388');
+    });
+  });
+
+  it('stops a model call that is still running when the wait budget runs out', async () => {
+    configureLine();
+    env.DEMO_MODE = 'off';
+    env.OPENAI_API_KEY = 'test-key-not-real';
+    let aborted = false;
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((_url: string, init?: RequestInit) => {
+        return new Promise<Response>((_resolve, reject) => {
+          const abort = () => {
+            aborted = true;
+            reject(new DOMException('The operation was aborted', 'AbortError'));
+          };
+          init?.signal?.addEventListener('abort', abort, { once: true });
+        });
+      }),
+    );
+
+    const advicePath = '/api/voice/advice?attempt=1';
+    const params = { CallSid: 'CA-budget', SpeechResult: 'Forty hectares of sheep in Kerry.' };
+    await postVoice(advicePath, params, signed(advicePath, params));
+
+    const resultPath = `/api/voice/result?poll=${voiceMaxPolls}`;
+    const resultParams = { CallSid: 'CA-budget' };
+    const res = await postVoice(resultPath, resultParams, signed(resultPath, resultParams));
+    const body = await res.text();
+    expect(body).toContain('taking too long');
+    expect(body).toContain('<Hangup/>');
+    expect(aborted).toBe(true);
+  });
+});
+
+const completion = (content: string) =>
+  new Response(JSON.stringify({ choices: [{ message: { content }, finish_reason: 'stop' }] }), {
+    status: 200,
+    headers: { 'content-type': 'application/json' },
+  });
+
+const extractedProfile = JSON.stringify({
+  hectares: 40,
+  enterprise: 'suckler',
+  county: null,
+  region: 'West Cork',
+  age: null,
+  gender: null,
+  marginalHectares: 3,
+  nearWatercourse: true,
+  peatSoil: null,
+  designatedSite: null,
+  activeFarmer: null,
+  plannedInvestment: null,
+  missing: [],
 });
