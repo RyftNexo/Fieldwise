@@ -14,32 +14,41 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 
 ### D3-02 · Apply the ownership mode chosen at kickoff
 
-- Status: Not Started
+- Status: Review
 - Depends on: D1-01
 - Paths: docs/OWNERSHIP.md
 - Accept: map matches the kickoff decision (layer or feature slices); all three approved the PR
+- Notes: the existing enforced map already matches the layer-based kickoff choice. Team names and decision reference are documented; awaiting all three developers' approval of the confirmation PR.
 
 ### D3-03 · Checkpoint 1 — walking skeleton on main
 
-- Status: Not Started
+- Status: Blocked
 - Depends on: D1-02, D2-01
 - Paths: docs/INTEGRATION.md
 - Accept: one screen ↔ one endpoint ↔ DB works on main; `npm run verify` and `npm run smoke` green on main; tagged `cp-1`
+- Notes: web contract integration merged in PR #5; blocked on D2-01's real API implementation. Mock responses and pending-endpoint smoke skips do not satisfy cp-1. No checkpoint tag published.
 
 ### D3-04 · Remove the example notes contract after web and API dropped it
 
-- Status: Not Started
+- Status: Blocked
 - Depends on: D2-03
 - Paths: packages/shared/src/contracts/notes.ts, packages/shared/src/fixtures/notes.ts, packages/shared/src/contracts/endpoints.ts, packages/shared/src/index.ts
 - Accept: C-01/C-02 removed and marked removed in the API_CONTRACTS.md change log; everything builds
+- Notes: notes UI removal is merged, but D2-03 has not removed the API consumer. Preserve C-01/C-02 until then.
 
 ## Requests to others
 
 <!-- - REQ dev3→dev2 (open): <what> — needed by <task> -->
 - REQ dev3→dev2 (open): implement C-03–C-07 after D3-01 merges; validate scheme IDs and recompute lead totals server-side. Fixtures deliberately contain no verified eligibility or payment amounts — needed by D3-03.
-- REQ dev3→dev1 (open): switch preview models/mocks to the D3-01 shared schemas and fixtures after merge; confirm kickoff D1-01 completion. C-06 requires contact details and consent; Scheme.checkedAt is nullable until verified — needed by D1-02, D1-06, D1-07.
+- REQ dev3→dev1 (closed): shared model and mock integration merged in PR #5 — needed by D1-02, D1-07.
+- REQ dev3→dev1 (open): confirm kickoff completion, reconcile D1-02/D1-03/D1-07 statuses with merged PRs, and update TASK_BOARD's contract-v1 milestone/dependency rows — needed by D3-02, D3-03.
+- REQ dev3→dev2 (open): remove the notes API and its tests after the merged web removal; mark D2-03 complete only when verified — needed by D3-04.
 
 ## Log
 - 13:11 D3-01 → In Progress
 - 13:15 D3-01 → Review
 - 13:24 D3-01 → Done
+- 13:55 D3-02 → In Progress
+- 13:56 D3-02 → Review
+- 13:56 D3-03 → Blocked
+- 13:56 D3-04 → Blocked

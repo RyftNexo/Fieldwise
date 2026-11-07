@@ -2,6 +2,28 @@
 
 Owner: **dev3** (merge captain). Deputy: **dev1** (Keith). Nobody else merges into `main`.
 
+## Current integration state (2026-11-07)
+
+- Contract v1 merged in PR #4; `contract-v1` points to `fa7aabb`. D3-01's completion record merged in PR #6.
+- Web contract integration merged in PR #5 (`cdf6f42`): advice and forester leads use C-03/C-06/C-07;
+  mock mode uses shared fixtures. D1-02 and D1-07 still await their owner's final status update.
+- To preview the integrated web flow before the API exists, use `npm run dev:mock`. The default live mode
+  needs dev2's implementation; shared fixtures contain no verified eligibility or payment estimates.
+- **D3-03 / cp-1 is blocked on D2-01.** Neither mock-mode success nor a smoke test that reports pending
+  endpoints establishes the required screen → real API → database flow. Do not tag `cp-1` yet.
+- Dev2 must merge the v1 endpoints and seed data. Start the checkpoint with a fixed farm description through
+  the advisor's C-03 request (recorded extraction/explanation allowed), then C-06/C-07 to prove database persistence.
+  C-04 also needs a direct contract check until profile editing is built. For the complete demo, validate
+  scheme facts, deterministic calculations, extraction/explanation, persistence and fixture fallback.
+- Once the API merges: sync main, install from the lockfile, run `npm run verify` and `npm run smoke`, then
+  exercise the demo in live mode. Confirm new leads survive a restart and every response matches its contract.
+  Only then record the checkpoint and publish `cp-1`.
+- **D3-04 is blocked on D2-03.** The notes UI is removed, but the API still uses C-01/C-02. Keep the shared
+  notes schemas and fixtures until dev2 removes its notes feature and tests. Remove the contracts afterward,
+  update the API contract change log, and verify all workspaces.
+- D3-02's layer-based map matches the kickoff decision; its confirmation PR needs all three developers'
+  approval. This review does not block API or web implementation under the existing map.
+
 ## One-time GitHub setup (repo owner)
 
 1. Create the repo (public recommended: branch rules are free on public repos; private needs GitHub Pro/Team).
