@@ -66,7 +66,7 @@ describe('explainMatches', () => {
     await explainMatches(profile, matches);
     const request = callGeminiMock.mock.calls[0]?.[0];
     expect(request?.userText).toContain('"shortName":"NTAS"');
-    expect(request?.systemInstruction).toContain('At most 120 words');
+    expect(request?.systemInstruction).toContain('never more than 120');
   });
 
   it('falls back to the template summary when Gemini invents a figure', async () => {

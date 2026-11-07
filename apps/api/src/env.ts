@@ -17,7 +17,9 @@ const Env = z.object({
   DEMO_MODE: z.enum(['off', 'fixtures']).default('off'),
   /** Server-side only. Missing is fine until a live Gemini call is made (or DEMO_MODE=fixtures). */
   GEMINI_API_KEY: z.string().min(1).optional(),
-  GEMINI_MODEL: z.string().min(1).default('gemini-2.5-flash'),
+  GEMINI_MODEL: z.string().min(1).default('gemini-3.5-flash-lite'),
+  /** How hard a Gemini 3 model thinks before answering. 'minimal' is fastest; 'off' omits the setting (older models). */
+  GEMINI_THINKING_LEVEL: z.enum(['off', 'minimal', 'low', 'medium', 'high']).default('minimal'),
   GEMINI_TIMEOUT_MS: z.coerce.number().int().positive().default(15_000),
   // New variables: add them here AND in apps/api/.env.example.
   // Secrets: z.string().optional(), then fail with a clear AppError where they're used.

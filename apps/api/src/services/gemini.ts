@@ -18,7 +18,10 @@ interface GeminiDeps {
 }
 
 interface GeminiReply {
-  candidates?: Array<{ content?: { parts?: Array<{ text?: string }> }; finishReason?: string }>;
+  candidates?: Array<{
+    content?: { parts?: Array<{ text?: string; thought?: boolean }> };
+    finishReason?: string;
+  }>;
   promptFeedback?: { blockReason?: string };
 }
 
@@ -43,6 +46,9 @@ export async function callGemini(request: GeminiRequest, deps: GeminiDeps = {}):
         contents: [{ role: 'user', parts: [{ text: request.userText }] }],
         generationConfig: {
           temperature: request.temperature ?? 0,
+          ...(env.GEMINI_THINKING_LEVEL !== 'off' && {
+            thinkingConfig: { thinkingLevel: env.GEMINI_THINKING_LEVEL },
+          }),
           ...(request.responseSchema && {
             responseMimeType: 'application/json',
             responseSchema: request.responseSchema,
@@ -76,7 +82,12 @@ export async function callGemini(request: GeminiRequest, deps: GeminiDeps = {}):
       'The advice service could not answer that. Try rewording it.',
     );
   }
-  const text = body?.candidates?.[0]?.content?.parts?.map((part) => part.text ?? '').join('') ?? '';
+  // Thinking models may return their reasoning as parts flagged `thought`; only the answer is wanted.
+  const parts = body?.candidates?.[0]?.content?.parts ?? [];
+  const text = parts
+    .filter((part) => !part.thought)
+    .map((part) => part.text ?? '')
+    .join('');
   if (!text.trim()) throw new AppError('UPSTREAM_ERROR', unavailable);
   return text;
 }

@@ -52,6 +52,33 @@ describe('callGemini', () => {
     expect(body.systemInstruction.parts[0].text).toBe('Be brief.');
   });
 
+  it('asks for minimal thinking by default, and leaves it out when set to off', async () => {
+    const fetchImpl = vi.fn(async (_url: string | URL | Request, _init?: RequestInit) =>
+      jsonResponse({ candidates: [{ content: { parts: [{ text: 'ok' }] } }] }),
+    );
+    const sentConfig = () =>
+      JSON.parse(String(fetchImpl.mock.calls.at(-1)?.[1]?.body)).generationConfig;
+
+    await callGemini(request, { fetchImpl });
+    expect(sentConfig().thinkingConfig).toEqual({ thinkingLevel: 'minimal' });
+
+    env.GEMINI_THINKING_LEVEL = 'off';
+    await callGemini(request, { fetchImpl });
+    expect(sentConfig().thinkingConfig).toBeUndefined();
+    env.GEMINI_THINKING_LEVEL = 'minimal';
+  });
+
+  it('ignores reasoning parts and returns only the answer', async () => {
+    const fetchImpl = vi.fn(async () =>
+      jsonResponse({
+        candidates: [
+          { content: { parts: [{ text: 'thinking…', thought: true }, { text: 'The answer.' }] } },
+        ],
+      }),
+    );
+    expect(await callGemini(request, { fetchImpl })).toBe('The answer.');
+  });
+
   it('fails clearly when no key is configured', async () => {
     delete env.GEMINI_API_KEY;
     const fetchImpl = vi.fn();

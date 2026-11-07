@@ -11,6 +11,7 @@ Rules:
 - "marginalHectares" is land they say is wet, rough, unused or too poor to graze or crop. It cannot exceed "hectares".
 - "nearWatercourse" is true only if they mention a river, stream or similar beside their land.
 - "peatSoil", "designatedSite" and "activeFarmer": only set them if the farmer said so, otherwise leave them out.
+- "age" and "gender": only if the farmer states them outright (for example "I'm 29", "I'm a woman"). Never infer them from a name, a husband or wife, or anything else.
 - "enterprise": suckler (suckler cows), beef, dairy, sheep, tillage, mixed, or other.
 - "plannedInvestment": shed, solar, slurry, machinery, or none, only if they mention a plan.
 - "missing": short plain phrases for useful facts they did not mention (for example "your age", "the soil type of the wet land", "whether you already claim BISS"). At most five.
