@@ -5,4 +5,6 @@ export * from './contracts/endpoints';
 export * from './contracts/health';
 export * from './contracts/leads';
 export * from './contracts/schemes';
+export * from './contracts/voice';
 export * from './fixtures/advice';
+export * from './fixtures/voice';

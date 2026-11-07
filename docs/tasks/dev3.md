@@ -36,6 +36,12 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - Accept: C-01/C-02 removed and marked removed in the API_CONTRACTS.md change log; everything builds
 - Notes: web and API consumers removed in PRs #2/#13; shared contracts now retired.
 
+### D3-05 · Register outbound voice JSON contracts
+- Status: Review
+- Depends on: —
+- Paths: packages/shared/**, docs/API_CONTRACTS.md
+- Accept: C-08 ring and C-09 call polling schemas, fixtures and tests match dev2 request; documentation updated; verify passes; contract PR merged before API integration
+
 ## Requests to others
 
 <!-- - REQ dev3→dev2 (open): <what> — needed by <task> -->
@@ -58,3 +64,5 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - 14:26 D3-03 → In Progress
 - 14:28 D3-03 → Done
 - 15:07 D3-04 → Done
+- 15:59 D3-05 → In Progress
+- 16:00 D3-05 → Review

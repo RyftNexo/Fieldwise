@@ -44,6 +44,8 @@ conventions and lists every endpoint. Both must change in the same PR.
 | api | `TWILIO_ACCOUNT_SID` | unset | Optional account identifier; required for voice |
 | api | `TWILIO_AUTH_TOKEN` | unset | Server-side secret for webhook signature validation |
 | api | `TWILIO_PUBLIC_BASE` | unset | Public HTTPS origin for webhook validation behind a tunnel |
+| api | `TWILIO_FROM_NUMBER` | unset | Optional outbound Twilio voice number in E.164 format |
+| api | `TWILIO_RING_TO` | unset | Optional comma-separated demo destination allowlist; empty disables outbound rings |
 | web | `VITE_API_MODE` | `live`          | `mock` → use `src/mocks/handlers.ts` (same as `npm run dev:mock`) |
 
 Add new variables to `apps/<app>/.env.example` **and** this table (API: also `src/env.ts`). Secrets: server-side only.
@@ -68,6 +70,27 @@ Statuses: _proposed_ (agreed, not in code) → _live_ (in the registry; mocks ma
 → _removed_. Use `C-03` onwards for new endpoints.
 
 ## Adding an endpoint
+
+### Outbound voice JSON contracts (C-08/C-09)
+
+| ID | Method | Path | Request | Response data | State |
+| --- | --- | --- | --- | --- | --- |
+| C-08 | POST | `/api/voice/ring` | `RingVoiceInput` (`{ to: string }`) | `RingVoiceResponse` (`{ callSid, to }`), HTTP 201 | registered; API migration pending |
+| C-09 | GET | `/api/voice/calls/:callSid` | path parameter `callSid` | `VoiceCall` | registered; API migration pending |
+
+Registry keys are `ringVoiceCall` and `getVoiceCall`. Call C-09 with
+`call(endpoints.getVoiceCall, { params: { callSid } })`; never use a direct browser fetch.
+`VoiceCall` contains required `callSid` and `state` (`ringing | pending | done | failed`), with optional
+`to`, `transcript`, `script`, `failure`, and `advice` (`AdviceResponse`). Optional values are absent, not null.
+Unknown call IDs return HTTP 404 `NOT_FOUND`; records are in memory and disappear on API restart.
+Input `to` is trimmed and nonempty; the API normalizes it, validates dialability and checks its allowlist.
+It returns HTTP 403 `FORBIDDEN` for disallowed destinations and HTTP 429 `RATE_LIMITED` for excessive requests.
+These demo routes do not use bearer authentication; destination restrictions and rate limits remain mandatory.
+TwiML callbacks continue to require valid Twilio signatures. Do not place real calls from automated tests.
+Fixtures: `ringVoiceInputFixture`, `ringVoiceResponseFixture`, `voiceCallFixtures` (all four states).
+These contracts must merge before PR #17 migrates to `parseBody`/`reply` and dev1 wires its shared client/mocks.
+
+### General procedure
 
 1. **Agree it** (humans): method, path, request, response, errors, auth.
 2. **dev3:** schemas in `packages/shared/src/contracts/<resource>.ts`, register it in `endpoints.ts` with the next
@@ -115,3 +138,4 @@ Statuses: _proposed_ (agreed, not in code) → _live_ (in the registry; mocks ma
 | 2026-11-07 | C-03–C-07 | API implementation merged in PRs #9/#10; production HTTP/browser integration verified in fixture mode. Documented OpenAI environment variables from D2-06; schemas unchanged | no | dev3 |
 
 | 2026-11-07 | C-01/C-02 | Removed notes contracts after web/API removal; IDs retired | yes (planned) | dev3 |
+| 2026-11-07 | C-08/C-09 | Registered outbound ring and call polling schemas, fixtures and registry keys; documented outbound allowlist settings | no (additive) | dev3 |
