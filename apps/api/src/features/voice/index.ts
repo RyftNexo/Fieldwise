@@ -27,7 +27,7 @@ export const router = new Hono();
 const maxAttempts = 2;
 const tookTooLong = 'This is taking too long. Please call again in a moment.';
 const openingPrompt = [
-  'Grant Guide. Tell me about your farm in your own words.',
+  'Fieldwise. Your farm. Your options. Tell me about your farm in your own words.',
   'How many hectares, what you keep, and where you farm.',
 ].join(' ');
 

@@ -101,7 +101,7 @@ this unresolved authentication finding is separate from schema implementation st
 4. **dev1:** `mock(endpoints.x)(…)` in `apps/web/src/mocks/handlers.ts`, then `call(endpoints.x, …)` from the UI.
    Works in mock mode before the API exists.
 
-## GrantGuide v1 details (C-03–C-07)
+## Fieldwise v1 details (C-03–C-07)
 
 - Registry keys: `advice`, `evaluateAdvice`, `listSchemes`, `createLead`, `listLeads`. Dev2's API implementation
   is merged in PRs #9/#10 and integration-tested against these contracts. C-01/C-02 are retired after web and API removal. Fresh OpenAI calls remain a separate live-mode check.
@@ -136,7 +136,7 @@ this unresolved authentication finding is separate from schema implementation st
 | Time  | IDs              | Change                                   | Breaking? | By    |
 | ----- | ---------------- | ---------------------------------------- | --------- | ----- |
 | setup | C-00, C-01, C-02 | Initial skeleton: health + example notes | —         | setup |
-| 2026-11-07 | C-03–C-07 | GrantGuide v1 schemas, registry and three persona fixtures; consent/contact validation, nullable verification timestamp | no (additive) | dev3 |
+| 2026-11-07 | C-03–C-07 | Fieldwise v1 schemas, registry and three persona fixtures; consent/contact validation, nullable verification timestamp | no (additive) | dev3 |
 | 2026-11-07 | C-03–C-07 | API implementation merged in PRs #9/#10; production HTTP/browser integration verified in fixture mode. Documented OpenAI environment variables from D2-06; schemas unchanged | no | dev3 |
 
 | 2026-11-07 | C-01/C-02 | Removed notes contracts after web/API removal; IDs retired | yes (planned) | dev3 |

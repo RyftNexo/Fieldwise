@@ -7,7 +7,7 @@ three people never edit the same lines. Print everything with `npm run board`. T
 
 - [x] Read the brief; judging criteria: scattered, complex data → something actionable · non-technical users ·
       plain-language interface · no static dashboards · honest about the prototype's limits · presentation quality
-- [x] Pick the idea: **GrantGuide**, a plain-language farm grant advisor (D-009)
+- [x] Pick the idea: **Fieldwise**, a plain-language farm grant advisor (D-009)
 - [x] Write the **one demo path** in DEMO.md
 - [x] Decide the division: layer-based (default, OWNERSHIP.md unchanged)
 - [x] Decide the stack profile: A, TypeScript (D-011)
@@ -17,7 +17,7 @@ three people never edit the same lines. Print everything with `npm run board`. T
 - [x] Demo: local laptop (D-017)
 - [x] Contract v1: draft in ARCHITECTURE.md § Contract v1 draft → dev3 writes it (D3-01)
 - [x] Each developer adds their first tasks to their own task file (dev1 ✓ · dev2 ✓ · dev3 ✓)
-- [x] Set checkpoint, feature-freeze and code-freeze times below; app name set to GrantGuide
+- [x] Set checkpoint, feature-freeze and code-freeze times below; app name set to Fieldwise
 - [x] Record the decisions in DECISIONS.md
 
 ## Milestones

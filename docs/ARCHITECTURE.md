@@ -4,8 +4,8 @@ Owner: **dev1** (product). Fill in the first section at kickoff; keep the rest i
 
 ## What we're building
 
-**GrantGuide** is a plain-language grant advisor for Irish farmers. A farmer describes their farm in their own
-words, typed or spoken. GrantGuide checks it against Department of Agriculture (DAFM) scheme rules. It returns the grants
+**Fieldwise** — *Your farm. Your options* — is a plain-language grant advisor for Irish farmers. A farmer describes their farm in their own
+words, typed or spoken. Fieldwise checks it against Department of Agriculture (DAFM) scheme rules. It returns the grants
 they likely qualify for, each with a € estimate, the rule that fired, the deadline and a link.
 
 - **Problem:** grant rules live in dense DAFM PDFs and spreadsheets. Farmers leave money unclaimed or pay a consultant
