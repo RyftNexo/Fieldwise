@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getSpeechRecognition, joinTranscript, toSpeechError } from './speech';
+import { getSpeechRecognition, joinTranscript, tidyTranscript, toSpeechError } from './speech';
 
 describe('joinTranscript', () => {
   it('joins final and interim results into one tidy string', () => {
@@ -35,5 +35,19 @@ describe('toSpeechError', () => {
 describe('getSpeechRecognition', () => {
   it('reports no support outside a browser', () => {
     expect(getSpeechRecognition()).toBeUndefined();
+  });
+});
+
+describe('tidyTranscript', () => {
+  it('fixes the slips from the stage-laptop test', () => {
+    expect(
+      tidyTranscript('West Cork tree acres and Exeter river which are two wet for cattle'),
+    ).toBe('West Cork three acres and Exeter river which are too wet for cattle');
+    expect(tidyTranscript('Tree hectares to wet')).toBe('three hectares too wet');
+  });
+
+  it('leaves everything else alone', () => {
+    const said = 'I planted a tree. Two fields, two acres, to the river';
+    expect(tidyTranscript(said)).toBe(said);
   });
 });

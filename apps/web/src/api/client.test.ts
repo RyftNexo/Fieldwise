@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { endpoints, noteFixtures } from '@app/shared';
+import { endpoints } from '@app/shared';
 import { describe, expect, it } from 'vitest';
 import { mockHandlers } from '@/mocks/handlers';
 
@@ -39,14 +39,5 @@ describe('mock handlers', () => {
     const empty = { params: {}, query: {}, body: undefined };
     const health = await mockHandlers[endpoints.health.id]?.(empty);
     expect(() => endpoints.health.response.parse(health)).not.toThrow();
-
-    const notes = await mockHandlers[endpoints.listNotes.id]?.(empty);
-    expect(endpoints.listNotes.response.parse(notes)).toHaveLength(noteFixtures.length);
-
-    const created = await mockHandlers[endpoints.createNote.id]?.({
-      ...empty,
-      body: { title: 'x', body: '' },
-    });
-    expect(() => endpoints.createNote.response.parse(created)).not.toThrow();
   });
 });

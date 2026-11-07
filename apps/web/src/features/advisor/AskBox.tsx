@@ -1,5 +1,5 @@
 import { ArrowRight, LoaderCircle } from 'lucide-react';
-import type { FormEvent, KeyboardEvent } from 'react';
+import { type FormEvent, type KeyboardEvent, useRef, useState } from 'react';
 import { MicButton } from './MicButton';
 import { SPEECH_ERROR_MESSAGES } from './speech';
 import { useSpeechInput } from './useSpeechInput';
@@ -14,15 +14,30 @@ interface AskBoxProps {
 
 /**
  * The one big input. Enter submits and Shift+Enter adds a new line. Where the browser supports it, the mic fills
- * the box live as the farmer talks and checks automatically when they pause.
+ * the box live as the farmer talks. When they pause it stops and hands the text back to check before anything runs,
+ * because a misheard number ("40 acre" for "40 hectare") would give a confident wrong answer.
  */
 export function AskBox({ value, onChange, onSubmit, busy }: AskBoxProps) {
-  const speech = useSpeechInput({ onText: onChange, onDone: onSubmit });
+  const box = useRef<HTMLTextAreaElement>(null);
+  const [reviewing, setReviewing] = useState(false);
+  const speech = useSpeechInput({
+    onText: onChange,
+    onDone: (text) => {
+      onChange(text);
+      setReviewing(true);
+      const field = box.current;
+      if (field) {
+        field.focus();
+        field.setSelectionRange(text.length, text.length);
+      }
+    },
+  });
   const canSubmit = value.trim().length > 0 && !busy;
 
   function submitTyped() {
     if (!canSubmit) return;
     speech.cancel();
+    setReviewing(false);
     onSubmit(value);
   }
 
@@ -40,7 +55,10 @@ export function AskBox({ value, onChange, onSubmit, busy }: AskBoxProps) {
 
   function toggleMic() {
     if (speech.listening) speech.stop();
-    else speech.start(value);
+    else {
+      setReviewing(false);
+      speech.start(value);
+    }
   }
 
   return (
@@ -52,6 +70,7 @@ export function AskBox({ value, onChange, onSubmit, busy }: AskBoxProps) {
         Describe your farm
       </label>
       <textarea
+        ref={box}
         id="farm-description"
         value={value}
         onChange={(event) => {
@@ -75,6 +94,8 @@ export function AskBox({ value, onChange, onSubmit, busy }: AskBoxProps) {
             <span className="sm:hidden">Listening…</span>
             <span className="hidden sm:inline">Listening… pause when you're done</span>
           </p>
+        ) : reviewing ? (
+          <p className="text-sm font-medium text-brand-800">Check the words, then press Enter</p>
         ) : (
           <p className="hidden text-xs text-stone-500 sm:block">
             Enter to check · Shift + Enter for a new line
