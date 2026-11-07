@@ -21,8 +21,8 @@ Owner: **dev3** (merge captain). Deputy: **dev1** (Keith). Nobody else merges in
 - **D3-04 is blocked on D2-03.** The notes UI is removed, but the API still uses C-01/C-02. Keep the shared
   notes schemas and fixtures until dev2 removes its notes feature and tests. Remove the contracts afterward,
   update the API contract change log, and verify all workspaces.
-- D3-02's layer-based map matches the kickoff decision; its confirmation PR needs all three developers'
-  approval. This review does not block API or web implementation under the existing map.
+- D3-02's layer-based map matches the kickoff decision and was confirmed in PR #7: Ilarion authored it,
+  Keith approved it, and Toby merged it. Ownership confirmation is complete.
 
 ## One-time GitHub setup (repo owner)
 
