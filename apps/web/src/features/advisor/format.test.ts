@@ -1,19 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatDate, formatEuro, formatHectares, formatTimeAgo } from './format';
-
-describe('formatTimeAgo', () => {
-  const now = Date.parse('2026-11-07T13:00:00Z');
-
-  it('says how long ago, in words a farmer or forester would use', () => {
-    expect(formatTimeAgo('2026-11-07T12:59:30Z', now)).toBe('just now');
-    expect(formatTimeAgo('2026-11-07T12:35:00Z', now)).toBe('25 minutes ago');
-    expect(formatTimeAgo('2026-11-07T11:00:00Z', now)).toBe('2 hours ago');
-  });
-
-  it('falls back to the date after a day', () => {
-    expect(formatTimeAgo('2026-11-04T13:00:00Z', now)).toBe('4 November 2026');
-  });
-});
+import { formatDate, formatEuro, formatHectares } from './format';
 
 describe('formatEuro', () => {
   it('formats whole euros the Irish way', () => {

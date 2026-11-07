@@ -1,13 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import {
-  adviceFixtures,
-  createLeadFixture,
-  endpoints,
-  ringVoiceInputFixture,
-  schemeFixtures,
-} from '@app/shared';
+import { adviceFixtures, endpoints, ringVoiceInputFixture, schemeFixtures } from '@app/shared';
 import { describe, expect, it } from 'vitest';
 import { mockHandlers } from '@/mocks/handlers';
 
@@ -62,16 +56,6 @@ describe('mock handlers', () => {
 
     const schemes = await mockHandlers[endpoints.listSchemes.id]?.(empty);
     expect(endpoints.listSchemes.response.parse(schemes)).toHaveLength(schemeFixtures.length);
-
-    const lead = endpoints.createLead.response.parse(
-      await mockHandlers[endpoints.createLead.id]?.({ ...empty, body: createLeadFixture }),
-    );
-    expect(lead.matches.map((match) => match.schemeId)).toEqual(['ntas']);
-
-    const leads = endpoints.listLeads.response.parse(
-      await mockHandlers[endpoints.listLeads.id]?.(empty),
-    );
-    expect(leads[0]?.id).toBe(lead.id);
   });
 
   it('play a phone call through ringing, talking and the advice', async () => {

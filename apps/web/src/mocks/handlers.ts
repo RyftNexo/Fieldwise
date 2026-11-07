@@ -4,9 +4,6 @@ import {
   type EndpointDef,
   endpoints,
   type FarmProfile,
-  type GrantMatch,
-  type Lead,
-  leadFixtures,
   type ResponseOf,
   ringVoiceResponseFixture,
   schemeFixtures,
@@ -67,13 +64,6 @@ function fixtureForProfile(profile: FarmProfile): AdviceResponse {
   return adviceFixtures.declan;
 }
 
-const fixtureMatches: GrantMatch[] = Object.values(adviceFixtures).flatMap(
-  (advice) => advice.matches,
-);
-
-// In-memory state so new leads show up in the forester inbox until the page reloads.
-let leads: Lead[] = [...leadFixtures];
-
 // Each mock phone call moves one step per poll, like a real call: ringing, the farmer talks, then the advice.
 // The other screens show in mock mode too: a number ending in 9 rings and then fails, a number that isn't an Irish
 // mobile is refused (the real API refuses numbers missing from its demo allowlist), and an unknown call is a 404.
@@ -105,29 +95,6 @@ export const mockHandlers: Record<string, AnyMockHandler> = Object.fromEntries([
   })),
 
   mock(endpoints.listSchemes)(() => schemeFixtures),
-
-  mock(endpoints.createLead)(({ body }) => {
-    const matches = fixtureMatches.filter((match) => body.schemeIds.includes(match.schemeId));
-    const lead: Lead = {
-      id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
-      name: body.name,
-      phone: body.phone,
-      email: body.email,
-      profile: body.profile,
-      matches,
-      estimatedTotalEur: matches.reduce(
-        (sum, match) => sum + (match.eligible === 'check' ? 0 : (match.value?.totalEur ?? 0)),
-        0,
-      ),
-    };
-    leads = [lead, ...leads];
-    return lead;
-  }),
-
-  mock(endpoints.listLeads)(() =>
-    [...leads].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
-  ),
 
   // No phone rings in mock mode: every call gets a fresh id and replays the shared voice fixtures.
   mock(endpoints.ringVoiceCall)(({ body }) => {

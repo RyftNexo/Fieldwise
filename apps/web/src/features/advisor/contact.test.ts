@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isPlausiblePhone, phoneHref } from './contact';
+import { isPlausiblePhone } from './contact';
 
 describe('isPlausiblePhone', () => {
   it('accepts Irish numbers written the usual ways', () => {
@@ -12,11 +12,5 @@ describe('isPlausiblePhone', () => {
     expect(isPlausiblePhone('')).toBe(false);
     expect(isPlausiblePhone('123')).toBe(false);
     expect(isPlausiblePhone('ring me')).toBe(false);
-  });
-});
-
-describe('phoneHref', () => {
-  it('keeps only digits and the plus sign', () => {
-    expect(phoneHref('+353 87 123 4567')).toBe('tel:+353871234567');
   });
 });

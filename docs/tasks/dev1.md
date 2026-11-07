@@ -57,7 +57,7 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - Status: Not Started
 - Depends on: —
 - Paths: apps/web/**, docs/DEMO.md
-- Accept: Mobile and projector check at 125% zoom, focus states, copy pass; slides: problem, Declan, demo, architecture (code decides, AI talks), honest limits, business (forester leads)
+- Accept: Mobile and projector check at 125% zoom, focus states, copy pass; slides: problem, Declan, phone-call demo, architecture (code decides, AI talks), transparent sources and honest limits
 
 ### D1-09 · Forester lead flow on local preview data (pre-contract)
 - Status: Done
@@ -69,7 +69,7 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - Status: Review
 - Depends on: —
 - Paths: apps/web/**
-- Accept: New design system (Lexend + Source Sans 3 bundled, field green / harvest amber / cream tokens, shared UI primitives) applied to header, footer, advisor (hero, landing sections, stepper, results, cards, forester form) and forester inbox; behaviour unchanged; 375/768/1280 checked; AA contrast; reduced motion; npm run verify green
+- Accept: New design system (Lexend + Source Sans 3 bundled, field green / harvest amber / cream tokens, shared UI primitives) applied to header, footer and advisor (hero, landing sections, stepper, results and cards); behaviour otherwise unchanged; 375/768/1280 checked; AA contrast; reduced motion; npm run verify green
 
 ### D1-12 · Phone call on the homepage via C-08/C-09
 - Status: Review
@@ -77,6 +77,12 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - Paths: apps/web/src/features/advisor/**, apps/web/src/mocks/handlers.ts, apps/web/src/api/client.test.ts, docs/DECISIONS.md, docs/DEMO.md
 - Accept: The phone call is the homepage's main action (D-022): a labelled mobile field and a Call button ring via call(endpoints.ringVoiceCall) and show the API's error.message on failure; call(endpoints.getVoiceCall) is polled every 2 s until done or failed (a 404 or repeated network error stops it); a status card shows ringing, checking the schemes with the transcript, the API's failure reason or a lost call, always with Start again; the advice renders with Results on the same screen; the Call button is disabled while a call is in progress; the old text box (typing, mic, example farmers) is one click away and at /?mode=type, unchanged; mocks for C-08/C-09 from the shared voice fixtures, including a refused number, a failed call and an unknown call; npm run verify green
 - Notes: live calls need dev2's API routes (PR #17). Until they merge, the API answers "No route for POST /api/voice/ring" and the page shows that under the field. There is no hang-up endpoint, so Start again only stops following the call.
+
+### D1-13 · Remove the forester experience from the website
+- Status: Review
+- Depends on: —
+- Paths: apps/web/src/features/advisor/**, apps/web/src/features/forester/**, apps/web/src/mocks/handlers.ts, apps/web/src/api/client.test.ts, docs/ARCHITECTURE.md, docs/DECISIONS.md, docs/DEMO.md, docs/TASK_BOARD.md
+- Accept: No forester CTA, landing pitch, navigation item or inbox route remains in the website; dead web lead code and mocks are removed; farmer-facing copy and demo docs no longer promote the forester flow; API and shared contracts remain unchanged; npm run verify passes
 
 ## Requests to others
 
@@ -119,3 +125,5 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - 16:22 D1-12 → Review
 - 16:26 D1-12 → In Progress
 - 16:42 D1-12 → Review
+- 16:52 D1-13 → In Progress
+- 16:56 D1-13 → Review
