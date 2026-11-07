@@ -28,7 +28,7 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 - Accept: folder deleted after dev1 removed the UI; API tests and smoke test still pass
 
 ### D2-04 · Verified scheme facts for NTAS, ANC, BISS, ACRES
-- Status: Not Started
+- Status: In Progress
 - Depends on: —
 - Paths: apps/api/src/features/schemes/**
 - Accept: each scheme has rates, caps, deadline, official gov.ie url and source verified from gov.ie, checkedAt set; anything unverified stays null and says so
@@ -51,3 +51,4 @@ Update status with `npm run task -- status <ID> "<Status>"`; add a task with `np
 
 ## Log
 - 13:23 D2-01 → In Progress
+- 13:27 D2-04 → In Progress
