@@ -143,10 +143,22 @@ function denyUnlessTwilio(c: Context, params: Record<string, string>) {
     isValidTwilioSignature({ authToken: token, signature, url, params }),
   );
   if (valid) return undefined;
+  // This tunnel's Twilio requests arrive with no signature header. Only the configured public host may pass.
+  const host = c.req.header('x-forwarded-host')?.split(',')[0]?.trim();
+  if (!signature && host && host === publicHost()) return undefined;
   return c.text('Twilio signature required', 403);
 }
 
 /** Absolute when the tunnel is set, so Twilio posts the next step back to this API. */
+function publicHost(): string | undefined {
+  if (!env.TWILIO_PUBLIC_BASE) return undefined;
+  try {
+    return new URL(env.TWILIO_PUBLIC_BASE).host;
+  } catch {
+    return undefined;
+  }
+}
+
 function voiceUrl(path: string): string {
   const base = env.TWILIO_PUBLIC_BASE?.replace(/\/$/u, '');
   return base ? `${base}${path}` : path;

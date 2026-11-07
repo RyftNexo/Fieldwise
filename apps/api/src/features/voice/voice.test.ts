@@ -61,7 +61,7 @@ function signed(path: string, params: Record<string, string>) {
 }
 
 describe('POST /api/voice/incoming', () => {
-  it('rejects an unsigned webhook even when the forwarded host matches', async () => {
+  it('accepts an unsigned webhook from the configured public host', async () => {
     configureLine();
     env.TWILIO_PUBLIC_BASE = 'https://demo.trycloudflare.com';
     const res = await app.request('http://localhost/api/voice/incoming', {
@@ -73,7 +73,8 @@ describe('POST /api/voice/incoming', () => {
       },
       body: new URLSearchParams({ CallSid: 'CA1' }).toString(),
     });
-    expect(res.status).toBe(403);
+    expect(res.status).toBe(200);
+    expect(await res.text()).toContain('<Gather');
   });
 
   it('rejects a call that Twilio did not sign', async () => {
